@@ -1,0 +1,67 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vs/
+.idea/
+*.sln.iml
+*.DotSettings.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider/ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+Debug/
+Release/
+[Rr]elease*/
+[Dd]ebug*/
+x64/
+x86/
+TestResults/
+BenchmarkDotNet.Artifacts/
+.artifacts/
+
+# Publish outputs
+publish/
+out/
+
+# NuGet
+packages/
+**/packages/*
+!**/packages/build/
+.nuget/packages/
+*.nupkg
+*.snupkg
+project.lock.json
+project.assets.json
+artifacts/
+_packages/
+
+# Logs
+*.log
+*.tlog
+msbuild.binlog
+
+# Coverage
+coverage*.json
+coverage*.xml
+coverage*.info
+.coveragereport/
+.nyc_output/
+TestResult.xml
+
+# Others
+*.pidb
+*.svclog
+*.orig
+.DS_Store?
+
