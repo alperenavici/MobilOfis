@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "atmhdZvfPxM=",
+  "success": true,
+  "projectFilePath": "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Entity/MobilOfis.Entity.csproj",
+  "expectedPackageFiles": [
+    "/Users/alperenavci/.nuget/packages/microsoft.netcore.app.ref/8.0.15/microsoft.netcore.app.ref.8.0.15.nupkg.sha512",
+    "/Users/alperenavci/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.15/microsoft.aspnetcore.app.ref.8.0.15.nupkg.sha512"
+  ],
+  "logs": []
+}

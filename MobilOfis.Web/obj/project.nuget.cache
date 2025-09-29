@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dgSpecHash": "VKAWV8HK/tQ=",
+  "success": true,
+  "projectFilePath": "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/MobilOfis.Web.csproj",
+  "expectedPackageFiles": [
+    "/Users/alperenavci/.nuget/packages/microsoft.netcore.app.ref/8.0.15/microsoft.netcore.app.ref.8.0.15.nupkg.sha512",
+    "/Users/alperenavci/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.15/microsoft.aspnetcore.app.ref.8.0.15.nupkg.sha512",
+    "/Users/alperenavci/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.15/microsoft.netcore.app.host.osx-arm64.8.0.15.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: nodename nor servname provided, or not known (api.nuget.org:443)"
+    }
+  ]
+}
