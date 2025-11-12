@@ -8,7 +8,4 @@ public enum LeavesType
     OlumIzni,                 // Ölüm İzni
     HastalikIzni,             // Hastalık/İstirahat İzni (Raporlu)
     UcretsizIzin,             // Ücretsiz İzin (Genel)
-    
-    
-    
 }
