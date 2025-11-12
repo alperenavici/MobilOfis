@@ -352,6 +352,16 @@
           }
         }
       },
+      "MobilOfis.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/MobilOfis.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MobilOfis.Core.dll": {}
+        }
+      },
       "MobilOfis.Entity/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -890,6 +900,11 @@
         "postgresql.png"
       ]
     },
+    "MobilOfis.Core/1.0.0": {
+      "type": "project",
+      "path": "../MobilOfis.Core/MobilOfis.Core.csproj",
+      "msbuildProject": "../MobilOfis.Core/MobilOfis.Core.csproj"
+    },
     "MobilOfis.Entity/1.0.0": {
       "type": "project",
       "path": "../MobilOfis.Entity/MobilOfis.Entity.csproj",
@@ -899,6 +914,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "Microsoft.EntityFrameworkCore >= 8.0.0",
+      "MobilOfis.Core >= 1.0.0",
       "MobilOfis.Entity >= 1.0.0",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 8.0.0"
     ]
@@ -928,6 +944,9 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
+            "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Core/MobilOfis.Core.csproj": {
+              "projectPath": "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Core/MobilOfis.Core.csproj"
+            },
             "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Entity/MobilOfis.Entity.csproj": {
               "projectPath": "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Entity/MobilOfis.Entity.csproj"
             }

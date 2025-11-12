@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MobilOfis.Entity;
-namespace MobilOfis.Data;
+namespace MobilOfis.Data.Context;
 
 public class ApplicationDbContext:DbContext
 {
