@@ -12,12 +12,12 @@ namespace MobilOfis.Service.AuthService;
 
 public class AuthService : IAuthServices
 {
-    private readonly IGenericRepository<User> _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IConfiguration _configuration;
 
-    public AuthService(IGenericRepository<User> userRepository, IConfiguration configuration)
+    public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
     {
-        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
         _configuration = configuration;
     }
 
@@ -42,8 +42,8 @@ public class AuthService : IAuthServices
             CreatedDate = DateTime.UtcNow
         };
 
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
+        await _unitOfWork.Users.AddAsync(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return user;
     }
@@ -78,8 +78,8 @@ public class AuthService : IAuthServices
         user.LastLoginDate = DateTime.UtcNow;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return (accessToken, refreshToken);
     }
@@ -116,8 +116,7 @@ public class AuthService : IAuthServices
     public async Task<(string accessToken, string refreshToken)> RefreshTokenAsync(string refreshToken)
     {
         // Refresh token'a sahip kullanıcıyı bul
-        var users = await _userRepository.FindAsync(u => u.RefreshToken == refreshToken);
-        var user = users.FirstOrDefault();
+        var user = await _unitOfWork.Users.GetByRefreshTokenAsync(refreshToken);
         
         if (user == null)
         {
@@ -139,8 +138,8 @@ public class AuthService : IAuthServices
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return (newAccessToken, newRefreshToken);
     }
@@ -158,8 +157,8 @@ public class AuthService : IAuthServices
         user.RefreshTokenExpiry = null;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -182,8 +181,8 @@ public class AuthService : IAuthServices
         user.PasswordHash = HashPassword(newPassword);
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -203,8 +202,8 @@ public class AuthService : IAuthServices
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1); 
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
         
         return resetToken;
     }
@@ -235,8 +234,8 @@ public class AuthService : IAuthServices
         user.PasswordResetTokenExpiry = null;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -255,8 +254,8 @@ public class AuthService : IAuthServices
         user.IsActive = true;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -264,14 +263,13 @@ public class AuthService : IAuthServices
 
     public async Task<User> GetUserByIdAsync(Guid userId)
     {
-        return await _userRepository.GetByIdAsync(userId);
+        return await _unitOfWork.Users.GetByIdAsync(userId);
     }
 
  
     public async Task<User> GetUserByEmailAsync(string email)
     {
-        var users = await _userRepository.FindAsync(u => u.Email == email);
-        return users.FirstOrDefault();
+        return await _unitOfWork.Users.GetByEmailAsync(email);
     }
 
     
@@ -290,8 +288,8 @@ public class AuthService : IAuthServices
         user.ProfilePictureUrl = profilePictureUrl;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return user;
     }
@@ -310,8 +308,8 @@ public class AuthService : IAuthServices
         user.Role = role;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -329,8 +327,8 @@ public class AuthService : IAuthServices
         user.IsActive = isActive;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -349,8 +347,8 @@ public class AuthService : IAuthServices
         user.ManagerId = managerId;
         user.UpdatedDate = DateTime.UtcNow;
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -363,8 +361,8 @@ public class AuthService : IAuthServices
         if (user != null)
         {
             user.LastLoginDate = DateTime.UtcNow;
-            _userRepository.Update(user);
-            await _userRepository.SaveChangesAsync();
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 

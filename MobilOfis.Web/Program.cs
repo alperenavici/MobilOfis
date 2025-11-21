@@ -6,6 +6,7 @@ using MobilOfis.Core.IRepositories;
 using MobilOfis.Core.IServices;
 using MobilOfis.Data.Context;
 using MobilOfis.Data.Repositories;
+using MobilOfis.Data.UnitOfWork;
 using MobilOfis.Service.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +17,14 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+// Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Services
 builder.Services.AddScoped<IAuthServices, AuthService>();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyForJWTTokenGeneration12345678901234567890";
