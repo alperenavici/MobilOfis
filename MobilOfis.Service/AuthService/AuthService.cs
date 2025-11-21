@@ -21,17 +21,14 @@ public class AuthService : IAuthServices
         _configuration = configuration;
     }
 
-    // Kullanıcı Kaydı
     public async Task<User> RegisterAsync(string firstName, string lastName, string email, string password, string phoneNumber)
     {
-        // Email kontrolü
         var existingUser = await GetUserByEmailAsync(email);
         if (existingUser != null)
         {
             throw new Exception("Bu email adresi zaten kullanılıyor.");
         }
 
-        // Yeni kullanıcı oluştur
         var user = new User
         {
             UserId = Guid.NewGuid(),
@@ -41,7 +38,7 @@ public class AuthService : IAuthServices
             PhoneNumber = phoneNumber,
             PasswordHash = HashPassword(password),
             IsActive = true,
-            Role = "Employee", // Varsayılan rol
+            Role = "Employee", 
             CreatedDate = DateTime.UtcNow
         };
 
@@ -51,8 +48,8 @@ public class AuthService : IAuthServices
         return user;
     }
 
-    // Kullanıcı Girişi
-    public async Task<User> LoginAsync(string email, string password)
+    
+    public async Task<(string accessToken, string refreshToken)> LoginAsync(string email, string password)
     {
         var user = await GetUserByEmailAsync(email);
         
@@ -71,13 +68,22 @@ public class AuthService : IAuthServices
             throw new Exception("Şifre hatalı.");
         }
 
-        // Son giriş tarihini güncelle
-        await UpdateLastLoginDateAsync(user.UserId);
+        // JWT Access Token oluştur (15 dakika)
+        var accessToken = GenerateJwtToken(user);
+        
+        // Refresh Token oluştur (7 gün)
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        user.LastLoginDate = DateTime.UtcNow;
+        user.UpdatedDate = DateTime.UtcNow;
+        
+        _userRepository.Update(user);
+        await _userRepository.SaveChangesAsync();
 
-        return user;
+        return (accessToken, refreshToken);
     }
 
-    // Token ile Kullanıcı Doğrulama
     public async Task<User> ValidateTokenAsync(string token)
     {
         try
@@ -107,7 +113,58 @@ public class AuthService : IAuthServices
         }
     }
 
-    // Şifre Değiştirme
+    public async Task<(string accessToken, string refreshToken)> RefreshTokenAsync(string refreshToken)
+    {
+        // Refresh token'a sahip kullanıcıyı bul
+        var users = await _userRepository.FindAsync(u => u.RefreshToken == refreshToken);
+        var user = users.FirstOrDefault();
+        
+        if (user == null)
+        {
+            throw new Exception("Geçersiz refresh token.");
+        }
+
+        // Token süresini kontrol et
+        if (user.RefreshTokenExpiry == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+        {
+            throw new Exception("Refresh token'ın süresi dolmuş. Lütfen tekrar giriş yapın.");
+        }
+
+        // Yeni access token oluştur
+        var newAccessToken = GenerateJwtToken(user);
+        
+        // Yeni refresh token oluştur (rotation için)
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        user.UpdatedDate = DateTime.UtcNow;
+        
+        _userRepository.Update(user);
+        await _userRepository.SaveChangesAsync();
+
+        return (newAccessToken, newRefreshToken);
+    }
+
+    public async Task<bool> RevokeRefreshTokenAsync(Guid userId)
+    {
+        var user = await GetUserByIdAsync(userId);
+        
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpiry = null;
+        user.UpdatedDate = DateTime.UtcNow;
+        
+        _userRepository.Update(user);
+        await _userRepository.SaveChangesAsync();
+
+        return true;
+    }
+
+    
     public async Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
     {
         var user = await GetUserByIdAsync(userId);
@@ -131,7 +188,7 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Şifre Sıfırlama Talebi
+  
     public async Task<string> ForgotPasswordAsync(string email)
     {
         var user = await GetUserByEmailAsync(email);
@@ -141,15 +198,17 @@ public class AuthService : IAuthServices
             throw new Exception("Bu email ile kayıtlı kullanıcı bulunamadı.");
         }
 
-        // Reset token oluştur (normalde bu token veritabanına kaydedilmeli)
-        var resetToken = GenerateRefreshToken();
+        var resetToken = GeneratePasswordResetToken();
+        user.PasswordResetToken = resetToken;
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1); 
+        user.UpdatedDate = DateTime.UtcNow;
         
-        // TODO: Reset token'ı veritabanına kaydet ve email gönder
+        _userRepository.Update(user);
+        await _userRepository.SaveChangesAsync();
         
         return resetToken;
     }
 
-    // Şifre Sıfırlama (Token ile)
     public async Task<bool> ResetPasswordAsync(string email, string resetToken, string newPassword)
     {
         var user = await GetUserByEmailAsync(email);
@@ -159,9 +218,21 @@ public class AuthService : IAuthServices
             throw new Exception("Kullanıcı bulunamadı.");
         }
 
-        // TODO: Reset token'ı doğrula (veritabanından)
-        
+        // Token doğrulaması 
+        if (string.IsNullOrEmpty(user.PasswordResetToken) || user.PasswordResetToken != resetToken)
+        {
+            throw new Exception("Geçersiz reset token.");
+        }
+
+        // Token süresinin dolup dolmadığını kontrol et
+        if (user.PasswordResetTokenExpiry == null || user.PasswordResetTokenExpiry < DateTime.UtcNow)
+        {
+            throw new Exception("Reset token'ın süresi dolmuş. Lütfen yeni bir şifre sıfırlama talebi oluşturun.");
+        }
+
         user.PasswordHash = HashPassword(newPassword);
+        user.PasswordResetToken = null; 
+        user.PasswordResetTokenExpiry = null;
         user.UpdatedDate = DateTime.UtcNow;
         
         _userRepository.Update(user);
@@ -170,7 +241,7 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Email Doğrulama
+   
     public async Task<bool> VerifyEmailAsync(Guid userId, string verificationToken)
     {
         var user = await GetUserByIdAsync(userId);
@@ -180,7 +251,6 @@ public class AuthService : IAuthServices
             return false;
         }
 
-        // TODO: Verification token'ı doğrula
         
         user.IsActive = true;
         user.UpdatedDate = DateTime.UtcNow;
@@ -191,20 +261,20 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Kullanıcı Bilgilerini Getir
+
     public async Task<User> GetUserByIdAsync(Guid userId)
     {
         return await _userRepository.GetByIdAsync(userId);
     }
 
-    // Email ile Kullanıcı Getir
+ 
     public async Task<User> GetUserByEmailAsync(string email)
     {
         var users = await _userRepository.FindAsync(u => u.Email == email);
         return users.FirstOrDefault();
     }
 
-    // Kullanıcı Profili Güncelleme
+    
     public async Task<User> UpdateUserProfileAsync(Guid userId, string firstName, string lastName, string phoneNumber, string profilePictureUrl)
     {
         var user = await GetUserByIdAsync(userId);
@@ -226,7 +296,8 @@ public class AuthService : IAuthServices
         return user;
     }
 
-    // Kullanıcı Rolü Güncelleme (Admin için)
+  
+  
     public async Task<bool> UpdateUserRoleAsync(Guid userId, string role)
     {
         var user = await GetUserByIdAsync(userId);
@@ -245,7 +316,7 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Kullanıcı Aktiflik Durumu Güncelleme (Admin için)
+ 
     public async Task<bool> UpdateUserStatusAsync(Guid userId, bool isActive)
     {
         var user = await GetUserByIdAsync(userId);
@@ -264,7 +335,7 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Kullanıcı Departman ve Yönetici Atama
+  
     public async Task<bool> AssignDepartmentAndManagerAsync(Guid userId, Guid? departmentId, Guid? managerId)
     {
         var user = await GetUserByIdAsync(userId);
@@ -284,7 +355,7 @@ public class AuthService : IAuthServices
         return true;
     }
 
-    // Son Giriş Tarihini Güncelle
+    
     public async Task UpdateLastLoginDateAsync(Guid userId)
     {
         var user = await GetUserByIdAsync(userId);
@@ -297,7 +368,7 @@ public class AuthService : IAuthServices
         }
     }
 
-    // Token Oluşturma (JWT)
+ 
     public string GenerateJwtToken(User user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "YourSuperSecretKeyHere123456789012"));
@@ -317,7 +388,7 @@ public class AuthService : IAuthServices
             issuer: _configuration["Jwt:Issuer"] ?? "MobilOfis",
             audience: _configuration["Jwt:Audience"] ?? "MobilOfisUsers",
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(24),
+            expires: DateTime.UtcNow.AddMinutes(15), // 15 dakika (güvenlik için kısa tutuldu)
             signingCredentials: credentials
         );
 
@@ -333,14 +404,22 @@ public class AuthService : IAuthServices
         return Convert.ToBase64String(randomNumber);
     }
 
-    // Şifre Hash'leme
+    // Password Reset Token Oluşturma
+    public string GeneratePasswordResetToken()
+    {
+        var randomNumber = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+
     public string HashPassword(string password)
     {
         // BCrypt kullanarak şifre hash'leme
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
 
-    // Şifre Doğrulama
+    
     public bool VerifyPassword(string password, string hashedPassword)
     {
         // BCrypt kullanarak şifre doğrulama

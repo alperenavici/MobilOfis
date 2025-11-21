@@ -53,15 +53,28 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await _authServices.LoginAsync(loginDto.Email, loginDto.Password);
-            var token = _authServices.GenerateJwtToken(user);
-            var refreshToken = _authServices.GenerateRefreshToken();
+            var (accessToken, refreshToken) = await _authServices.LoginAsync(
+                loginDto.Email, 
+                loginDto.Password
+            );
+
+            // Refresh token'ı HttpOnly cookie'de sakla (XSS koruması)
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // HTTPS'de çalışır
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            // Kullanıcı bilgilerini al
+            var user = await _authServices.ValidateTokenAsync(accessToken);
 
             return Ok(new
             {
                 message = "Giriş başarılı.",
-                token = token,
-                refreshToken = refreshToken,
+                accessToken = accessToken,
+                expiresIn = 900, // 15 dakika (saniye cinsinden)
                 user = new
                 {
                     userId = user.UserId,
@@ -76,6 +89,73 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Refresh Token ile Yeni Access Token Al
+    /// </summary>
+    [HttpPost("refresh")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        try
+        {
+            // Cookie'den refresh token'ı al
+            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+            {
+                return Unauthorized(new { message = "Refresh token bulunamadı." });
+            }
+
+            var (accessToken, newRefreshToken) = await _authServices.RefreshTokenAsync(refreshToken);
+
+            // Yeni refresh token'ı cookie'ye yaz (rotation)
+            Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            return Ok(new
+            {
+                message = "Token yenilendi.",
+                accessToken = accessToken,
+                expiresIn = 900 // 15 dakika
+            });
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+ 
+    /// <summary>
+    /// Çıkış (Logout)
+    /// </summary>
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst("userId");
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new { message = "Kullanıcı bilgisi bulunamadı." });
+            }
+
+            var userId = Guid.Parse(userIdClaim.Value);
+            await _authServices.RevokeRefreshTokenAsync(userId);
+
+            Response.Cookies.Delete("refreshToken");
+
+            return Ok(new { message = "Çıkış başarılı." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
