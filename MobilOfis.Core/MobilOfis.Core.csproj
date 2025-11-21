@@ -10,4 +10,8 @@
       <Folder Include="IServices\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MobilOfis.Entity\MobilOfis.Entity.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -25,7 +25,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Entity/MobilOfis.Entity.csproj": {
+                "projectPath": "/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Entity/MobilOfis.Entity.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -122,11 +126,15 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.11, )"
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[8.0.11, )"
             }
           },
           "imports": [
