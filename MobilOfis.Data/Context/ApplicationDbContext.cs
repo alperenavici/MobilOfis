@@ -24,7 +24,15 @@ public class ApplicationDbContext:DbContext
    {
       base.OnModelCreating(modelBuilder);
       
-      // User Configuration
+      // Departments Configuration
+      modelBuilder.Entity<Departments>()
+         .HasKey(d => d.DepartmentId);
+      
+      modelBuilder.Entity<Departments>()
+         .Property(d => d.DepartmentName)
+         .IsRequired()
+         .HasMaxLength(100);
+      
       modelBuilder.Entity<User>()
          .HasKey(u => u.UserId);
       
@@ -57,7 +65,7 @@ public class ApplicationDbContext:DbContext
       
       modelBuilder.Entity<User>()
          .Property(u => u.CreatedDate)
-         .HasDefaultValueSql("GETDATE()");
+         .HasDefaultValueSql("NOW()");
       
       // User - Department (Many-to-One)
       modelBuilder.Entity<User>()
@@ -73,6 +81,10 @@ public class ApplicationDbContext:DbContext
          .HasForeignKey(u => u.ManagerId)
          .OnDelete(DeleteBehavior.Restrict);
       
+      // Leaves Configuration
+      modelBuilder.Entity<Leaves>()
+         .HasKey(l => l.LeavesId);
+      
       // Leaves - User (Many-to-One)
       modelBuilder.Entity<Leaves>()
          .HasOne(l => l.User)
@@ -87,6 +99,10 @@ public class ApplicationDbContext:DbContext
          .HasForeignKey(l => l.ManagerApprovalId)
          .OnDelete(DeleteBehavior.Restrict);
       
+      // Notifications Configuration
+      modelBuilder.Entity<Notifications>()
+         .HasKey(n => n.NotificationId);
+      
       // Notifications - User (Many-to-One)
       modelBuilder.Entity<Notifications>()
          .HasOne(n => n.RecipientUser)
@@ -100,6 +116,10 @@ public class ApplicationDbContext:DbContext
          .WithMany(l => l.Notifications)
          .HasForeignKey(n => n.LeavesId)
          .OnDelete(DeleteBehavior.SetNull);
+      
+      // Events Configuration
+      modelBuilder.Entity<Events>()
+         .HasKey(e => e.EventId);
       
       // Events - CreatedByUser (Many-to-One)
       modelBuilder.Entity<Events>()

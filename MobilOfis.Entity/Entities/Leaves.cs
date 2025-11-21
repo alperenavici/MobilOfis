@@ -12,10 +12,10 @@ public class Leaves
     public Status Status { get; set; } // İzin durumu 
     public LeavesType LeavesType { get; set; } // İzin türü 
     public Guid? ManagerApprovalId { get; set; } 
-    public string Reason { get; set; } // İzin nedeni 
-    public string RejectionReason { get; set; } // Red nedeni 
+    public string? Reason { get; set; } // İzin nedeni 
+    public string? RejectionReason { get; set; } // Red nedeni 
     
-    public virtual User User { get; set; } // İzin sahibi kullanıcı
-    public virtual User ManagerApproval { get; set; } // Onaylayan/Reddeden yönetici
-    public virtual ICollection<Notifications> Notifications { get; set; } // İzinle ilgili bildirimler
+    public virtual User? User { get; set; } // İzin sahibi kullanıcı
+    public virtual User? ManagerApproval { get; set; } // Onaylayan/Reddeden yönetici
+    public virtual ICollection<Notifications>? Notifications { get; set; } // İzinle ilgili bildirimler
 }

@@ -7,6 +7,6 @@ public class Participants
     public Guid UserId { get; set; } 
     
     // Navigation Properties - İlişkili Veriler
-    public virtual User User { get; set; } // Katılımcı kullanıcı
-    public virtual Events Event { get; set; } // İlgili etkinlik
+    public virtual User? User { get; set; } // Katılımcı kullanıcı
+    public virtual Events? Event { get; set; } // İlgili etkinlik
 }
