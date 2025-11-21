@@ -5,7 +5,7 @@ namespace MobilOfis.Data.Context;
 
 public class ApplicationDbContext:DbContext
 {
-   public DbSet<ApplicationUser> Users { get; set; }
+   public DbSet<User> Users { get; set; }
    public DbSet<Departments> Departments { get; set; }
    public DbSet<Leaves> Leaves { get; set; }
    public DbSet<Notifications> Notifications { get; set; }

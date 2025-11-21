@@ -65,3 +65,6 @@ TestResult.xml
 *.orig
 .DS_Store?
 
+# Secrets / configs
+MobilOfis.Web/appsettings.json
+

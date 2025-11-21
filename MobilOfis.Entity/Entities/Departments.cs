@@ -6,6 +6,6 @@ public class Departments
     public string DepartmentName { get; set; }
     
     
-    public virtual ICollection<ApplicationUser> Users { get; set; }
+    public virtual ICollection<User> Users { get; set; }
     
 }

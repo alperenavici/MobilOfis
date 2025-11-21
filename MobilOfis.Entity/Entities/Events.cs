@@ -12,7 +12,7 @@ public class Events
     public string Location { get; set; }
     public string CreatedByUserId { get; set; }
     
-    public virtual ApplicationUser CreatedByUser { get; set; }
+    public virtual User CreatedByUser { get; set; }
     public virtual ICollection<Participants> Participants { get; set; }
     
     public DateTime CreatedDate { get; set; }
