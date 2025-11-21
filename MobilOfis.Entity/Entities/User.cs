@@ -29,6 +29,14 @@ public class User
     public DateTime? UpdatedDate { get; set; } // Son güncellenme tarihi
     public DateTime? LastLoginDate { get; set; } // Son giriş tarihi
     
+    // JWT Refresh Token
+    public string? RefreshToken { get; set; } // JWT refresh token
+    public DateTime? RefreshTokenExpiry { get; set; } // Refresh token geçerlilik süresi
+    
+    // Şifre Sıfırlama
+    public string? PasswordResetToken { get; set; } // Şifre sıfırlama token'ı
+    public DateTime? PasswordResetTokenExpiry { get; set; } // Token geçerlilik süresi
+    
     // Adres Bilgileri
     public string? Address { get; set; } // Açık adres
     public string? City { get; set; } // Şehir
