@@ -7,19 +7,18 @@ public interface IAuthServices
     // Kullanıcı Kaydı
     Task<User> RegisterAsync(string firstName, string lastName, string email, string password, string phoneNumber);
     
-    // Kullanıcı Girişi
-    Task<User> LoginAsync(string email, string password);
+    Task<(string accessToken, string refreshToken)> LoginAsync(string email, string password);
     
-    // Token ile Kullanıcı Doğrulama
     Task<User> ValidateTokenAsync(string token);
     
-    // Şifre Değiştirme
+    Task<(string accessToken, string refreshToken)> RefreshTokenAsync(string refreshToken);
+    
+    Task<bool> RevokeRefreshTokenAsync(Guid userId);
+    
     Task<bool> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
     
-    // Şifre Sıfırlama Talebi
     Task<string> ForgotPasswordAsync(string email);
     
-    // Şifre Sıfırlama (Token ile)
     Task<bool> ResetPasswordAsync(string email, string resetToken, string newPassword);
     
     // Email Doğrulama
@@ -51,6 +50,9 @@ public interface IAuthServices
     
     // Refresh Token Oluşturma
     string GenerateRefreshToken();
+    
+    // Password Reset Token Oluşturma
+    string GeneratePasswordResetToken();
     
     // Şifre Hash'leme
     string HashPassword(string password);
