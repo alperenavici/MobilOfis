@@ -9,6 +9,6 @@ public class Notifications
     public bool IsRead { get; set; }
     public string RelatedEntityType { get; set; }
     
-    public virtual ICollection<ApplicationUser> Users { get; set; }
+    public virtual ICollection<User> Users { get; set; }
     
 }
