@@ -2,12 +2,11 @@ namespace MobilOfis.Entity;
 
 public class Participants
 {
-    public Guid ParticipantId { get; set; }
-    public Guid EventId { get; set; }
-    public string UserId { get; set; }
-    public virtual User User { get; set; }
-    public virtual Events Event { get; set; }
+    // Composite Primary Key (EventId + UserId)
+    public Guid EventId { get; set; } 
+    public Guid UserId { get; set; } 
     
-    public virtual ICollection<User> Users { get; set; }
-    public virtual ICollection<Events> Events { get; set; }
+    // Navigation Properties - İlişkili Veriler
+    public virtual User User { get; set; } // Katılımcı kullanıcı
+    public virtual Events Event { get; set; } // İlgili etkinlik
 }
