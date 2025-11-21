@@ -14,6 +14,9 @@ public class Leaves
     public Guid? ManagerApprovalId { get; set; } 
     public string? Reason { get; set; } // İzin nedeni 
     public string? RejectionReason { get; set; } // Red nedeni 
+    public DateTime? ManagerApprovalDate { get; set; } // Manager onay tarihi
+    public DateTime? HRApprovalDate { get; set; } // HR onay tarihi
+    public Guid? HRApprovalId { get; set; } // HR onaylayan kullanıcı ID
     
     public virtual User? User { get; set; } // İzin sahibi kullanıcı
     public virtual User? ManagerApproval { get; set; } // Onaylayan/Reddeden yönetici
