@@ -153,10 +153,10 @@ async function handleLeaveSubmit(e) {
 
     // Convert FormData to JSON for API
     const data = {
-        startDate: formData.get('startDate'),
-        endDate: formData.get('endDate'),
-        leavesType: parseInt(formData.get('leavesType')), // Enum value expected
-        reason: formData.get('reason')
+        startDate: formData.get('StartDate'),
+        endDate: formData.get('EndDate'),
+        leavesType: formData.get('LeavesType'), // Enum value expected
+        reason: formData.get('Reason')
     };
 
     // Show loading

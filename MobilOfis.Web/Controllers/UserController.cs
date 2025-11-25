@@ -151,6 +151,7 @@ public class UserController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadDepartmentsToViewBag();
+        await LoadManagersToViewBag();
         return View(new UserViewModel());
     }
 
@@ -167,6 +168,7 @@ public class UserController : Controller
         if (!ModelState.IsValid)
         {
             await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
             return View(model);
         }
 
@@ -198,6 +200,7 @@ public class UserController : Controller
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
             return View(model);
         }
     }
@@ -242,6 +245,7 @@ public class UserController : Controller
             };
 
             await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
             return View(viewModel);
         }
         catch (Exception ex)
@@ -261,6 +265,7 @@ public class UserController : Controller
         if (!ModelState.IsValid)
         {
             await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
             return View(model);
         }
 
@@ -301,6 +306,7 @@ public class UserController : Controller
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
             return View(model);
         }
     }
@@ -458,6 +464,24 @@ public class UserController : Controller
         catch
         {
             ViewBag.Departments = new List<Entity.Departments>();
+        }
+    }
+
+    private async Task LoadManagersToViewBag()
+    {
+        try
+        {
+            var users = await _authServices.GetAllUsersAsync();
+            ViewBag.Managers = users.Select(u => new UserViewModel
+            {
+                UserId = u.UserId,
+                FirstName = u.FirstName,
+                LastName = u.LastName
+            }).ToList();
+        }
+        catch
+        {
+            ViewBag.Managers = new List<UserViewModel>();
         }
     }
 

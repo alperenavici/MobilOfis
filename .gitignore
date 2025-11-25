@@ -68,3 +68,5 @@ TestResult.xml
 # Secrets / configs
 MobilOfis.Web/appsettings.json
 
+EKRAN_TASARIM_DOKUMANI_MVC.md
+MVC_IMPLEMENTATION_STATUS.md
