@@ -1,0 +1,108 @@
+@model DepartmentViewModel
+@{
+    ViewData["Title"] = "Departmanı Düzenle";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0"><i class="bi bi-building me-2"></i>Departmanı Düzenle</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="DepartmentId" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="DepartmentName" class="form-label">Departman Adı</label>
+                            <input asp-for="DepartmentName" class="form-control" required />
+                            <span asp-validation-for="DepartmentName" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-lg me-1"></i>İptal
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Çalışanlar Listesi -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-people me-2"></i>Departman Çalışanları (@Model.EmployeeCount)</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Employees != null && Model.Employees.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Ad Soyad</th>
+                                        <th>Pozisyon</th>
+                                        <th>Rol</th>
+                                        <th class="text-end pe-3">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var employee in Model.Employees)
+                                    {
+                                        <tr>
+                                            <td class="ps-3">
+                                                <div class="d-flex align-items-center">
+                                                    @if (!string.IsNullOrEmpty(employee.ProfilePictureUrl))
+                                                    {
+                                                        <img src="@employee.ProfilePictureUrl" alt="@employee.FullName" class="rounded-circle me-2" width="32" height="32">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                                            <i class="bi bi-person text-secondary"></i>
+                                                        </div>
+                                                    }
+                                                    <div>
+                                                        <div class="fw-bold">@employee.FullName</div>
+                                                        <div class="small text-muted">@employee.Email</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@employee.JobTitle</td>
+                                            <td>
+                                                <span class="badge bg-@(employee.Role == "Admin" ? "danger" : employee.Role == "Manager" ? "warning" : "info")">
+                                                    @(employee.Role == "Admin" ? "Yönetici" : employee.Role == "Manager" ? "Müdür" : "Çalışan")
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <a asp-controller="User" asp-action="Detail" asp-route-id="@employee.UserId" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-pencil"></i> Düzenle
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-people display-4 d-block mb-2"></i>
+                            <p>Bu departmanda henüz çalışan bulunmamaktadır.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

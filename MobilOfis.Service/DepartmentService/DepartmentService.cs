@@ -78,12 +78,12 @@ public class DepartmentService : IDepartmentService
 
     public async Task<IEnumerable<Departments>> GetAllDepartmentsAsync()
     {
-        return await _unitOfWork.Departments.GetAllAsync();
+        return await _unitOfWork.Departments.GetAllWithDetailsAsync();
     }
 
     public async Task<Departments> GetDepartmentByIdAsync(Guid departmentId)
     {
-        var department = await _unitOfWork.Departments.GetByIdAsync(departmentId);
+        var department = await _unitOfWork.Departments.GetByIdWithDetailsAsync(departmentId);
         if (department == null)
         {
             throw new Exception("Departman bulunamadı.");

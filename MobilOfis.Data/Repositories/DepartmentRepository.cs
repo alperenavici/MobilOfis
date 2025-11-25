@@ -25,5 +25,20 @@ public class DepartmentRepository : GenericRepository<Departments>, IDepartmentR
             .ThenBy(u => u.LastName)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Departments>> GetAllWithDetailsAsync()
+    {
+        return await _dbContext.Departments
+            .Include(d => d.Users)
+            .OrderBy(d => d.DepartmentName)
+            .ToListAsync();
+    }
+
+    public async Task<Departments?> GetByIdWithDetailsAsync(Guid id)
+    {
+        return await _dbContext.Departments
+            .Include(d => d.Users)
+            .FirstOrDefaultAsync(d => d.DepartmentId == id);
+    }
 }
 

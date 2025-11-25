@@ -62,6 +62,61 @@ public class DepartmentController : Controller
     }
 
     [Authorize(Policy = "HROnly")]
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        try
+        {
+            var department = await _departmentService.GetDepartmentByIdAsync(id);
+            var viewModel = new DepartmentViewModel
+            {
+                DepartmentId = department.DepartmentId,
+                DepartmentName = department.DepartmentName,
+                EmployeeCount = department.Users?.Count ?? 0,
+                Employees = department.Users?.Select(u => new UserViewModel
+                {
+                    UserId = u.UserId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    JobTitle = u.JobTitle,
+                    Role = u.Role,
+                    ProfilePictureUrl = u.ProfilePictureUrl
+                }).ToList() ?? new List<UserViewModel>()
+            };
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(DepartmentViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            await _departmentService.UpdateDepartmentAsync(model.DepartmentId, model.DepartmentName);
+            TempData["SuccessMessage"] = "Departman başarıyla güncellendi.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(string departmentName)
