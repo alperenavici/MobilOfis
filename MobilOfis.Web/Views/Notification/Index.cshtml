@@ -1,0 +1,110 @@
+@model List<NotificationViewModel>
+@{
+    ViewData["Title"] = "Bildirimler";
+}
+
+<div class="notification-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-bell me-2"></i>Bildirimler</h2>
+        @if (Model != null && Model.Any(n => !n.IsRead))
+        {
+            <button class="btn btn-outline-primary mark-all-as-read-btn">
+                <i class="bi bi-check-all me-1"></i>Tümünü Okundu İşaretle
+            </button>
+        }
+    </div>
+    
+    <!-- Filtreler -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-sm btn-outline-primary" data-notification-filter="all">
+                    Tümü
+                </button>
+                <button class="btn btn-sm btn-outline-primary" data-notification-filter="unread">
+                    Okunmamış
+                </button>
+                <button class="btn btn-sm btn-outline-primary" data-notification-filter="read">
+                    Okunmuş
+                </button>
+                <button class="btn btn-sm btn-outline-primary" data-notification-filter="today">
+                    Bugün
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bildirim Listesi -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-3">
+            @foreach (var notification in Model)
+            {
+                <div class="col-12">
+                    <div class="notification-item @(notification.IsRead ? "" : "unread")" data-notification-id="@notification.NotificationId">
+                        <div class="notification-icon @notification.TypeColor">
+                            <i class="bi bi-@notification.TypeIcon"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">
+                                @(notification.RelatedEntityType ?? "Bildirim")
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="badge bg-primary ms-2 unread-badge">Yeni</span>
+                                }
+                            </div>
+                            <div class="notification-message">@notification.Message</div>
+                            <div class="notification-time">
+                                <i class="bi bi-clock me-1"></i>@GetRelativeTime(notification.SendDate)
+                            </div>
+                        </div>
+                        <div class="notification-actions">
+                            @if (!notification.IsRead)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-primary mark-as-read-btn" 
+                                        data-notification-id="@notification.NotificationId">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-bell-slash"></i>
+                    </div>
+                    <div class="empty-state-title">Henüz bildirim yok</div>
+                    <div class="empty-state-message">Yeni bildirimler burada görünecek</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/notifications.js"></script>
+    @Html.AntiForgeryToken()
+}
+
+@functions {
+    string GetRelativeTime(DateTime dateTime)
+    {
+        var diff = DateTime.Now - dateTime;
+        
+        if (diff.TotalMinutes < 1) return "Az önce";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes} dakika önce";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours} saat önce";
+        if (diff.TotalDays < 7) return $"{(int)diff.TotalDays} gün önce";
+        
+        return dateTime.ToString("dd MMMM yyyy");
+    }
+}
+

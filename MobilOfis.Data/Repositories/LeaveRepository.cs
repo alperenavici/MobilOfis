@@ -37,10 +37,19 @@ public class LeaveRepository : GenericRepository<Leaves>, ILeaveRepository
     public async Task<IEnumerable<Leaves>> GetLeavesByUserIdAsync(Guid userId)
     {
         return await _dbContext.Leaves
+            .Include(l => l.User)
             .Include(l => l.ManagerApproval)
             .Where(l => l.UserId == userId)
             .OrderByDescending(l => l.RequestDate)
             .ToListAsync();
+    }
+
+    public override async Task<Leaves?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Leaves
+            .Include(l => l.User)
+            .Include(l => l.ManagerApproval)
+            .FirstOrDefaultAsync(l => l.LeavesId == id);
     }
 
     public async Task<IEnumerable<Leaves>> GetLeavesByDepartmentIdAsync(Guid departmentId)

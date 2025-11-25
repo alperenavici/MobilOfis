@@ -1,0 +1,228 @@
+@model LeaveListViewModel
+@{
+    ViewData["Title"] = "HR Onayı Bekleyen İzinler";
+}
+
+<div class="leave-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-shield-check me-2"></i>HR Onayı Bekleyen İzinler</h2>
+            <p class="text-muted">Manager tarafından onaylanmış, HR onayı bekleyen izin talepleri</p>
+        </div>
+        @if (Model.Leaves != null && Model.Leaves.Any())
+        {
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkApprovalModal">
+                <i class="bi bi-check-all me-1"></i>Toplu Onayla
+            </button>
+        }
+    </div>
+    
+    @if (Model.Leaves != null && Model.Leaves.Any())
+    {
+        <!-- Tablo -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th>Çalışan</th>
+                                <th>İzin Türü</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                                <th>Gün</th>
+                                <th>Manager</th>
+                                <th>Manager Onay Tarihi</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var leave in Model.Leaves)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input leave-checkbox" value="@leave.LeavesId">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(leave.UserName)&background=667eea&color=fff" 
+                                                 alt="@leave.UserName" class="avatar avatar-sm me-2">
+                                            <strong>@leave.UserName</strong>
+                                        </div>
+                                    </td>
+                                    <td>@leave.LeavesTypeDisplay</td>
+                                    <td>@leave.StartDate.ToString("dd.MM.yyyy")</td>
+                                    <td>@leave.EndDate.ToString("dd.MM.yyyy")</td>
+                                    <td><span class="badge bg-primary">@leave.DayCount gün</span></td>
+                                    <td>@leave.ManagerApprovalName</td>
+                                    <td>
+                                        @if (leave.ManagerApprovalDate.HasValue)
+                                        {
+                                            @leave.ManagerApprovalDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-success" 
+                                                    onclick="approveByHR('@leave.LeavesId')">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" 
+                                                    onclick="rejectByHR('@leave.LeavesId')">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="empty-state-title">HR onayı bekleyen izin bulunmuyor</div>
+                    <div class="empty-state-message">Tüm izin talepleri değerlendirilmiş durumda</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Bulk Approval Modal -->
+<div class="modal fade" id="bulkApprovalModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Toplu Onay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Seçili izin taleplerini onaylamak istediğinizden emin misiniz?</p>
+                <div id="selectedLeavesCount"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" onclick="bulkApprove()">Onayla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/leaves.js"></script>
+    @Html.AntiForgeryToken()
+    
+    <script>
+        // Select all checkbox
+        document.getElementById('selectAll')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.leave-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+        
+        // Approve by HR
+        async function approveByHR(leaveId) {
+            if (!confirm('Bu izni onaylamak istediğinizden emin misiniz?')) return;
+            
+            try {
+                const response = await fetch(`/Leave/ApproveByHR/${leaveId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('İzin onaylandı', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Reject by HR
+        async function rejectByHR(leaveId) {
+            const reason = prompt('Reddetme sebebini giriniz:');
+            if (!reason || reason.trim() === '') {
+                showToast('Reddetme sebebi gereklidir', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/Leave/RejectByHR/${leaveId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ reason: reason })
+                });
+                
+                if (response.ok) {
+                    showToast('İzin reddedildi', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Bulk approve
+        async function bulkApprove() {
+            const selectedCheckboxes = document.querySelectorAll('.leave-checkbox:checked');
+            const leaveIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            
+            if (leaveIds.length === 0) {
+                showToast('Lütfen en az bir izin seçin', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/Leave/BulkApproveByHR', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ leaveIds: leaveIds })
+                });
+                
+                if (response.ok) {
+                    showToast(`${leaveIds.length} izin onaylandı`, 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkApprovalModal'));
+                    if (modal) modal.hide();
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+    </script>
+}
+

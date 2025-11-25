@@ -1,0 +1,190 @@
+@model SalaryViewModel
+@{
+    ViewData["Title"] = "Maaş Bilgilerim";
+}
+
+<div class="salary-container">
+    <!-- Sayfa Başlığı -->
+    <div class="mb-4">
+        <h2><i class="bi bi-cash-stack me-2"></i>Maaş Bilgilerim</h2>
+        <p class="text-muted">Maaş bilgilerinizi ve bordro geçmişinizi görüntüleyebilirsiniz</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Güncel Maaş -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Güncel Maaş Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="text-center p-4 bg-light rounded">
+                                <small class="text-muted d-block mb-2">Brüt Maaş</small>
+                                <h3 class="mb-0 text-primary">@Model.GrossSalary.ToString("N2") ₺</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-center p-4 bg-light rounded">
+                                <small class="text-muted d-block mb-2">Net Maaş</small>
+                                <h3 class="mb-0 text-success">@Model.NetSalary.ToString("N2") ₺</h3>
+                            </div>
+                        </div>
+                        @if (Model.Bonus.HasValue && Model.Bonus.Value > 0)
+                        {
+                            <div class="col-md-6">
+                                <div class="text-center p-4 bg-light rounded">
+                                    <small class="text-muted d-block mb-2">Prim</small>
+                                    <h3 class="mb-0 text-info">@Model.Bonus.Value.ToString("N2") ₺</h3>
+                                </div>
+                            </div>
+                        }
+                        @if (Model.Deductions.HasValue && Model.Deductions.Value > 0)
+                        {
+                            <div class="col-md-6">
+                                <div class="text-center p-4 bg-light rounded">
+                                    <small class="text-muted d-block mb-2">Kesintiler</small>
+                                    <h3 class="mb-0 text-danger">@Model.Deductions.Value.ToString("N2") ₺</h3>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    @if (Model.EffectiveDate.HasValue)
+                    {
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">Geçerlilik Tarihi: @Model.EffectiveDate.Value.ToString("dd MMMM yyyy")</small>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Bordro Geçmişi -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Bordro Geçmişi</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PaymentHistory != null && Model.PaymentHistory.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Dönem</th>
+                                        <th>Brüt</th>
+                                        <th>Net</th>
+                                        <th>Prim</th>
+                                        <th>Ödeme Tarihi</th>
+                                        <th>İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in Model.PaymentHistory)
+                                    {
+                                        <tr>
+                                            <td>@payment.Period.ToString("MMMM yyyy")</td>
+                                            <td>@payment.GrossSalary.ToString("N2") ₺</td>
+                                            <td>@payment.NetSalary.ToString("N2") ₺</td>
+                                            <td>@((payment.Bonus ?? 0).ToString("N2")) ₺</td>
+                                            <td>@payment.PaymentDate.ToString("dd.MM.yyyy")</td>
+                                            <td>
+                                                <a asp-action="DownloadPayslip" asp-route-id="@payment.SalaryId" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-download me-1"></i>Bordro
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                            <div class="empty-state-title">Bordro geçmişi bulunmuyor</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Özet Bilgiler -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Özet</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Toplam Ödeme (Bu Yıl)</small>
+                        <h4 class="text-primary">
+                            @if (Model.PaymentHistory != null)
+                            {
+                                @Model.PaymentHistory.Where(p => p.Period.Year == DateTime.Now.Year).Sum(p => p.NetSalary).ToString("N2") 
+                            }
+                            else
+                            {
+                                @(0.ToString("N2"))
+                            } ₺
+                        </h4>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Toplam Prim (Bu Yıl)</small>
+                        <h4 class="text-success">
+                            @if (Model.PaymentHistory != null)
+                            {
+                                @Model.PaymentHistory.Where(p => p.Period.Year == DateTime.Now.Year).Sum(p => p.Bonus ?? 0).ToString("N2")
+                            }
+                            else
+                            {
+                                @(0.ToString("N2"))
+                            } ₺
+                        </h4>
+                    </div>
+                    <hr>
+                    <div>
+                        <small class="text-muted d-block">Ortalama Net Maaş</small>
+                        <h4 class="text-info">
+                            @if (Model.PaymentHistory != null && Model.PaymentHistory.Any())
+                            {
+                                @Model.PaymentHistory.Average(p => p.NetSalary).ToString("N2")
+                            }
+                            else
+                            {
+                                @(0.ToString("N2"))
+                            } ₺
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Maaş Trendi -->
+            @if (Model.PaymentHistory != null && Model.PaymentHistory.Count() >= 3)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Maaş Trendi</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salaryTrendChart" 
+                                data-months='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PaymentHistory.TakeLast(6).Select(p => p.Period.ToString("MMM yyyy"))))' 
+                                data-amounts='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PaymentHistory.TakeLast(6).Select(p => p.NetSalary)))'></canvas>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="~/js/dashboard.js"></script>
+}
+

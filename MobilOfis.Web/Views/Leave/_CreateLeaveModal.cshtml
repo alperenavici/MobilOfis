@@ -1,0 +1,88 @@
+<!-- Create Leave Modal -->
+<div class="modal fade" id="createLeaveModal" tabindex="-1" aria-labelledby="createLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createLeaveModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Yeni İzin Talebi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post" enctype="multipart/form-data" id="createLeaveForm">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- İzin Türü -->
+                        <div class="col-md-6">
+                            <label for="leaveType" class="form-label">İzin Türü <span class="text-danger">*</span></label>
+                            <select name="LeavesType" id="leaveType" class="form-select" required>
+                                <option value="">Seçiniz...</option>
+                                <option value="YillikUcretliIzin">Yıllık Ücretli İzin</option>
+                                <option value="HastalikIzni">Hastalık İzni</option>
+                                <option value="EvlilikIzni">Evlilik İzni</option>
+                                <option value="BabalikIzni">Babalık İzni</option>
+                                <option value="OlumIzni">Ölüm İzni</option>
+                                <option value="UcretsizIzin">Ücretsiz İzin</option>
+                            </select>
+                            <div class="invalid-feedback">İzin türü seçimi zorunludur.</div>
+                        </div>
+                        
+                        <!-- Gün Sayısı (Otomatik Hesaplanan) -->
+                        <div class="col-md-6">
+                            <label class="form-label">Toplam Gün Sayısı</label>
+                            <div class="form-control bg-light" id="leaveDaysDisplay">0 gün</div>
+                        </div>
+                        
+                        <!-- Başlangıç Tarihi -->
+                        <div class="col-md-6">
+                            <label for="startDate" class="form-label">Başlangıç Tarihi <span class="text-danger">*</span></label>
+                            <input type="date" name="StartDate" id="startDate" class="form-control future-only" required>
+                            <div class="invalid-feedback">Başlangıç tarihi zorunludur.</div>
+                        </div>
+                        
+                        <!-- Bitiş Tarihi -->
+                        <div class="col-md-6">
+                            <label for="endDate" class="form-label">Bitiş Tarihi <span class="text-danger">*</span></label>
+                            <input type="date" name="EndDate" id="endDate" class="form-control future-only" required>
+                            <div class="invalid-feedback">Bitiş tarihi zorunludur.</div>
+                        </div>
+                        
+                        <!-- İzin Nedeni -->
+                        <div class="col-12">
+                            <label for="reason" class="form-label">İzin Nedeni <span class="text-danger">*</span></label>
+                            <textarea name="Reason" id="reason" class="form-control" rows="4" 
+                                      placeholder="İzin talebinizin nedenini detaylı olarak açıklayınız..." required></textarea>
+                            <div class="invalid-feedback">İzin nedeni zorunludur.</div>
+                        </div>
+                        
+                        <!-- Dosya Yükleme -->
+                        <div class="col-12">
+                            <label for="leaveDocument" class="form-label">Belge Yükle (Opsiyonel)</label>
+                            <div class="file-upload" onclick="document.getElementById('leaveDocument').click()">
+                                <div class="file-upload-icon">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </div>
+                                <div class="file-upload-text">
+                                    <strong>Tıklayın veya sürükleyin</strong>
+                                    <br>
+                                    <small class="text-muted">PDF, JPG veya PNG (Max 5MB)</small>
+                                </div>
+                                <input type="file" name="Document" id="leaveDocument" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                            <div id="filePreview" class="mt-2" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>İptal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>İzin Talebini Gönder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

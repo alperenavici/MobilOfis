@@ -19,6 +19,17 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
             .ThenInclude(p => p.User)
             .Where(e => e.StartTime >= DateTime.UtcNow)
             .OrderBy(e => e.StartTime)
+            .OrderBy(e => e.StartTime)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Events>> GetAllEventsAsync()
+    {
+        return await _dbContext.Events
+            .Include(e => e.CreatedByUser)
+            .Include(e => e.Participants)
+            .ThenInclude(p => p.User)
+            .OrderBy(e => e.StartTime)
             .ToListAsync();
     }
 
@@ -44,6 +55,14 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
             .Where(e => e.StartTime <= end && e.EndTime >= start)
             .OrderBy(e => e.StartTime)
             .ToListAsync();
+    }
+    public override async Task<Events?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Events
+            .Include(e => e.CreatedByUser)
+            .Include(e => e.Participants)
+            .ThenInclude(p => p.User)
+            .FirstOrDefaultAsync(e => e.EventId == id);
     }
 }
 

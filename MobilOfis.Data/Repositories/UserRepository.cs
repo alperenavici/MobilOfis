@@ -22,5 +22,14 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _dbContext.Users
             .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
     }
+
+    public async Task<IEnumerable<User>> GetUsersWithDetailsAsync()
+    {
+        return await _dbContext.Users
+            .Include(u => u.Department)
+            .Include(u => u.Manager)
+            .OrderBy(u => u.FirstName)
+            .ToListAsync();
+    }
 }
 

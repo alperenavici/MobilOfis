@@ -46,12 +46,35 @@ var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyForJWTTokenG
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MobilOfis";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MobilOfisUsers";
 
+// Cookie Authentication için Session ekleme
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// HttpContextAccessor ekleme
+builder.Services.AddHttpContextAccessor();
+
+// Cookie Authentication ve JWT Authentication birlikte
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = "Cookies";
+    options.DefaultChallengeScheme = "Cookies";
 })
-.AddJwtBearer(options =>
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.LogoutPath = "/Auth/Logout";
+    options.AccessDeniedPath = "/Auth/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -144,6 +167,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession(); // Session middleware ekle
+
 app.UseCors("AllowAll");
 
 app.UseAuthentication(); 
@@ -152,6 +177,6 @@ app.UseAuthorization();
 app.MapControllers(); 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}"); // Default route Auth/Login olarak değiştirildi
 
 app.Run();

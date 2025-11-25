@@ -294,6 +294,12 @@ public class AuthService : IAuthServices
         return user;
     }
 
+    public async Task UpdateUserAsync(User user)
+    {
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
   
   
     public async Task<bool> UpdateUserRoleAsync(Guid userId, string role)
@@ -418,6 +424,11 @@ public class AuthService : IAuthServices
     }
 
     
+    public async Task<IEnumerable<User>> GetAllUsersAsync()
+    {
+        return await _unitOfWork.Users.GetUsersWithDetailsAsync();
+    }
+
     public bool VerifyPassword(string password, string hashedPassword)
     {
         // BCrypt kullanarak şifre doğrulama

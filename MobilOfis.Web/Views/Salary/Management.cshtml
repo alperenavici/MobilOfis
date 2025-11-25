@@ -1,0 +1,295 @@
+@model List<SalaryViewModel>
+@{
+    ViewData["Title"] = "Maaş Yönetimi";
+}
+
+<div class="salary-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-cash-coin me-2"></i>Maaş Yönetimi</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#bulkSalaryIncreaseModal">
+                <i class="bi bi-percent me-1"></i>Toplu Zam
+            </button>
+            <button class="btn btn-outline-success" onclick="exportToExcel()">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel'e Aktar
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filtreler -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Çalışan ara..." value="@ViewData["CurrentFilter"]">
+                </div>
+                <div class="col-md-3">
+                    <select name="department" class="form-select">
+                        <option value="">Tüm Departmanlar</option>
+                        @if (ViewBag.Departments != null)
+                        {
+                            @foreach (var dept in ViewBag.Departments)
+                            {
+                                <option value="@dept.DepartmentId">@dept.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sortBy" class="form-select">
+                        <option value="name">İsme Göre</option>
+                        <option value="salary_desc">Maaşa Göre (Yüksek-Düşük)</option>
+                        <option value="salary_asc">Maaşa Göre (Düşük-Yüksek)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Maaş Listesi -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th>Çalışan</th>
+                                <th>Departman</th>
+                                <th>Pozisyon</th>
+                                <th>Brüt Maaş</th>
+                                <th>Net Maaş</th>
+                                <th>Prim</th>
+                                <th>Geçerlilik</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var salary in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input salary-checkbox" value="@salary.SalaryId">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(salary.UserName)&background=667eea&color=fff" 
+                                                 alt="@salary.UserName" class="avatar avatar-sm me-2">
+                                            <strong>@salary.UserName</strong>
+                                        </div>
+                                    </td>
+                                    <td>@salary.DepartmentName</td>
+                                    <td>@salary.JobTitle</td>
+                                    <td><strong>@salary.GrossSalary.ToString("N2") ₺</strong></td>
+                                    <td><strong class="text-success">@salary.NetSalary.ToString("N2") ₺</strong></td>
+                                    <td>@((salary.Bonus ?? 0).ToString("N2")) ₺</td>
+                                    <td>
+                                        @if (salary.EffectiveDate.HasValue)
+                                        {
+                                            @salary.EffectiveDate.Value.ToString("dd.MM.yyyy")
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                onclick="showUpdateModal('@salary.UserId', '@salary.UserName', @salary.GrossSalary, @salary.NetSalary, @(salary.Bonus ?? 0))">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-cash"></i>
+                    </div>
+                    <div class="empty-state-title">Maaş bilgisi bulunamadı</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Update Salary Modal -->
+<div class="modal fade" id="updateSalaryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Maaş Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateSalaryForm">
+                    <input type="hidden" id="updateUserId" name="userId">
+                    <div class="mb-3">
+                        <label class="form-label">Çalışan</label>
+                        <input type="text" id="updateUserName" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateGrossSalary" class="form-label">Brüt Maaş</label>
+                        <input type="number" id="updateGrossSalary" name="grossSalary" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateNetSalary" class="form-label">Net Maaş</label>
+                        <input type="number" id="updateNetSalary" name="netSalary" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="updateBonus" class="form-label">Prim</label>
+                        <input type="number" id="updateBonus" name="bonus" class="form-control" step="0.01">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="updateSalary()">Güncelle</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Salary Increase Modal -->
+<div class="modal fade" id="bulkSalaryIncreaseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Toplu Maaş Zammı</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bulkIncreaseForm">
+                    <div class="mb-3">
+                        <label for="increasePercentage" class="form-label">Zam Oranı (%)</label>
+                        <input type="number" id="increasePercentage" name="percentage" class="form-control" 
+                               step="0.1" min="0" max="100" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="effectiveDate" class="form-label">Geçerlilik Tarihi</label>
+                        <input type="date" id="effectiveDate" name="effectiveDate" class="form-control" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Seçili çalışanlara toplu zam uygulanacak
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" onclick="applyBulkIncrease()">Zammı Uygula</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        // Select all checkbox
+        document.getElementById('selectAll')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.salary-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+        
+        // Show update modal
+        function showUpdateModal(userId, userName, grossSalary, netSalary, bonus) {
+            document.getElementById('updateUserId').value = userId;
+            document.getElementById('updateUserName').value = userName;
+            document.getElementById('updateGrossSalary').value = grossSalary;
+            document.getElementById('updateNetSalary').value = netSalary;
+            document.getElementById('updateBonus').value = bonus;
+            
+            const modal = new bootstrap.Modal(document.getElementById('updateSalaryModal'));
+            modal.show();
+        }
+        
+        // Update salary
+        async function updateSalary() {
+            const form = document.getElementById('updateSalaryForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/Salary/UpdateSalary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showToast('Maaş başarıyla güncellendi', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateSalaryModal'));
+                    if (modal) modal.hide();
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('Güncelleme başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Apply bulk increase
+        async function applyBulkIncrease() {
+            const selectedCheckboxes = document.querySelectorAll('.salary-checkbox:checked');
+            const salaryIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            
+            if (salaryIds.length === 0) {
+                showToast('Lütfen en az bir çalışan seçin', 'warning');
+                return;
+            }
+            
+            const percentage = parseFloat(document.getElementById('increasePercentage').value);
+            const effectiveDate = document.getElementById('effectiveDate').value;
+            
+            try {
+                const response = await fetch('/Salary/BulkIncrease', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({
+                        salaryIds: salaryIds,
+                        percentage: percentage,
+                        effectiveDate: effectiveDate
+                    })
+                });
+                
+                if (response.ok) {
+                    showToast(`${salaryIds.length} çalışana %${percentage} zam uygulandı`, 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkSalaryIncreaseModal'));
+                    if (modal) modal.hide();
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Export to Excel
+        function exportToExcel() {
+            window.location.href = '/Salary/ExportToExcel' + window.location.search;
+        }
+    </script>
+}
+

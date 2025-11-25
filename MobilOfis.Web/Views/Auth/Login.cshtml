@@ -1,0 +1,61 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "_LoginLayout";
+}
+
+<div class="login-container">
+    <div class="row min-vh-100">
+        <div class="col-lg-6 d-none d-lg-flex bg-primary text-white align-items-center justify-content-center">
+            <div class="text-center">
+                <h1 class="display-4 fw-bold">MobilOfis</h1>
+                <p class="lead">Şirket Yönetimi Artık Çok Kolay</p>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 d-flex align-items-center justify-content-center">
+            <div class="login-form-wrapper w-75">
+                <h2 class="mb-4">Hoş Geldiniz</h2>
+                <p class="text-muted mb-4">Devam etmek için giriş yapın</p>
+                
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email Adresi</label>
+                        <input asp-for="Email" class="form-control form-control-lg" placeholder="ornek@mobilofis.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Şifre</label>
+                        <input asp-for="Password" class="form-control form-control-lg" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Beni Hatırla</label>
+                        </div>
+                        <a asp-action="ForgotPassword" class="text-decoration-none">Şifremi Unuttum?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Giriş Yap
+                    </button>
+                    
+                    <p class="text-center text-muted">
+                        Hesabınız yok mu? <a asp-action="Register" class="text-decoration-none">Kayıt Ol</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+}
+

@@ -33,6 +33,9 @@ public interface IAuthServices
     // Kullanıcı Profili Güncelleme
     Task<User> UpdateUserProfileAsync(Guid userId, string firstName, string lastName, string phoneNumber, string profilePictureUrl);
     
+    // Genel Kullanıcı Güncelleme (Admin için)
+    Task UpdateUserAsync(User user);
+    
     // Kullanıcı Rolü Güncelleme (Admin için)
     Task<bool> UpdateUserRoleAsync(Guid userId, string role);
     
@@ -57,6 +60,9 @@ public interface IAuthServices
     // Şifre Hash'leme
     string HashPassword(string password);
     
+    // Tüm Kullanıcıları Getir (Filtreleme ile)
+    Task<IEnumerable<User>> GetAllUsersAsync();
+
     // Şifre Doğrulama
     bool VerifyPassword(string password, string hashedPassword);
 }

@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MobilOfis.Core.IServices;
 using MobilOfis.Web.Models.DTOs;
+using MobilOfis.Web.Models.ViewModels;
 
 namespace MobilOfis.Web.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class DepartmentController : ControllerBase
+public class DepartmentController : Controller
 {
     private readonly IDepartmentService _departmentService;
 
@@ -16,153 +15,172 @@ public class DepartmentController : ControllerBase
         _departmentService = departmentService;
     }
 
-    /// <summary>
-    /// Departman oluştur
-    /// </summary>
-    // [Authorize(Policy = "HROnly")]
-    [HttpPost]
-    public async Task<IActionResult> CreateDepartment([FromBody] CreateDepartmentDto dto)
-    {
-        try
-        {
-            var department = await _departmentService.CreateDepartmentAsync(dto.DepartmentName);
-
-            return Ok(new
-            {
-                message = "Departman oluşturuldu.",
-                departmentId = department.DepartmentId,
-                departmentName = department.DepartmentName
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// Departman güncelle
-    /// </summary>
+    #region MVC Actions
+    
     [Authorize(Policy = "HROnly")]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateDepartment(Guid id, [FromBody] UpdateDepartmentDto dto)
-    {
-        try
-        {
-            var department = await _departmentService.UpdateDepartmentAsync(id, dto.DepartmentName);
-
-            return Ok(new
-            {
-                message = "Departman güncellendi.",
-                departmentId = department.DepartmentId,
-                departmentName = department.DepartmentName
-            });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// Departman sil
-    /// </summary>
-    [Authorize(Policy = "HROnly")]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteDepartment(Guid id)
-    {
-        try
-        {
-            await _departmentService.DeleteDepartmentAsync(id);
-
-            return Ok(new { message = "Departman silindi." });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// Tüm departmanları listele
-    /// </summary>
-    [Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetAllDepartments()
+    public async Task<IActionResult> Index()
     {
         try
         {
             var departments = await _departmentService.GetAllDepartmentsAsync();
-
-            var response = departments.Select(d => new DepartmentResponseDto
+            var viewModel = departments.Select(d => new DepartmentViewModel
             {
                 DepartmentId = d.DepartmentId,
-                DepartmentName = d.DepartmentName ?? "",
+                DepartmentName = d.DepartmentName,
                 EmployeeCount = d.Users?.Count ?? 0
-            });
-
-            return Ok(response);
+            }).ToList();
+            return View(viewModel);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Index", "Dashboard");
         }
     }
 
-    /// <summary>
-    /// Departman detayı
-    /// </summary>
-    [Authorize]
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetDepartmentById(Guid id)
+    [Authorize(Policy = "HROnly")]
+    [HttpGet]
+    public async Task<IActionResult> Detail(Guid id)
     {
         try
         {
             var department = await _departmentService.GetDepartmentByIdAsync(id);
-
-            var response = new DepartmentResponseDto
+            var viewModel = new DepartmentViewModel
             {
                 DepartmentId = department.DepartmentId,
-                DepartmentName = department.DepartmentName ?? "",
+                DepartmentName = department.DepartmentName,
                 EmployeeCount = department.Users?.Count ?? 0
             };
-
-            return Ok(response);
+            return View(viewModel);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
         }
     }
 
-    /// <summary>
-    /// Departman çalışanları
-    /// </summary>
-    [Authorize(Policy = "ManagerOnly")]
-    [HttpGet("{id}/employees")]
-    public async Task<IActionResult> GetDepartmentEmployees(Guid id)
+    [Authorize(Policy = "HROnly")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(string departmentName)
     {
         try
         {
-            var employees = await _departmentService.GetDepartmentEmployeesAsync(id);
+            await _departmentService.CreateDepartmentAsync(departmentName);
+            TempData["SuccessMessage"] = "Departman başarıyla oluşturuldu.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
 
-            var response = employees.Select(e => new
-            {
-                userId = e.UserId,
-                firstName = e.FirstName,
-                lastName = e.LastName,
-                email = e.Email,
-                jobTitle = e.JobTitle,
-                phoneNumber = e.PhoneNumber,
-                isActive = e.IsActive
-            });
+    [Authorize(Policy = "HROnly")]
+    [HttpPost("Delete/{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            await _departmentService.DeleteDepartmentAsync(id);
+            return Json(new { success = true, message = "Departman başarıyla silindi." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
 
-            return Ok(response);
+    #endregion
+
+    #region API Actions
+    
+    [HttpPost]
+    [Route("api/[controller]")]
+    public async Task<IActionResult> CreateDepartmentApi([FromBody] CreateDepartmentDto dto)
+    {
+        try
+        {
+            var department = await _departmentService.CreateDepartmentAsync(dto.DepartmentName);
+            return Ok(new { message = "Departman oluşturuldu.", departmentId = department.DepartmentId });
         }
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
         }
     }
-}
 
+    [Authorize(Policy = "HROnly")]
+    [HttpGet]
+    [Route("api/[controller]")]
+    public async Task<IActionResult> GetAllDepartmentsApi()
+    {
+        try
+        {
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            return Ok(departments);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
+    [HttpGet]
+    [Route("api/[controller]/{id}")]
+    public async Task<IActionResult> GetDepartmentApi(Guid id)
+    {
+        try
+        {
+            var department = await _departmentService.GetDepartmentByIdAsync(id);
+            return Ok(new
+            {
+                departmentId = department.DepartmentId,
+                departmentName = department.DepartmentName,
+                employeeCount = department.Users?.Count ?? 0
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
+    [HttpPut]
+    [Route("api/[controller]/{id}")]
+    public async Task<IActionResult> UpdateDepartmentApi(Guid id, [FromBody] UpdateDepartmentDto dto)
+    {
+        try
+        {
+            var department = await _departmentService.UpdateDepartmentAsync(id, dto.DepartmentName);
+            return Ok(new { message = "Departman başarıyla güncellendi.", departmentId = department.DepartmentId });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
+    [HttpDelete]
+    [Route("api/[controller]/{id}")]
+    public async Task<IActionResult> DeleteDepartmentApi(Guid id)
+    {
+        try
+        {
+            await _departmentService.DeleteDepartmentAsync(id);
+            return Ok(new { message = "Departman başarıyla silindi." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    #endregion
+}

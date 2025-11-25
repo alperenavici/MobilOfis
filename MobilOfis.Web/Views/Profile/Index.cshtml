@@ -1,0 +1,296 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="profile-container">
+    <!-- Sayfa Başlığı -->
+    <div class="mb-4">
+        <h2><i class="bi bi-person-circle me-2"></i>Profilim</h2>
+        <p class="text-muted">Profil bilgilerinizi ve ayarlarınızı yönetin</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-3">
+            <!-- Profil Fotoğrafı -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model.FullName)}&background=667eea&color=fff&size=200" : Model.ProfilePictureUrl)" 
+                         alt="@Model.FullName" class="avatar avatar-xl mb-3" id="profilePhoto">
+                    <h4 class="mb-1">@Model.FullName</h4>
+                    <p class="text-muted mb-3">@Model.JobTitle</p>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="document.getElementById('photoUpload').click()">
+                        <i class="bi bi-camera me-1"></i>Fotoğraf Değiştir
+                    </button>
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto(this)">
+                </div>
+            </div>
+            
+            <!-- Hızlı Bilgiler -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Departman</small>
+                        <strong>@Model.DepartmentName</strong>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Rol</small>
+                        <span class="badge bg-primary">@Model.RoleName</span>
+                    </div>
+                    <hr>
+                    <div>
+                        <small class="text-muted d-block">Üyelik Tarihi</small>
+                        <strong>@(Model.JoinDate?.ToString("dd MMMM yyyy") ?? "-")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#generalTab" type="button">
+                        <i class="bi bi-person me-1"></i>Genel Bilgiler
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#securityTab" type="button">
+                        <i class="bi bi-shield-lock me-1"></i>Güvenlik
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notificationTab" type="button">
+                        <i class="bi bi-bell me-1"></i>Bildirim Tercihleri
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Genel Bilgiler Tab -->
+                <div class="tab-pane fade show active" id="generalTab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Kişisel Bilgiler</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateProfile" method="post" id="profileForm">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="firstName" class="form-label">Ad</label>
+                                        <input type="text" name="FirstName" id="firstName" class="form-control" value="@Model.FirstName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="lastName" class="form-label">Soyad</label>
+                                        <input type="text" name="LastName" id="lastName" class="form-control" value="@Model.LastName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" name="Email" id="email" class="form-control" value="@Model.Email" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="phoneNumber" class="form-label">Telefon</label>
+                                        <input type="tel" name="PhoneNumber" id="phoneNumber" class="form-control" value="@Model.PhoneNumber">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="birthDate" class="form-label">Doğum Tarihi</label>
+                                        <input type="date" name="BirthDate" id="birthDate" class="form-control" 
+                                               value="@(Model.BirthDate?.ToString("yyyy-MM-dd"))">
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="address" class="form-label">Adres</label>
+                                        <textarea name="Address" id="address" class="form-control" rows="3">@Model.Address</textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-lg me-1"></i>Değişiklikleri Kaydet
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Güvenlik Tab -->
+                <div class="tab-pane fade" id="securityTab">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Şifre Değiştir</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="ChangePassword" method="post" id="changePasswordForm">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="currentPassword" class="form-label">Mevcut Şifre</label>
+                                        <input type="password" name="CurrentPassword" id="currentPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="newPassword" class="form-label">Yeni Şifre</label>
+                                        <input type="password" name="NewPassword" id="newPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="confirmPassword" class="form-label">Şifre Tekrar</label>
+                                        <input type="password" name="ConfirmPassword" id="confirmPassword" class="form-control" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-key me-1"></i>Şifreyi Güncelle
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Two-Factor Authentication -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">İki Faktörlü Kimlik Doğrulama</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>İki Faktörlü Kimlik Doğrulama</strong>
+                                    <p class="text-muted mb-0">Hesabınıza ekstra güvenlik katmanı ekleyin</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input type="checkbox" class="form-check-input" id="twoFactorAuth" 
+                                           checked="@Model.TwoFactorEnabled" onchange="toggleTwoFactor(this.checked)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bildirim Tercihleri Tab -->
+                <div class="tab-pane fade" id="notificationTab">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Bildirim Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateNotificationSettings" method="post" id="notificationForm">
+                                @Html.AntiForgeryToken()
+                                <div class="mb-4">
+                                    <div class="form-check form-switch mb-3">
+                                        <input type="checkbox" class="form-check-input" name="EmailNotifications" id="emailNotifications" 
+                                               value="true" checked="@Model.EmailNotifications">
+                                        <label class="form-check-label" for="emailNotifications">
+                                            <strong>Email Bildirimleri</strong>
+                                            <p class="text-muted mb-0">Önemli güncellemeleri email ile al</p>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input type="checkbox" class="form-check-input" name="LeaveNotifications" id="leaveNotifications" 
+                                               value="true" checked="@Model.LeaveNotifications">
+                                        <label class="form-check-label" for="leaveNotifications">
+                                            <strong>İzin Bildirimleri</strong>
+                                            <p class="text-muted mb-0">İzin durumlarıyla ilgili bildirimler</p>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input type="checkbox" class="form-check-input" name="EventNotifications" id="eventNotifications" 
+                                               value="true" checked="@Model.EventNotifications">
+                                        <label class="form-check-label" for="eventNotifications">
+                                            <strong>Etkinlik Bildirimleri</strong>
+                                            <p class="text-muted mb-0">Yeni etkinlikler ve güncellemeler</p>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" class="form-check-input" name="SalaryNotifications" id="salaryNotifications" 
+                                               value="true" checked="@Model.SalaryNotifications">
+                                        <label class="form-check-label" for="salaryNotifications">
+                                            <strong>Maaş Bildirimleri</strong>
+                                            <p class="text-muted mb-0">Maaş ödemeleri ve güncellemeler</p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-1"></i>Tercihleri Kaydet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        // Upload photo
+        async function uploadPhoto(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            const formData = new FormData();
+            formData.append('photo', input.files[0]);
+            
+            try {
+                const response = await fetch('/Profile/UploadPhoto', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('profilePhoto').src = data.photoUrl;
+                    showToast('Profil fotoğrafı güncellendi', 'success');
+                } else {
+                    showToast('Fotoğraf yüklenemedi', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Toggle two-factor authentication
+        async function toggleTwoFactor(enabled) {
+            try {
+                const response = await fetch('/Profile/ToggleTwoFactor', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ enabled: enabled })
+                });
+                
+                if (response.ok) {
+                    showToast(`İki faktörlü kimlik doğrulama ${enabled ? 'etkinleştirildi' : 'devre dışı bırakıldı'}`, 'success');
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                    // Revert checkbox
+                    document.getElementById('twoFactorAuth').checked = !enabled;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+                // Revert checkbox
+                document.getElementById('twoFactorAuth').checked = !enabled;
+            }
+        }
+        
+        // Change password form validation
+        document.getElementById('changePasswordForm')?.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                showToast('Şifreler eşleşmiyor', 'warning');
+            }
+        });
+    </script>
+}
+
