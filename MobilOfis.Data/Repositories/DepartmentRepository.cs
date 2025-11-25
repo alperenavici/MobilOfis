@@ -30,6 +30,7 @@ public class DepartmentRepository : GenericRepository<Departments>, IDepartmentR
     {
         return await _dbContext.Departments
             .Include(d => d.Users)
+            .Include(d => d.Manager)
             .OrderBy(d => d.DepartmentName)
             .ToListAsync();
     }
@@ -38,6 +39,7 @@ public class DepartmentRepository : GenericRepository<Departments>, IDepartmentR
     {
         return await _dbContext.Departments
             .Include(d => d.Users)
+            .Include(d => d.Manager)
             .FirstOrDefaultAsync(d => d.DepartmentId == id);
     }
 }

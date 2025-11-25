@@ -9,10 +9,12 @@ namespace MobilOfis.Web.Controllers;
 public class DepartmentController : Controller
 {
     private readonly IDepartmentService _departmentService;
+    private readonly IAuthServices _authServices;
 
-    public DepartmentController(IDepartmentService departmentService)
+    public DepartmentController(IDepartmentService departmentService, IAuthServices authServices)
     {
         _departmentService = departmentService;
+        _authServices = authServices;
     }
 
     #region MVC Actions
@@ -50,7 +52,10 @@ public class DepartmentController : Controller
             {
                 DepartmentId = department.DepartmentId,
                 DepartmentName = department.DepartmentName,
-                EmployeeCount = department.Users?.Count ?? 0
+                ManagerId = department.ManagerId,
+                ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : "Atanmamış",
+                EmployeeCount = department.Users?.Count ?? 0,
+                CreatedAt = department.CreatedDate
             };
             return View(viewModel);
         }
@@ -68,10 +73,15 @@ public class DepartmentController : Controller
         try
         {
             var department = await _departmentService.GetDepartmentByIdAsync(id);
+            var users = await _authServices.GetAllUsersAsync();
+            ViewBag.PotentialManagers = users;
+
             var viewModel = new DepartmentViewModel
             {
                 DepartmentId = department.DepartmentId,
                 DepartmentName = department.DepartmentName,
+                ManagerId = department.ManagerId,
+                ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : null,
                 EmployeeCount = department.Users?.Count ?? 0,
                 Employees = department.Users?.Select(u => new UserViewModel
                 {
@@ -105,7 +115,7 @@ public class DepartmentController : Controller
 
         try
         {
-            await _departmentService.UpdateDepartmentAsync(model.DepartmentId, model.DepartmentName);
+            await _departmentService.UpdateDepartmentAsync(model.DepartmentId, model.DepartmentName, model.ManagerId);
             TempData["SuccessMessage"] = "Departman başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
@@ -129,7 +139,8 @@ public class DepartmentController : Controller
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] = ex.Message;
+            var message = ex.InnerException != null ? $"{ex.Message} {ex.InnerException.Message}" : ex.Message;
+            TempData["ErrorMessage"] = message;
             return RedirectToAction(nameof(Index));
         }
     }
@@ -234,6 +245,21 @@ public class DepartmentController : Controller
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [Authorize(Policy = "HROnly")]
+    [HttpGet]
+    public async Task<IActionResult> FixDates()
+    {
+        try
+        {
+            await _departmentService.FixDepartmentDatesAsync();
+            return Content("Dates fixed successfully. You can go back to the list.");
+        }
+        catch (Exception ex)
+        {
+            return Content($"Error fixing dates: {ex.Message}");
         }
     }
 
