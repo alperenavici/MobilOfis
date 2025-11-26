@@ -31,7 +31,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .OrderBy(u => u.FirstName)
             .ToListAsync();
     }
-    public override async Task<User> GetByIdAsync(Guid id)
+    public override async Task<User?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Users
             .Include(u => u.Department)

@@ -15,7 +15,7 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
     {
         return await _dbContext.Events
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Participants)
+            .Include(e => e.Participants!)
             .ThenInclude(p => p.User)
             .Where(e => e.StartTime >= DateTime.UtcNow)
             .OrderBy(e => e.StartTime)
@@ -27,7 +27,7 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
     {
         return await _dbContext.Events
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Participants)
+            .Include(e => e.Participants!)
             .ThenInclude(p => p.User)
             .OrderBy(e => e.StartTime)
             .ToListAsync();
@@ -38,10 +38,10 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
         // Kullanıcının katıldığı veya oluşturduğu etkinlikler
         return await _dbContext.Events
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Participants)
+            .Include(e => e.Participants!)
             .ThenInclude(p => p.User)
             .Where(e => e.CreatedByUserId == userId || 
-                       e.Participants.Any(p => p.UserId == userId))
+                       e.Participants!.Any(p => p.UserId == userId))
             .OrderBy(e => e.StartTime)
             .ToListAsync();
     }
@@ -50,7 +50,7 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
     {
         return await _dbContext.Events
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Participants)
+            .Include(e => e.Participants!)
             .ThenInclude(p => p.User)
             .Where(e => e.StartTime <= end && e.EndTime >= start)
             .OrderBy(e => e.StartTime)
@@ -60,7 +60,7 @@ public class EventRepository : GenericRepository<Events>, IEventRepository
     {
         return await _dbContext.Events
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Participants)
+            .Include(e => e.Participants!)
             .ThenInclude(p => p.User)
             .FirstOrDefaultAsync(e => e.EventId == id);
     }
