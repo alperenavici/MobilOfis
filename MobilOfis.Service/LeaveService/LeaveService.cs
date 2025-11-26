@@ -18,14 +18,19 @@ public class LeaveService : ILeaveService
 
     public async Task<Leaves> CreateLeaveRequestAsync(Guid userId, DateTime startDate, DateTime endDate, string leavesType, string? reason)
     {
+        Console.WriteLine($"LeaveService.CreateLeaveRequestAsync started. UserId={userId}, Type={leavesType}");
+        
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null)
         {
+            Console.WriteLine("User not found.");
             throw new Exception("Kullanıcı bulunamadı.");
         }
+        Console.WriteLine($"User found: {user.FirstName} {user.LastName}, ManagerId={user.ManagerId}");
 
         if (!user.ManagerId.HasValue)
         {
+            Console.WriteLine("ManagerId is null.");
             throw new Exception("Kullanıcının yöneticisi tanımlı değil. İzin talebi oluşturulamaz.");
         }
 
@@ -36,6 +41,7 @@ public class LeaveService : ILeaveService
 
         if (!Enum.TryParse<LeavesType>(leavesType, out var leaveTypeEnum))
         {
+            Console.WriteLine($"Invalid leave type: {leavesType}");
             throw new Exception("Geçersiz izin türü.");
         }
 
@@ -43,19 +49,32 @@ public class LeaveService : ILeaveService
         {
             LeavesId = Guid.NewGuid(),
             UserId = userId,
-            StartDate = startDate,
-            EndDate = endDate,
+            StartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc),
+            EndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc),
             RequestDate = DateTime.UtcNow,
             Status = Status.Pending,
             LeavesType = leaveTypeEnum,
             Reason = reason
         };
+        Console.WriteLine("Leave entity created.");
 
         await _unitOfWork.Leaves.AddAsync(leave);
+        Console.WriteLine("Leave added to context.");
         await _unitOfWork.SaveChangesAsync();
+        Console.WriteLine("Changes saved.");
 
         // Manager'a bildirim gönder
-        await _notificationService.SendLeaveNotificationAsync(leave, "created");
+        try
+        {
+            Console.WriteLine("Sending notification...");
+            await _notificationService.SendLeaveNotificationAsync(leave, "created");
+            Console.WriteLine("Notification sent.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending notification: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+        }
 
         return leave;
     }

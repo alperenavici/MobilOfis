@@ -1,0 +1,99 @@
+@model LeaveListViewModel
+@{
+    ViewData["Title"] = "Bekleyen İzinler (Manager)";
+}
+
+<div class="leave-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="mb-4">
+        <h2><i class="bi bi-clock-history me-2"></i>Bekleyen İzin Talepleri</h2>
+        <p class="text-muted">Onayınızı bekleyen izin talepleri</p>
+    </div>
+    
+    @if (Model.Leaves != null && Model.Leaves.Any())
+    {
+        <div class="row g-4">
+            @foreach (var leave in Model.Leaves)
+            {
+                <div class="col-lg-6">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <!-- Çalışan Bilgisi -->
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar me-3">
+                                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(leave.UserName)&background=667eea&color=fff" 
+                                         alt="@leave.UserName" class="avatar">
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">@leave.UserName</h5>
+                                    <small class="text-muted">@leave.RequestDate.ToString("dd MMMM yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                            
+                            <!-- İzin Detayları -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <small class="text-muted d-block">İzin Türü</small>
+                                    <strong>@leave.LeavesTypeDisplay</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Süre</small>
+                                    <strong class="text-primary">@leave.DayCount gün</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Başlangıç</small>
+                                    <strong>@leave.StartDate.ToString("dd MMM yyyy")</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted d-block">Bitiş</small>
+                                    <strong>@leave.EndDate.ToString("dd MMM yyyy")</strong>
+                                </div>
+                            </div>
+                            
+                            <!-- İzin Nedeni -->
+                            <div class="mb-3">
+                                <small class="text-muted d-block">İzin Nedeni</small>
+                                <p class="mb-0">@leave.Reason</p>
+                            </div>
+                            
+                            <!-- İşlem Butonları -->
+                            <div class="d-flex gap-2">
+                                <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-outline-primary btn-sm flex-fill">
+                                    <i class="bi bi-eye me-1"></i>Detay
+                                </a>
+                                <button type="button" class="btn btn-success btn-sm flex-fill" 
+                                        onclick="leaveFunctions.approveLeave('@leave.LeavesId')">
+                                    <i class="bi bi-check-lg me-1"></i>Onayla
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm flex-fill" 
+                                        onclick="leaveFunctions.rejectLeave('@leave.LeavesId')">
+                                    <i class="bi bi-x-lg me-1"></i>Reddet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="empty-state-title">Bekleyen izin talebi bulunmuyor</div>
+                    <div class="empty-state-message">Tüm izin talepleri değerlendirilmiş durumda</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/leaves.js"></script>
+    @Html.AntiForgeryToken()
+}
+

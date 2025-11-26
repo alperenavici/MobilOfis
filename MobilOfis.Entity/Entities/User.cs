@@ -5,11 +5,11 @@ public class User
     public Guid UserId { get; set; } 
     
     // Kişisel Bilgiler
-    public string FirstName { get; set; } // Adı
-    public string LastName { get; set; } // Soyadı
-    public string Email { get; set; } // E-posta adresi (unique)
-    public string PhoneNumber { get; set; } // Telefon numarası
-    public string PasswordHash { get; set; } // Şifrelenmiş parola
+    public string FirstName { get; set; } = null!; // Adı
+    public string LastName { get; set; } = null!; // Soyadı
+    public string Email { get; set; } = null!; // E-posta adresi (unique)
+    public string PhoneNumber { get; set; } = null!; // Telefon numarası
+    public string PasswordHash { get; set; } = null!; // Şifrelenmiş parola
     public string? ProfilePictureUrl { get; set; } // Profil fotoğrafı URL'si
     
     // İş Bilgileri

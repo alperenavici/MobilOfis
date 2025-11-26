@@ -8,6 +8,6 @@ public class UpdateRoleDto
     public Guid UserId { get; set; }
 
     [Required(ErrorMessage = "Rol zorunludur.")]
-    public string Role { get; set; }
+    public string Role { get; set; } = string.Empty;
 }
 

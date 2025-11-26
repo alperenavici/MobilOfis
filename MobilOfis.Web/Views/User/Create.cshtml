@@ -1,0 +1,228 @@
+@model UserViewModel
+@{
+    ViewData["Title"] = "Yeni Kullanıcı";
+}
+
+<div class="user-form-container">
+    <!-- Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-plus me-2"></i>Yeni Kullanıcı Oluştur</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>İptal
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <form asp-action="Create" method="post" id="createUserForm">
+                @Html.AntiForgeryToken()
+                
+                <!-- Kişisel Bilgiler -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person me-2"></i>Kişisel Bilgiler</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Ad <span class="text-danger">*</span></label>
+                                <input type="text" name="FirstName" id="firstName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Soyad <span class="text-danger">*</span></label>
+                                <input type="text" name="LastName" id="lastName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="Email" id="email" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phoneNumber" class="form-label">Telefon</label>
+                                <input type="tel" name="PhoneNumber" id="phoneNumber" class="form-control" 
+                                       placeholder="+90 5xx xxx xx xx">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="birthDate" class="form-label">Doğum Tarihi</label>
+                                <input type="date" name="BirthDate" id="birthDate" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label for="address" class="form-label">Adres</label>
+                                <textarea name="Address" id="address" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- İş Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>İş Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="departmentId" class="form-label">Departman <span class="text-danger">*</span></label>
+                                <select name="DepartmentId" id="departmentId" class="form-select" required>
+                                    <option value="">Seçiniz...</option>
+                                    @if (ViewBag.Departments != null)
+                                    {
+                                        @foreach (var dept in ViewBag.Departments)
+                                        {
+                                            <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="jobTitle" class="form-label">Pozisyon <span class="text-danger">*</span></label>
+                                <input type="text" name="JobTitle" id="jobTitle" class="form-control" required 
+                                       placeholder="Örn: Software Developer">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="managerId" class="form-label">Bağlı Olduğu Yönetici</label>
+                                <select name="ManagerId" id="managerId" class="form-select">
+                                    <option value="">Seçiniz...</option>
+                                    @if (ViewBag.Managers != null)
+                                    {
+                                        @foreach (var manager in ViewBag.Managers)
+                                        {
+                                            <option value="@manager.UserId">@manager.FullName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hesap Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Hesap Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Rol <span class="text-danger">*</span></label>
+                                <select name="Role" id="role" class="form-select" required>
+                                    <option value="">Seçiniz...</option>
+                                    <option value="Employee">Çalışan</option>
+                                    <option value="Manager">Yönetici</option>
+                                    <option value="HR">İnsan Kaynakları</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">İlk Şifre <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" name="Password" id="password" class="form-control" required 
+                                           placeholder="En az 6 karakter">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="generatePassword()">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Kullanıcı ilk giriş yapışında şifresini değiştirebilir</small>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" name="IsActive" id="isActive" class="form-check-input" value="true" checked>
+                                    <label class="form-check-label" for="isActive">Hesap aktif olsun</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Butonlar -->
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-lg me-1"></i>İptal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Kullanıcıyı Oluştur
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+        
+        // Generate random password
+        function generatePassword() {
+            const length = 12;
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@@#$%^&*';
+            let password = '';
+            
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            document.getElementById('password').value = password;
+            document.getElementById('password').type = 'text';
+            document.getElementById('toggleIcon').classList.remove('bi-eye');
+            document.getElementById('toggleIcon').classList.add('bi-eye-slash');
+            
+            showToast('Şifre oluşturuldu: ' + password, 'info');
+        }
+        
+        // Form submission
+        document.getElementById('createUserForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Show loading
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showToast('Kullanıcı başarıyla oluşturuldu', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/User/Index';
+                    }, 1500);
+                } else {
+                    const error = await response.text();
+                    showToast(error || 'Kullanıcı oluşturulamadı', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+}
+

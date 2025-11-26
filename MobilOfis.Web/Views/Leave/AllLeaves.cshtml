@@ -1,0 +1,196 @@
+@model LeaveListViewModel
+@{
+    ViewData["Title"] = "Tüm İzinler";
+}
+
+<div class="leave-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-list-ul me-2"></i>Tüm İzinler</h2>
+        <button class="btn btn-outline-success" onclick="exportToExcel()">
+            <i class="bi bi-file-earmark-excel me-1"></i>Excel'e Aktar
+        </button>
+    </div>
+    
+    <!-- İstatistikler -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Bekleyen</div>
+                    <div class="stat-value">@(Model.Leaves?.Count(l => l.Status == "Pending") ?? 0)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Manager Onaylı</div>
+                    <div class="stat-value">@(Model.Leaves?.Count(l => l.Status == "ManagerApproved") ?? 0)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Onaylanan</div>
+                    <div class="stat-value">@(Model.Leaves?.Count(l => l.Status == "Approved") ?? 0)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon danger">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Reddedilen</div>
+                    <div class="stat-value">@(Model.Leaves?.Count(l => l.Status == "Rejected") ?? 0)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gelişmiş Filtreler -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtreler</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="AllLeaves" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Çalışan Adı</label>
+                    <input type="text" name="userName" class="form-control" placeholder="Ara...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Durum</label>
+                    <select name="status" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="Pending">Bekliyor</option>
+                        <option value="ManagerApproved">Manager Onaylı</option>
+                        <option value="Approved">Onaylandı</option>
+                        <option value="Rejected">Reddedildi</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">İzin Türü</label>
+                    <select name="leaveType" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="YillikUcretliIzin">Yıllık Ücretli İzin</option>
+                        <option value="HastalikIzni">Hastalık İzni</option>
+                        <option value="EvlilikIzni">Evlilik İzni</option>
+                        <option value="BabalikIzni">Babalık İzni</option>
+                        <option value="OlumIzni">Ölüm İzni</option>
+                        <option value="UcretsizIzin">Ücretsiz İzin</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Başlangıç Tarihi</label>
+                    <input type="date" name="startDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Bitiş Tarihi</label>
+                    <input type="date" name="endDate" class="form-control">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- İzin Listesi -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Leaves != null && Model.Leaves.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Çalışan</th>
+                                <th>İzin Türü</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                                <th>Gün</th>
+                                <th>Talep Tarihi</th>
+                                <th>Durum</th>
+                                <th>Manager</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var leave in Model.Leaves)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(leave.UserName)&background=667eea&color=fff" 
+                                                 alt="@leave.UserName" class="avatar avatar-sm me-2">
+                                            <strong>@leave.UserName</strong>
+                                        </div>
+                                    </td>
+                                    <td>@leave.LeavesTypeDisplay</td>
+                                    <td>@leave.StartDate.ToString("dd.MM.yyyy")</td>
+                                    <td>@leave.EndDate.ToString("dd.MM.yyyy")</td>
+                                    <td><span class="badge bg-primary">@leave.DayCount gün</span></td>
+                                    <td>@leave.RequestDate.ToString("dd.MM.yyyy")</td>
+                                    <td>
+                                        <span class="badge badge-@leave.StatusBadgeColor">
+                                            @leave.StatusDisplay
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(leave.ManagerApprovalName))
+                                        {
+                                            <small>@leave.ManagerApprovalName</small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">-</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-inbox"></i>
+                    </div>
+                    <div class="empty-state-title">İzin kaydı bulunamadı</div>
+                    <div class="empty-state-message">Seçili filtrelere uygun izin bulunmuyor</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportToExcel() {
+            window.location.href = '/Leave/ExportToExcel' + window.location.search;
+        }
+    </script>
+}
+

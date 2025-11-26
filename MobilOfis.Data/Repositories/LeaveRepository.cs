@@ -17,8 +17,8 @@ public class LeaveRepository : GenericRepository<Leaves>, ILeaveRepository
         // Manager'ın departmanındaki bekleyen izinleri getir
         return await _dbContext.Leaves
             .Include(l => l.User)
-            .ThenInclude(u => u.Department)
-            .Where(l => l.User.ManagerId == managerId && l.Status == Status.Pending)
+            .ThenInclude(u => u!.Department)
+            .Where(l => l.User!.ManagerId == managerId && l.Status == Status.Pending)
             .OrderBy(l => l.RequestDate)
             .ToListAsync();
     }
@@ -37,17 +37,26 @@ public class LeaveRepository : GenericRepository<Leaves>, ILeaveRepository
     public async Task<IEnumerable<Leaves>> GetLeavesByUserIdAsync(Guid userId)
     {
         return await _dbContext.Leaves
+            .Include(l => l.User)
             .Include(l => l.ManagerApproval)
             .Where(l => l.UserId == userId)
             .OrderByDescending(l => l.RequestDate)
             .ToListAsync();
     }
 
+    public override async Task<Leaves?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Leaves
+            .Include(l => l.User)
+            .Include(l => l.ManagerApproval)
+            .FirstOrDefaultAsync(l => l.LeavesId == id);
+    }
+
     public async Task<IEnumerable<Leaves>> GetLeavesByDepartmentIdAsync(Guid departmentId)
     {
         return await _dbContext.Leaves
             .Include(l => l.User)
-            .Where(l => l.User.DepartmentId == departmentId)
+            .Where(l => l.User!.DepartmentId == departmentId)
             .OrderByDescending(l => l.RequestDate)
             .ToListAsync();
     }

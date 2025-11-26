@@ -27,8 +27,8 @@ public class EventService : IEventService
             EventId = Guid.NewGuid(),
             Title = title,
             Description = description,
-            StartTime = startTime,
-            EndTime = endTime,
+            StartTime = DateTime.SpecifyKind(startTime, DateTimeKind.Utc),
+            EndTime = DateTime.SpecifyKind(endTime, DateTimeKind.Utc),
             Location = location,
             CreatedByUserId = creatorId,
             CreatedDate = DateTime.UtcNow
@@ -72,8 +72,8 @@ public class EventService : IEventService
 
         eventEntity.Title = title;
         eventEntity.Description = description;
-        eventEntity.StartTime = startTime;
-        eventEntity.EndTime = endTime;
+        eventEntity.StartTime = DateTime.SpecifyKind(startTime, DateTimeKind.Utc);
+        eventEntity.EndTime = DateTime.SpecifyKind(endTime, DateTimeKind.Utc);
         eventEntity.Location = location;
         eventEntity.UpdatedDate = DateTime.UtcNow;
 
@@ -108,6 +108,11 @@ public class EventService : IEventService
         if (eventEntity == null)
         {
             throw new Exception("Etkinlik bulunamadı.");
+        }
+
+        if (eventEntity.EndTime < DateTime.UtcNow)
+        {
+            throw new Exception("Geçmiş etkinliklere katılım sağlanamaz.");
         }
 
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
@@ -148,6 +153,11 @@ public class EventService : IEventService
     public async Task<IEnumerable<Events>> GetUpcomingEventsAsync()
     {
         return await _unitOfWork.Events.GetUpcomingEventsAsync();
+    }
+
+    public async Task<IEnumerable<Events>> GetAllEventsAsync()
+    {
+        return await _unitOfWork.Events.GetAllEventsAsync();
     }
 
     public async Task<IEnumerable<Events>> GetMyEventsAsync(Guid userId)

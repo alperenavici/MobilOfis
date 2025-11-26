@@ -1,0 +1,99 @@
+<!-- Create Department Modal -->
+<div class="modal fade" id="createDepartmentModal" tabindex="-1" aria-labelledby="createDepartmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createDepartmentModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Yeni Departman Oluştur
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post" id="createDepartmentForm">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Departman Adı -->
+                        <div class="col-12">
+                            <label for="departmentName" class="form-label">Departman Adı <span class="text-danger">*</span></label>
+                            <input type="text" name="departmentName" id="departmentName" class="form-control" required 
+                                   placeholder="Örn: İnsan Kaynakları">
+                            <div class="invalid-feedback">Departman adı zorunludur.</div>
+                        </div>
+                        
+                        <!-- Departman Yöneticisi -->
+                        <div class="col-12">
+                            <label for="departmentManager" class="form-label">Departman Yöneticisi (Opsiyonel)</label>
+                            <select name="ManagerId" id="departmentManager" class="form-select">
+                                <option value="">Seçiniz...</option>
+                                <!-- This should be populated from the controller -->
+                            </select>
+                            <small class="text-muted">Daha sonra da atayabilirsiniz</small>
+                        </div>
+                        
+                        <!-- Açıklama -->
+                        <div class="col-12">
+                            <label for="departmentDescription" class="form-label">Açıklama</label>
+                            <textarea name="Description" id="departmentDescription" class="form-control" rows="4" 
+                                      placeholder="Departman hakkında kısa bir açıklama yazınız..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>İptal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Departmanı Oluştur
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Form submission
+        document.getElementById('createDepartmentForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Show loading
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluşturuluyor...';
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showToast('Departman başarıyla oluşturuldu', 'success');
+                    
+                    // Close modal and refresh page
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createDepartmentModal'));
+                    if (modal) modal.hide();
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    const error = await response.text();
+                    showToast(error || 'Departman oluşturulamadı', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+}
+
