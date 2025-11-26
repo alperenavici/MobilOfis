@@ -27,6 +27,11 @@ public class ProfileController : Controller
             var userId = GetCurrentUserId();
             var user = await _authServices.GetUserByIdAsync(userId);
 
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
             var viewModel = new ProfileViewModel
             {
                 UserId = user.UserId,
@@ -66,8 +71,8 @@ public class ProfileController : Controller
                 userId,
                 model.FirstName,
                 model.LastName,
-                model.PhoneNumber,
-                model.ProfilePictureUrl
+                model.PhoneNumber ?? string.Empty,
+                model.ProfilePictureUrl ?? string.Empty
             );
 
             TempData["SuccessMessage"] = "Profil başarıyla güncellendi.";

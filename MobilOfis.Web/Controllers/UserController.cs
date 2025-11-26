@@ -175,7 +175,7 @@ public class UserController : Controller
 
         try
         {
-            var user = await _authServices.RegisterAsync(model.FirstName, model.LastName, model.Email, password, model.PhoneNumber);
+            var user = await _authServices.RegisterAsync(model.FirstName, model.LastName, model.Email, password, model.PhoneNumber ?? string.Empty);
             
             user.JobTitle = model.JobTitle;
             user.DepartmentId = model.DepartmentId;
@@ -282,7 +282,7 @@ public class UserController : Controller
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Email = model.Email;
-            user.PhoneNumber = model.PhoneNumber;
+            user.PhoneNumber = model.PhoneNumber ?? string.Empty;
             user.JobTitle = model.JobTitle;
             user.DepartmentId = model.DepartmentId;
             user.ManagerId = model.ManagerId;
@@ -365,7 +365,7 @@ public class UserController : Controller
     #region API Actions
 
     [HttpGet("api/[controller]")]
-    public async Task<IActionResult> GetAllUsersApi(string? searchTerm = null, Guid? departmentId = null, string? role = null, bool? isActive = null)
+    public IActionResult GetAllUsersApi(string? searchTerm = null, Guid? departmentId = null, string? role = null, bool? isActive = null)
     {
         try
         {

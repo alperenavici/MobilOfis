@@ -13,7 +13,7 @@ public class EventViewModel
     public string Title { get; set; } = string.Empty;
     
     [Display(Name = "Açıklama")]
-    public string? Description { get; set; }
+    public string Description { get; set; } = string.Empty;
     
     public string EventType { get; set; } = "General";
     public string EventTypeDisplay => EventType switch
@@ -38,7 +38,7 @@ public class EventViewModel
     public DateTime EndDate => EndTime;
     
     [Display(Name = "Konum")]
-    public string? Location { get; set; }
+    public string Location { get; set; } = string.Empty;
     
     public Guid CreatedByUserId { get; set; }
     public string? CreatedByUserName { get; set; }

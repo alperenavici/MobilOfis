@@ -210,11 +210,11 @@ public class DashboardController : Controller
                 .Select(e => new EventViewModel
                 {
                     EventId = e.EventId,
-                    Title = e.Title,
-                    Description = e.Description,
+                    Title = e.Title ?? string.Empty,
+                    Description = e.Description ?? string.Empty,
                     StartTime = e.StartTime,
                     EndTime = e.EndTime,
-                    Location = e.Location,
+                    Location = e.Location ?? string.Empty,
                     CreatedByUserId = e.CreatedByUserId,
                     CreatedByUserName = e.CreatedByUser != null ? 
                         $"{e.CreatedByUser.FirstName} {e.CreatedByUser.LastName}" : null,
@@ -238,7 +238,7 @@ public class DashboardController : Controller
                 {
                     NotificationId = n.NotificationId,
                     RecipientUserId = n.RecipientUserId,
-                    Message = n.Message,
+                    Message = n.Message ?? string.Empty,
                     SendDate = n.SendDate,
                     IsRead = n.IsRead,
                     RelatedEntityType = n.RelatedEntityType,
@@ -295,44 +295,44 @@ public class DashboardController : Controller
         }
     }
 
-    private async Task<List<UserViewModel>> GetTeamMembersAsync(Guid userId)
+    private Task<List<UserViewModel>> GetTeamMembersAsync(Guid userId)
     {
         // Bu metod şu an basit bir implementasyon
         // Gerçek implementasyonda manager'ın subordinates'lerini getirmeli
         try
         {
-            return new List<UserViewModel>();
+            return Task.FromResult(new List<UserViewModel>());
         }
         catch
         {
-            return new List<UserViewModel>();
+            return Task.FromResult(new List<UserViewModel>());
         }
     }
 
-    private async Task<int> GetTotalEmployeesCountAsync()
+    private Task<int> GetTotalEmployeesCountAsync()
     {
         try
         {
             // Bu metod bir IUserService'den total employee count getirmeli
             // Şimdilik basit bir sayı dönüyoruz
-            return 0;
+            return Task.FromResult(0);
         }
         catch
         {
-            return 0;
+            return Task.FromResult(0);
         }
     }
 
-    private async Task<int> GetActiveEmployeesCountAsync()
+    private Task<int> GetActiveEmployeesCountAsync()
     {
         try
         {
             // Bu metod bir IUserService'den active employee count getirmeli
-            return 0;
+            return Task.FromResult(0);
         }
         catch
         {
-            return 0;
+            return Task.FromResult(0);
         }
     }
 

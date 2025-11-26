@@ -2,7 +2,7 @@ namespace MobilOfis.Web.Models.ViewModels;
 
 public class DashboardViewModel
 {
-    public UserViewModel CurrentUser { get; set; }
+    public UserViewModel CurrentUser { get; set; } = null!;
     
     // Statistikler
     public int PendingLeavesCount { get; set; }

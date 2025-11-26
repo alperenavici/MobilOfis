@@ -29,7 +29,7 @@ public class DepartmentController : Controller
             var viewModel = departments.Select(d => new DepartmentViewModel
             {
                 DepartmentId = d.DepartmentId,
-                DepartmentName = d.DepartmentName,
+                DepartmentName = d.DepartmentName ?? string.Empty,
                 EmployeeCount = d.Users?.Count ?? 0
             }).ToList();
             return View(viewModel);
@@ -62,7 +62,7 @@ public class DepartmentController : Controller
             var viewModel = new DepartmentViewModel
             {
                 DepartmentId = department.DepartmentId,
-                DepartmentName = department.DepartmentName,
+                DepartmentName = department.DepartmentName ?? string.Empty,
                 ManagerId = department.ManagerId,
                 ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : "Atanmamış",
                 EmployeeCount = department.Users?.Count ?? 0,
@@ -124,7 +124,7 @@ public class DepartmentController : Controller
             var viewModel = new DepartmentViewModel
             {
                 DepartmentId = department.DepartmentId,
-                DepartmentName = department.DepartmentName,
+                DepartmentName = department.DepartmentName ?? string.Empty,
                 ManagerId = department.ManagerId,
                 ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : null,
                 EmployeeCount = department.Users?.Count ?? 0,

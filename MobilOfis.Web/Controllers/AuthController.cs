@@ -70,6 +70,11 @@ public class AuthController : Controller
             // Kullanıcı bilgilerini al ve claims oluştur
             var user = await _authServices.ValidateTokenAsync(accessToken);
             
+            if (user == null)
+            {
+                throw new Exception("Kullanıcı doğrulanamadı.");
+            }
+            
             var claims = new List<Claim>
             {
                 new Claim("userId", user.UserId.ToString()),
@@ -334,6 +339,11 @@ public class AuthController : Controller
 
             // Kullanıcı bilgilerini al
             var user = await _authServices.ValidateTokenAsync(accessToken);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Geçersiz token." });
+            }
 
             return Ok(new
             {

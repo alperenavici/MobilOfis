@@ -95,7 +95,7 @@ public class SalaryController : Controller
     [Authorize(Policy = "HROnly")]
     [HttpGet]
     [Route("api/[controller]/all")]
-    public async Task<IActionResult> GetAllSalariesApi()
+    public IActionResult GetAllSalariesApi()
     {
         try
         {
@@ -111,7 +111,7 @@ public class SalaryController : Controller
 
     [HttpGet]
     [Route("api/[controller]/history/{userId}")]
-    public async Task<IActionResult> GetSalaryHistoryApi(Guid userId)
+    public IActionResult GetSalaryHistoryApi(Guid userId)
     {
         try
         {

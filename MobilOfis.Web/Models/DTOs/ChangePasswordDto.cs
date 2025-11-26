@@ -8,10 +8,10 @@ public class ChangePasswordDto
     public Guid UserId { get; set; }
 
     [Required(ErrorMessage = "Mevcut şifre zorunludur.")]
-    public string CurrentPassword { get; set; }
+    public string CurrentPassword { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Yeni şifre zorunludur.")]
     [MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır.")]
-    public string NewPassword { get; set; }
+    public string NewPassword { get; set; } = string.Empty;
 }
 

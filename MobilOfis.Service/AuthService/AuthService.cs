@@ -84,7 +84,7 @@ public class AuthService : IAuthServices
         return (accessToken, refreshToken);
     }
 
-    public async Task<User> ValidateTokenAsync(string token)
+    public async Task<User?> ValidateTokenAsync(string token)
     {
         try
         {
@@ -261,13 +261,13 @@ public class AuthService : IAuthServices
     }
 
 
-    public async Task<User> GetUserByIdAsync(Guid userId)
+    public async Task<User?> GetUserByIdAsync(Guid userId)
     {
         return await _unitOfWork.Users.GetByIdAsync(userId);
     }
 
  
-    public async Task<User> GetUserByEmailAsync(string email)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _unitOfWork.Users.GetByEmailAsync(email);
     }

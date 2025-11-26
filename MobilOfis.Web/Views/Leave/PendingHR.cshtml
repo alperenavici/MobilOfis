@@ -140,11 +140,10 @@
             if (!confirm('Bu izni onaylamak istediğinizden emin misiniz?')) return;
             
             try {
-                const response = await fetch(`/Leave/ApproveByHR/${leaveId}`, {
+                const response = await fetch(`/api/Leave/approve-hr/${leaveId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        'Content-Type': 'application/json'
                     }
                 });
                 
@@ -152,7 +151,8 @@
                     showToast('İzin onaylandı', 'success');
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showToast('İşlem başarısız oldu', 'error');
+                    const data = await response.json();
+                    showToast(data.message || 'İşlem başarısız oldu', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -169,20 +169,20 @@
             }
             
             try {
-                const response = await fetch(`/Leave/RejectByHR/${leaveId}`, {
+                const response = await fetch(`/api/Leave/reject-hr/${leaveId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ reason: reason })
+                    body: JSON.stringify({ rejectionReason: reason })
                 });
                 
                 if (response.ok) {
                     showToast('İzin reddedildi', 'success');
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showToast('İşlem başarısız oldu', 'error');
+                    const data = await response.json();
+                    showToast(data.message || 'İşlem başarısız oldu', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -201,22 +201,23 @@
             }
             
             try {
-                const response = await fetch('/Leave/BulkApproveByHR', {
+                const response = await fetch('/api/Leave/bulk-approve-hr', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ leaveIds: leaveIds })
                 });
                 
                 if (response.ok) {
-                    showToast(`${leaveIds.length} izin onaylandı`, 'success');
+                    const data = await response.json();
+                    showToast(data.message, 'success');
                     const modal = bootstrap.Modal.getInstance(document.getElementById('bulkApprovalModal'));
                     if (modal) modal.hide();
                     setTimeout(() => window.location.reload(), 1500);
                 } else {
-                    showToast('İşlem başarısız oldu', 'error');
+                    const data = await response.json();
+                    showToast(data.message || 'İşlem başarısız oldu', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);

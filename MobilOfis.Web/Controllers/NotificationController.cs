@@ -28,7 +28,7 @@ public class NotificationController : Controller
             {
                 NotificationId = n.NotificationId,
                 RecipientUserId = n.RecipientUserId,
-                Message = n.Message,
+                Message = n.Message ?? string.Empty,
                 SendDate = n.SendDate,
                 IsRead = n.IsRead,
                 RelatedEntityType = n.RelatedEntityType,

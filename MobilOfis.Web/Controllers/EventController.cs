@@ -29,11 +29,11 @@ public class EventController : Controller
                 Events = events.Select(e => new EventViewModel
                 {
                     EventId = e.EventId,
-                    Title = e.Title,
-                    Description = e.Description,
+                    Title = e.Title ?? string.Empty,
+                    Description = e.Description ?? string.Empty,
                     StartTime = e.StartTime,
                     EndTime = e.EndTime,
-                    Location = e.Location,
+                    Location = e.Location ?? string.Empty,
                     CreatedByUserId = e.CreatedByUserId,
                     CreatedByUserName = $"{e.CreatedByUser?.FirstName} {e.CreatedByUser?.LastName}",
                     ParticipantCount = e.Participants?.Count ?? 0
@@ -59,11 +59,11 @@ public class EventController : Controller
             var viewModel = new EventViewModel
             {
                 EventId = eventEntity.EventId,
-                Title = eventEntity.Title,
-                Description = eventEntity.Description,
+                Title = eventEntity.Title ?? string.Empty,
+                Description = eventEntity.Description ?? string.Empty,
                 StartTime = eventEntity.StartTime,
                 EndTime = eventEntity.EndTime,
-                Location = eventEntity.Location,
+                Location = eventEntity.Location ?? string.Empty,
                 CreatedByUserId = eventEntity.CreatedByUserId,
                 CreatedByUserName = $"{eventEntity.CreatedByUser?.FirstName} {eventEntity.CreatedByUser?.LastName}",
                 ParticipantCount = eventEntity.Participants?.Count ?? 0,
@@ -198,7 +198,7 @@ END:VEVENT
 END:VCALENDAR";
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(icalContent);
-            return File(bytes, "text/calendar", $"{eventEntity.Title.Replace(" ", "_")}.ics");
+            return File(bytes, "text/calendar", $"{(eventEntity.Title ?? "Event").Replace(" ", "_")}.ics");
         }
         catch (Exception ex)
         {

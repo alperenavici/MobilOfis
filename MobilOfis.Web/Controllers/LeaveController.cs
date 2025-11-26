@@ -325,7 +325,7 @@ public class LeaveController : Controller
     /// </summary>
     [Authorize(Policy = "HROnly")]
     [HttpGet]
-    public async Task<IActionResult> AllLeaves()
+    public IActionResult AllLeaves()
     {
         try
         {
@@ -558,6 +558,76 @@ public class LeaveController : Controller
             {
                 message = "İzin talebi reddedildi.",
                 leaveId = leave.LeavesId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// İzin talebini reddet (HR) (API)
+    /// </summary>
+    [Authorize(Policy = "HROnly")]
+    [HttpPost]
+    [Route("api/[controller]/reject-hr/{id}")]
+    public async Task<IActionResult> RejectLeaveByHRApi(Guid id, [FromBody] RejectLeaveDto dto)
+    {
+        try
+        {
+            var approverId = GetCurrentUserId();
+            var leave = await _leaveService.RejectLeaveAsync(id, approverId, dto.RejectionReason);
+
+            return Ok(new
+            {
+                message = "İzin talebi reddedildi.",
+                leaveId = leave.LeavesId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Toplu izin onayla (HR) (API)
+    /// </summary>
+    [Authorize(Policy = "HROnly")]
+    [HttpPost]
+    [Route("api/[controller]/bulk-approve-hr")]
+    public async Task<IActionResult> BulkApproveLeavesByHRApi([FromBody] BulkApproveDto dto)
+    {
+        try
+        {
+            var hrUserId = GetCurrentUserId();
+            var approvedCount = 0;
+            var errors = new List<string>();
+
+            foreach (var leaveId in dto.LeaveIds)
+            {
+                try
+                {
+                    await _leaveService.ApproveLeaveByHRAsync(leaveId, hrUserId);
+                    approvedCount++;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add($"İzin ID {leaveId}: {ex.Message}");
+                }
+            }
+
+            if (approvedCount == 0 && errors.Any())
+            {
+                return BadRequest(new { message = "Hiçbir izin onaylanamadı.", errors });
+            }
+
+            return Ok(new
+            {
+                message = $"{approvedCount} izin başarıyla onaylandı.",
+                approvedCount,
+                errors
             });
         }
         catch (Exception ex)

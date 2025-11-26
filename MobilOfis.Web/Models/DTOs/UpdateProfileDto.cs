@@ -8,14 +8,14 @@ public class UpdateProfileDto
     public Guid UserId { get; set; }
 
     [Required(ErrorMessage = "Ad alanı zorunludur.")]
-    public string FirstName { get; set; }
+    public string FirstName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Soyad alanı zorunludur.")]
-    public string LastName { get; set; }
+    public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Telefon numarası zorunludur.")]
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = string.Empty;
 
-    public string ProfilePictureUrl { get; set; }
+    public string ProfilePictureUrl { get; set; } = string.Empty;
 }
 
