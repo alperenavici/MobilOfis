@@ -91,24 +91,24 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("ManagerOnly", policy => 
+    options.AddPolicy("ManagerOnly", policy =>
         policy.RequireRole("Manager", "Admin", "HR"));
-    options.AddPolicy("HROnly", policy => 
+    options.AddPolicy("HROnly", policy =>
         policy.RequireRole("HR", "Admin"));
-    options.AddPolicy("AdminOnly", policy => 
+    options.AddPolicy("AdminOnly", policy =>
         policy.RequireRole("Admin"));
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "MobilOfis API", 
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "MobilOfis API",
         Version = "v1",
         Description = "Şirket Yönetim Sistemi API"
     });
-    
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -118,7 +118,7 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "JWT Authorization header. \n\nÖrnek: 'Bearer {token}' şeklinde giriniz."
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -153,7 +153,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "MobilOfis API v1");
-        options.RoutePrefix = "swagger"; 
+        options.RoutePrefix = "swagger";
     });
 }
 else
@@ -171,10 +171,10 @@ app.UseSession(); // Session middleware ekle
 
 app.UseCors("AllowAll");
 
-app.UseAuthentication(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers(); 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}"); // Default route Auth/Login olarak değiştirildi

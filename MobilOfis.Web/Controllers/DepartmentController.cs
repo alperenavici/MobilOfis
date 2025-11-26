@@ -41,12 +41,23 @@ public class DepartmentController : Controller
         }
     }
 
-    [Authorize(Policy = "HROnly")]
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> Detail(Guid id)
     {
         try
         {
+            // Yetki kontrolü: HR/Admin değilse ve kendi departmanı değilse erişimi engelle
+            var isHrOrAdmin = User.IsInRole("HR") || User.IsInRole("Admin");
+            var userDepartmentIdClaim = User.FindFirst("departmentId")?.Value;
+            var userDepartmentId = !string.IsNullOrEmpty(userDepartmentIdClaim) ? Guid.Parse(userDepartmentIdClaim) : (Guid?)null;
+
+            if (!isHrOrAdmin && userDepartmentId != id)
+            {
+                TempData["ErrorMessage"] = "Bu departmanı görüntüleme yetkiniz yok.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
             var department = await _departmentService.GetDepartmentByIdAsync(id);
             var viewModel = new DepartmentViewModel
             {
@@ -55,7 +66,18 @@ public class DepartmentController : Controller
                 ManagerId = department.ManagerId,
                 ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : "Atanmamış",
                 EmployeeCount = department.Users?.Count ?? 0,
-                CreatedAt = department.CreatedDate
+                CreatedAt = department.CreatedDate,
+                Description = "Şirketimizin değerli bir departmanı.", // Örnek veri
+                Employees = department.Users?.Select(u => new UserViewModel
+                {
+                    UserId = u.UserId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    JobTitle = u.JobTitle,
+                    Role = u.Role,
+                    ProfilePictureUrl = u.ProfilePictureUrl
+                }).ToList() ?? new List<UserViewModel>()
             };
             return View(viewModel);
         }
@@ -64,6 +86,29 @@ public class DepartmentController : Controller
             TempData["ErrorMessage"] = ex.Message;
             return RedirectToAction(nameof(Index));
         }
+    }
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> MyDepartment()
+    {
+        // Claim yerine DB'den güncel kullanıcı bilgisini al
+        // Bu sayede cookie'deki claim eski olsa bile (örn: admin atama yaptıktan sonra) doğru çalışır
+        var userIdClaim = User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+             return RedirectToAction("Login", "Auth");
+        }
+
+        var user = await _authServices.GetUserByIdAsync(userId);
+        
+        if (user == null || user.DepartmentId == null)
+        {
+            TempData["ErrorMessage"] = "Herhangi bir departmana atanmamışsınız.";
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        return RedirectToAction(nameof(Detail), new { id = user.DepartmentId });
     }
 
     [Authorize(Policy = "HROnly")]
@@ -146,7 +191,7 @@ public class DepartmentController : Controller
     }
 
     [Authorize(Policy = "HROnly")]
-    [HttpPost("Delete/{id}")]
+    [HttpPost("Department/Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

@@ -137,7 +137,7 @@ public class EventController : Controller
     }
 
     [Authorize(Policy = "ManagerOnly")]
-    [HttpPost("Delete/{id}")]
+    [HttpPost("Event/Delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

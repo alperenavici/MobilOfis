@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MobilOfis.Core.IServices;
 using MobilOfis.Web.Models.ViewModels;
 using MobilOfis.Web.Models.DTOs;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MobilOfis.Web.Controllers;
 
@@ -298,6 +299,28 @@ public class UserController : Controller
             user.EmergencyContactPhone = model.EmergencyContactPhone;
             
             await _authServices.UpdateUserAsync(user);
+
+            // Eğer kullanıcı kendi bilgilerini güncellediyse, oturumu yenile (Cookie'deki claim'leri güncelle)
+            if (user.UserId == GetCurrentUserId())
+            {
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim("userId", user.UserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, user.Email),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, user.Role ?? "Employee"),
+                    new System.Security.Claims.Claim("departmentId", user.DepartmentId?.ToString() ?? "")
+                };
+
+                var claimsIdentity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
+                var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+                {
+                    IsPersistent = true, // Varsayılan olarak persistent yapıyoruz, Login'deki ayarı tam bilemediğimiz için
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                };
+
+                await HttpContext.SignInAsync("Cookies", new System.Security.Claims.ClaimsPrincipal(claimsIdentity), authProperties);
+            }
 
             TempData["SuccessMessage"] = "Kullanıcı başarıyla güncellendi.";
             return RedirectToAction(nameof(Detail), new { id = model.UserId });

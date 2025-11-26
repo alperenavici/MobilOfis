@@ -52,6 +52,14 @@
                     <span>Maaş Bilgilerim</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a asp-controller="Department" asp-action="MyDepartment" 
+                   class="nav-link @(currentController == "Department" && ViewContext.RouteData.Values["action"]?.ToString() == "MyDepartment" ? "active" : "")">
+                    <i class="bi bi-building-check"></i>
+                    <span>Departmanım</span>
+                </a>
+            </li>
             
             @if (userRole == "HR" || userRole == "Admin")
             {

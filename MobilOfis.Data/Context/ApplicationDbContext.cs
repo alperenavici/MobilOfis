@@ -32,6 +32,13 @@ public class ApplicationDbContext:DbContext
          .Property(d => d.DepartmentName)
          .IsRequired()
          .HasMaxLength(100);
+
+      // Department - Manager (One-to-Many: User manages Departments)
+      modelBuilder.Entity<Departments>()
+         .HasOne(d => d.Manager)
+         .WithMany() // User entity doesn't have a collection of managed departments
+         .HasForeignKey(d => d.ManagerId)
+         .OnDelete(DeleteBehavior.SetNull);
       
       modelBuilder.Entity<User>()
          .HasKey(u => u.UserId);
