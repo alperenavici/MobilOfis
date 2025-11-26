@@ -44,7 +44,7 @@
             <form asp-action="MyLeaves" method="get" class="row g-3" id="leaveFilterForm">
                 <div class="col-md-3">
                     <label class="form-label">Durum</label>
-                    <select name="status" id="filterStatus" class="form-select">
+                    <select class="form-select" asp-for="Filters.Status">
                         <option value="">Tümü</option>
                         <option value="Pending">Bekliyor</option>
                         <option value="ManagerApproved">Manager Onaylı</option>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">İzin Türü</label>
-                    <select name="leaveType" id="filterType" class="form-select">
+                    <select class="form-select" asp-for="Filters.LeavesType">
                         <option value="">Tümü</option>
                         <option value="YillikUcretliIzin">Yıllık Ücretli İzin</option>
                         <option value="HastalikIzni">Hastalık İzni</option>
@@ -66,9 +66,9 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Yıl</label>
-                    <select name="year" id="filterYear" class="form-select">
+                    <select class="form-select" asp-for="Filters.Year">
                         <option value="">Tümü</option>
-                        <option value="@DateTime.Now.Year" selected>@DateTime.Now.Year</option>
+                        <option value="@DateTime.Now.Year">@DateTime.Now.Year</option>
                         <option value="@(DateTime.Now.Year - 1)">@(DateTime.Now.Year - 1)</option>
                         <option value="@(DateTime.Now.Year - 2)">@(DateTime.Now.Year - 2)</option>
                     </select>

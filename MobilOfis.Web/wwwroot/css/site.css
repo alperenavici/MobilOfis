@@ -6,6 +6,7 @@
     --warning-color: #F59E0B;
     --danger-color: #EF4444;
     --info-color: #3B82F6;
+    --purple-color: #8B5CF6;
     --light-bg: #F8FAFC;
     --dark-text: #0F172A;
     --muted-text: #64748B;
@@ -159,12 +160,12 @@ body {
     align-items: center;
     gap: 1rem;
     transition: transform 0.2s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .stat-icon {
@@ -188,7 +189,7 @@ body {
 .card {
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     margin-bottom: 1.5rem;
     background: white;
 }
@@ -435,15 +436,15 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
-    
+
     .sidebar.show {
         transform: translateX(0);
     }
-    
+
     .main-content {
         margin-left: 0;
     }
-    
+
     .header-left .search-box {
         display: none;
     }

@@ -23,7 +23,7 @@ public class LeaveController : Controller
     /// </summary>
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> MyLeaves(string? status = null, string? leaveType = null, int? year = null)
+    public async Task<IActionResult> MyLeaves(string? status = null, string? leavesType = null, int? year = null)
     {
         try
         {
@@ -31,18 +31,65 @@ public class LeaveController : Controller
             var leaves = await _leaveService.GetMyLeavesAsync(userId);
 
             // Filtreleme
+            Console.WriteLine($"MyLeaves Filter: Status={status}, Type={leavesType}, Year={year}");
+            
             if (!string.IsNullOrEmpty(status))
             {
                 leaves = leaves.Where(l => l.Status.ToString() == status).ToList();
             }
-            if (!string.IsNullOrEmpty(leaveType))
+            if (!string.IsNullOrEmpty(leavesType))
             {
-                leaves = leaves.Where(l => l.LeavesType.ToString() == leaveType).ToList();
+                Console.WriteLine($"Filtering by LeaveType: {leavesType}");
+                leaves = leaves.Where(l => l.LeavesType.ToString() == leavesType).ToList();
+                Console.WriteLine($"Filtered count: {leaves.Count()}");
             }
             if (year.HasValue)
             {
                 leaves = leaves.Where(l => l.StartDate.Year == year.Value).ToList();
             }
+
+            // İzin hakları hesaplama
+            int totalLeaveDays;
+            if (!string.IsNullOrEmpty(leavesType))
+            {
+                // Belirli bir izin türü seçildiyse: 14 gün
+                totalLeaveDays = 14;
+            }
+            else
+            {
+                // Tümü seçildiyse: İzin türü sayısı * 14
+                var leaveTypeCount = Enum.GetValues(typeof(LeavesType)).Length;
+                totalLeaveDays = leaveTypeCount * 14;
+            }
+
+            // Kullanılan izin günleri (Sadece onaylanmış izinler)
+            // Not: 'leaves' listesi yukarıda zaten filtrelenmiş durumda (status, type, year)
+            // Ancak "Tümü" seçiliyken, yukarıdaki filtreleme sadece listeyi etkiliyor olabilir.
+            // İstatistikler için tüm onaylı izinleri baz almalıyız, ancak filtre varsa sadece o türe bakmalıyız.
+            
+            // İstatistik hesabı için ham veriyi tekrar çekelim veya yukarıdaki filtrelemeyi dikkatli kullanalım.
+            // Yukarıda 'leaves' değişkeni filtreleniyor. İstatistikler filtrelenmiş veriye göre mi yoksa genel duruma göre mi olmalı?
+            // Genelde "Kalan İzin" o anki filtreye göre gösterilir.
+            
+            // Eğer filtre uygulanmışsa 'leaves' sadece o filtreye uyanları içerir.
+            // Bu durumda 'leaves' üzerinden hesaplama yapmak doğrudur.
+            // Ancak Status filtresi varsa (örn: Bekleyenler), onaylanmış izinleri göremeyebiliriz ve kullanılan gün 0 çıkabilir.
+            // Bu yüzden istatistikler için ayrı bir sorgu veya filtreleme öncesi veriyi saklamak daha doğru.
+            
+            var allMyLeaves = await _leaveService.GetMyLeavesAsync(userId);
+            var approvedLeaves = allMyLeaves.Where(l => l.Status == Status.Approved);
+
+            if (!string.IsNullOrEmpty(leavesType))
+            {
+                approvedLeaves = approvedLeaves.Where(l => l.LeavesType.ToString() == leavesType);
+            }
+            
+            if (year.HasValue)
+            {
+                approvedLeaves = approvedLeaves.Where(l => l.StartDate.Year == year.Value);
+            }
+
+            var usedLeaveDays = approvedLeaves.Sum(l => (l.EndDate - l.StartDate).Days + 1);
 
             var viewModel = new LeaveListViewModel
             {
@@ -50,12 +97,12 @@ public class LeaveController : Controller
                 Filters = new LeaveFilterViewModel
                 {
                     Status = status,
-                    LeavesType = leaveType,
+                    LeavesType = leavesType,
                     Year = year
                 },
-                TotalLeaveDays = 14,
-                UsedLeaveDays = leaves.Where(l => l.Status == Status.Approved).Sum(l => (l.EndDate - l.StartDate).Days + 1),
-                RemainingLeaveDays = 14 - leaves.Where(l => l.Status == Status.Approved).Sum(l => (l.EndDate - l.StartDate).Days + 1)
+                TotalLeaveDays = totalLeaveDays,
+                UsedLeaveDays = usedLeaveDays,
+                RemainingLeaveDays = totalLeaveDays - usedLeaveDays
             };
 
             return View(viewModel);

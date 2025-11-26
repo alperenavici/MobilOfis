@@ -219,13 +219,13 @@ function initializeFilters() {
 }
 
 function applyFilters() {
-    const status = document.getElementById('filterStatus')?.value;
-    const type = document.getElementById('filterType')?.value;
-    const year = document.getElementById('filterYear')?.value;
+    const status = document.getElementById('Filters_Status')?.value;
+    const type = document.getElementById('Filters_LeavesType')?.value;
+    const year = document.getElementById('Filters_Year')?.value;
 
     const params = new URLSearchParams();
     if (status) params.append('status', status);
-    if (type) params.append('type', type);
+    if (type) params.append('leavesType', type);
     if (year) params.append('year', year);
 
     window.location.href = `/Leave/MyLeaves?${params.toString()}`;
