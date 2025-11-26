@@ -404,6 +404,114 @@ body {
     font-size: 0.75rem;
 }
 
+/* Notification Dropdown Item */
+.notification-dropdown-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 0.25rem;
+}
+
+.notification-dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.notification-dropdown-item.unread {
+    background-color: #EFF6FF;
+    border-left: 3px solid var(--primary-color);
+}
+
+.notification-dropdown-item:hover {
+    background-color: #F9FAFB;
+}
+
+.notification-dropdown-item .notification-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+}
+
+.notification-dropdown-item .notification-icon.info {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.notification-dropdown-item .notification-icon.success {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.notification-dropdown-item .notification-icon.warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.notification-dropdown-item .notification-icon.error {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.notification-dropdown-item .notification-icon.leave {
+    background-color: #E0E7FF;
+    color: #3730A3;
+}
+
+.notification-dropdown-item .notification-icon.event {
+    background-color: #FCE7F3;
+    color: #831843;
+}
+
+.notification-dropdown-item .notification-icon.salary {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.notification-dropdown-item .notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-dropdown-item .notification-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1a202c;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-dropdown-item .notification-message {
+    font-size: 0.8125rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notification-dropdown-item .notification-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+/* Header Notification Badge */
+.header-notification-badge {
+    top: -2px !important;
+    right: -2px !important;
+    transform: translate(50%, -50%) !important;
+}
+
 /* Event Item */
 .event-item {
     padding: 1rem;
