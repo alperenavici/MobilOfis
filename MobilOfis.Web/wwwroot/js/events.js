@@ -57,21 +57,67 @@ let calendar = null;
 function initializeCalendar() {
     const calendarEl = document.getElementById('eventCalendar');
 
-    if (!calendarEl || calendar) return; // Already initialized
+    if (!calendarEl) return;
+    
+    // Destroy existing calendar if it exists
+    if (calendar) {
+        calendar.destroy();
+        calendar = null;
+    }
 
-    calendar = new FullCalendar.Calendar(calendarEl, {
+    // Check if mobile
+    const isMobile = window.innerWidth < 768;
+    
+    // Mobile configuration
+    const mobileConfig = {
+        initialView: 'listWeek', // Mobilde liste görünümü daha uygun
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: ''
+        },
+        height: 'auto',
+        aspectRatio: 1.2
+    };
+    
+    // Desktop configuration
+    const desktopConfig = {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,listWeek'
         },
+        height: 'auto'
+    };
+
+    const config = isMobile ? mobileConfig : desktopConfig;
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        ...config,
         locale: 'tr',
         buttonText: {
             today: 'Bugün',
             month: 'Ay',
             week: 'Hafta',
             list: 'Liste'
+        },
+        views: {
+            dayGridMonth: {
+                dayHeaderFormat: { weekday: 'short' },
+                dayMaxEvents: isMobile ? 2 : 3,
+                moreLinkClick: 'popover'
+            },
+            timeGridWeek: {
+                dayHeaderFormat: { weekday: 'short', day: 'numeric' },
+                slotMinTime: '08:00:00',
+                slotMaxTime: '20:00:00',
+                allDaySlot: false
+            },
+            listWeek: {
+                listDayFormat: { weekday: 'short', day: 'numeric', month: 'short' },
+                listDaySideFormat: false
+            }
         },
         events: async function (info, successCallback, failureCallback) {
             try {
@@ -102,6 +148,30 @@ function initializeCalendar() {
     });
 
     calendar.render();
+    
+    // Update size after render
+    setTimeout(() => {
+        calendar.updateSize();
+    }, 100);
+    
+    // Handle window resize for mobile/desktop switching
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            if (calendar) {
+                const wasMobile = window.innerWidth < 768;
+                const isMobile = window.innerWidth < 768;
+                
+                // Only reinitialize if switching between mobile/desktop
+                if (wasMobile !== isMobile) {
+                    initializeCalendar();
+                } else {
+                    calendar.updateSize();
+                }
+            }
+        }, 250);
+    });
 }
 
 function getEventColor(eventType) {

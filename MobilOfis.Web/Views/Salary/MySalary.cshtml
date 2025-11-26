@@ -11,7 +11,7 @@
     </div>
     
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-12 col-lg-8 mb-4 mb-lg-0">
             <!-- Güncel Maaş -->
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -19,33 +19,33 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-12 col-sm-6 col-md-6">
                             <div class="text-center p-4 bg-light rounded">
                                 <small class="text-muted d-block mb-2">Brüt Maaş</small>
-                                <h3 class="mb-0 text-primary">@Model.GrossSalary.ToString("N2") ₺</h3>
+                                <h3 class="mb-0 text-primary h4">@Model.GrossSalary.ToString("N2") ₺</h3>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-sm-6 col-md-6">
                             <div class="text-center p-4 bg-light rounded">
                                 <small class="text-muted d-block mb-2">Net Maaş</small>
-                                <h3 class="mb-0 text-success">@Model.NetSalary.ToString("N2") ₺</h3>
+                                <h3 class="mb-0 text-success h4">@Model.NetSalary.ToString("N2") ₺</h3>
                             </div>
                         </div>
                         @if (Model.Bonus.HasValue && Model.Bonus.Value > 0)
                         {
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <div class="text-center p-4 bg-light rounded">
                                     <small class="text-muted d-block mb-2">Prim</small>
-                                    <h3 class="mb-0 text-info">@Model.Bonus.Value.ToString("N2") ₺</h3>
+                                    <h3 class="mb-0 text-info h4">@Model.Bonus.Value.ToString("N2") ₺</h3>
                                 </div>
                             </div>
                         }
                         @if (Model.Deductions.HasValue && Model.Deductions.Value > 0)
                         {
-                            <div class="col-md-6">
+                            <div class="col-12 col-sm-6 col-md-6">
                                 <div class="text-center p-4 bg-light rounded">
                                     <small class="text-muted d-block mb-2">Kesintiler</small>
-                                    <h3 class="mb-0 text-danger">@Model.Deductions.Value.ToString("N2") ₺</h3>
+                                    <h3 class="mb-0 text-danger h4">@Model.Deductions.Value.ToString("N2") ₺</h3>
                                 </div>
                             </div>
                         }

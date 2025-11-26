@@ -50,13 +50,125 @@
         .fc-day-today {
             background-color: #EFF6FF !important;
         }
+        
+        /* Mobil Responsive Stiller */
+        @@media (max-width: 767px) {
+            #eventCalendar {
+                min-height: 500px;
+            }
+            
+            .fc-toolbar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .fc-toolbar-title {
+                font-size: 1.1rem !important;
+                text-align: center;
+                margin: 0.5rem 0;
+            }
+            
+            .fc-button {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            .fc-button-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+            
+            .fc-button-group .fc-button {
+                flex: 1;
+                min-width: auto;
+            }
+            
+            .fc-daygrid-day-number {
+                font-size: 0.85rem;
+                padding: 0.25rem;
+            }
+            
+            .fc-col-header-cell-cushion {
+                font-size: 0.7rem !important;
+                padding: 0.5rem 0.25rem;
+            }
+            
+            .fc-event {
+                font-size: 0.75rem !important;
+                padding: 2px 4px !important;
+                margin: 1px 0;
+            }
+            
+            .fc-event-title {
+                font-size: 0.7rem !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .fc-daygrid-day {
+                min-height: 60px !important;
+            }
+            
+            .fc-daygrid-day-frame {
+                padding: 0.25rem;
+            }
+            
+            .fc-scrollgrid {
+                font-size: 0.8rem;
+            }
+            
+            .fc-daygrid-day-top {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        @@media (max-width: 480px) {
+            #eventCalendar {
+                min-height: 400px;
+            }
+            
+            .fc-toolbar-title {
+                font-size: 0.95rem !important;
+            }
+            
+            .fc-button {
+                padding: 0.2rem 0.4rem !important;
+                font-size: 0.7rem !important;
+            }
+            
+            .fc-daygrid-day-number {
+                font-size: 0.75rem;
+            }
+            
+            .fc-col-header-cell-cushion {
+                font-size: 0.65rem !important;
+            }
+            
+            .fc-event {
+                font-size: 0.65rem !important;
+                padding: 1px 3px !important;
+            }
+            
+            .fc-daygrid-day {
+                min-height: 50px !important;
+            }
+        }
     </style>
     <!-- Sayfa Başlığı -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-calendar-event me-2"></i>Etkinlikler</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Etkinlikler</h2>
         @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="btn btn-primary">
+            <a asp-action="Create" class="btn btn-primary w-100 w-md-auto">
                 <i class="bi bi-plus-lg me-2"></i>Yeni Etkinlik
             </a>
         }
@@ -65,22 +177,22 @@
     <!-- Görünüm Modu Seçici -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary @(Model.ViewMode == "list" ? "active" : "")" data-view-mode="list">
-                        <i class="bi bi-list-ul me-1"></i>Liste
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                <div class="btn-group w-100 w-md-auto" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm @(Model.ViewMode == "list" ? "active" : "")" data-view-mode="list">
+                        <i class="bi bi-list-ul me-1"></i><span class="d-none d-sm-inline">Liste</span>
                     </button>
-                    <button type="button" class="btn btn-outline-primary @(Model.ViewMode == "calendar" ? "active" : "")" data-view-mode="calendar">
-                        <i class="bi bi-calendar me-1"></i>Takvim
+                    <button type="button" class="btn btn-outline-primary btn-sm @(Model.ViewMode == "calendar" ? "active" : "")" data-view-mode="calendar">
+                        <i class="bi bi-calendar me-1"></i><span class="d-none d-sm-inline">Takvim</span>
                     </button>
-                    <button type="button" class="btn btn-outline-primary @(Model.ViewMode == "card" ? "active" : "")" data-view-mode="card">
-                        <i class="bi bi-grid me-1"></i>Kartlar
+                    <button type="button" class="btn btn-outline-primary btn-sm @(Model.ViewMode == "card" ? "active" : "")" data-view-mode="card">
+                        <i class="bi bi-grid me-1"></i><span class="d-none d-sm-inline">Kartlar</span>
                     </button>
                 </div>
                 
                 <!-- Filtreler -->
-                <div class="d-flex gap-2">
-                    <select id="filterType" class="form-select form-select-sm" style="width: 200px;">
+                <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+                    <select id="filterType" class="form-select form-select-sm flex-fill" style="min-width: 150px;">
                         <option value="">Tüm Türler</option>
                         <option value="Meeting">Toplantı</option>
                         <option value="Training">Eğitim</option>
@@ -106,29 +218,29 @@
                         <div class="card shadow-sm">
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-2 text-center">
+                                    <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
                                         <div class="event-date-large">
                                             <div class="event-day">@evt.StartDate.Day</div>
                                             <div class="event-month">@evt.StartDate.ToString("MMMM")</div>
                                             <div class="event-year">@evt.StartDate.Year</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-7">
-                                        <h4 class="mb-2">
+                                    <div class="col-12 col-md-7">
+                                        <h4 class="mb-2 h5">
                                             <a asp-action="Detail" asp-route-id="@evt.EventId" class="text-decoration-none text-dark">
                                                 @evt.Title
                                             </a>
                                         </h4>
                                         <p class="text-muted mb-2">@evt.Description</p>
-                                        <div class="d-flex gap-3 text-muted small">
+                                        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 text-muted small">
                                             <span><i class="bi bi-clock me-1"></i>@evt.StartDate.ToString("HH:mm")</span>
                                             <span><i class="bi bi-geo-alt me-1"></i>@evt.Location</span>
                                             <span><i class="bi bi-people me-1"></i>@evt.ParticipantCount katılımcı</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-3 d-flex flex-column justify-content-center align-items-end">
+                                    <div class="col-12 col-md-3 d-flex flex-column flex-md-column justify-content-center align-items-center align-items-md-end mt-3 mt-md-0">
                                         <span class="badge bg-primary mb-2">@evt.EventTypeDisplay</span>
-                                        <a asp-action="Detail" asp-route-id="@evt.EventId" class="btn btn-outline-primary btn-sm">
+                                        <a asp-action="Detail" asp-route-id="@evt.EventId" class="btn btn-outline-primary btn-sm w-100 w-md-auto">
                                             Detayları Gör
                                         </a>
                                     </div>
@@ -171,7 +283,7 @@
             <div class="row g-4">
                 @foreach (var evt in Model.Events)
                 {
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                         <div class="card h-100 shadow-sm">
                             @if (!string.IsNullOrEmpty(evt.BannerImageUrl))
                             {
