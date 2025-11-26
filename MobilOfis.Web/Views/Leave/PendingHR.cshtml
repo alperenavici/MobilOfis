@@ -5,14 +5,14 @@
 
 <div class="leave-management-container">
     <!-- Sayfa Başlığı -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
         <div>
-            <h2><i class="bi bi-shield-check me-2"></i>HR Onayı Bekleyen İzinler</h2>
-            <p class="text-muted">Manager tarafından onaylanmış, HR onayı bekleyen izin talepleri</p>
+            <h2 class="mb-1"><i class="bi bi-shield-check me-2"></i>HR Onayı Bekleyen İzinler</h2>
+            <p class="text-muted mb-0">Manager tarafından onaylanmış, HR onayı bekleyen izin talepleri</p>
         </div>
         @if (Model.Leaves != null && Model.Leaves.Any())
         {
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkApprovalModal">
+            <button class="btn btn-primary w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#bulkApprovalModal">
                 <i class="bi bi-check-all me-1"></i>Toplu Onayla
             </button>
         }
@@ -66,17 +66,17 @@
                                         }
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
+                                        <div class="btn-group btn-group-sm d-flex flex-column flex-md-row gap-1">
+                                            <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> <span class="d-md-none">Detay</span>
                                             </a>
-                                            <button type="button" class="btn btn-outline-success" 
+                                            <button type="button" class="btn btn-outline-success btn-sm" 
                                                     onclick="approveByHR('@leave.LeavesId')">
-                                                <i class="bi bi-check-lg"></i>
+                                                <i class="bi bi-check-lg"></i> <span class="d-md-none">Onayla</span>
                                             </button>
-                                            <button type="button" class="btn btn-outline-danger" 
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
                                                     onclick="rejectByHR('@leave.LeavesId')">
-                                                <i class="bi bi-x-lg"></i>
+                                                <i class="bi bi-x-lg"></i> <span class="d-md-none">Reddet</span>
                                             </button>
                                         </div>
                                     </td>

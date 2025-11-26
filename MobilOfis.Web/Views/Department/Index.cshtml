@@ -5,11 +5,11 @@
 
 <div class="department-management-container">
     <!-- Sayfa Başlığı -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-building me-2"></i>Departmanlar</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 class="mb-0"><i class="bi bi-building me-2"></i>Departmanlar</h2>
         @if (User.IsInRole("HR") || User.IsInRole("Admin"))
         {
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
+            <button class="btn btn-primary w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
                 <i class="bi bi-plus-lg me-2"></i>Yeni Departman
             </button>
         }
@@ -19,10 +19,10 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-8">
+                <div class="col-12 col-md-8">
                     <input type="text" id="searchDepartment" class="form-control" placeholder="Departman ara...">
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <select id="sortBy" class="form-select">
                         <option value="name">İsme Göre</option>
                         <option value="employees">Çalışan Sayısına Göre</option>
@@ -38,7 +38,7 @@
         <div class="row g-4" id="departmentGrid">
             @foreach (var department in Model)
             {
-                <div class="col-md-6 col-lg-4 department-card-item">
+                <div class="col-12 col-md-6 col-lg-4 department-card-item">
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-3">

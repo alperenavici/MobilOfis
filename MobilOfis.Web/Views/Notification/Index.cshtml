@@ -5,11 +5,11 @@
 
 <div class="notification-container">
     <!-- Sayfa Başlığı -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-bell me-2"></i>Bildirimler</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 class="mb-0"><i class="bi bi-bell me-2"></i>Bildirimler</h2>
         @if (Model != null && Model.Any(n => !n.IsRead))
         {
-            <button class="btn btn-outline-primary mark-all-as-read-btn">
+            <button class="btn btn-outline-primary mark-all-as-read-btn w-100 w-md-auto">
                 <i class="bi bi-check-all me-1"></i>Tümünü Okundu İşaretle
             </button>
         }
@@ -18,17 +18,17 @@
     <!-- Filtreler -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-sm btn-outline-primary" data-notification-filter="all">
+            <div class="d-flex flex-column flex-md-row gap-2">
+                <button class="btn btn-sm btn-outline-primary flex-fill" data-notification-filter="all">
                     Tümü
                 </button>
-                <button class="btn btn-sm btn-outline-primary" data-notification-filter="unread">
+                <button class="btn btn-sm btn-outline-primary flex-fill" data-notification-filter="unread">
                     Okunmamış
                 </button>
-                <button class="btn btn-sm btn-outline-primary" data-notification-filter="read">
+                <button class="btn btn-sm btn-outline-primary flex-fill" data-notification-filter="read">
                     Okunmuş
                 </button>
-                <button class="btn btn-sm btn-outline-primary" data-notification-filter="today">
+                <button class="btn btn-sm btn-outline-primary flex-fill" data-notification-filter="today">
                     Bugün
                 </button>
             </div>
