@@ -293,6 +293,72 @@ body {
     background-color: var(--secondary-color) !important;
 }
 
+/* Status Chips */
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 2px solid transparent;
+    background-color: rgba(99, 102, 241, 0.08);
+    color: var(--dark-text);
+}
+
+.status-chip .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.status-chip.status-success,
+.status-chip.status-approved,
+.status-chip.status-active {
+    border-color: var(--success-color);
+    background-color: rgba(16, 185, 129, 0.12);
+    color: var(--success-color);
+}
+
+.status-chip.status-warning,
+.status-chip.status-pending {
+    border-color: var(--warning-color);
+    background-color: rgba(245, 158, 11, 0.12);
+    color: var(--warning-color);
+}
+
+.status-chip.status-danger,
+.status-chip.status-rejected,
+.status-chip.status-inactive {
+    border-color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.12);
+    color: var(--danger-color);
+}
+
+.status-chip.status-secondary,
+.status-chip.status-cancelled {
+    border-color: var(--secondary-color);
+    background-color: rgba(71, 85, 105, 0.12);
+    color: var(--secondary-color);
+}
+
+.status-chip.status-info {
+    border-color: var(--info-color);
+    background-color: rgba(59, 130, 246, 0.12);
+    color: var(--info-color);
+}
+
+.status-chip.status-purple,
+.status-chip.status-manager-approved {
+    border-color: var(--purple-color);
+    background-color: rgba(139, 92, 246, 0.12);
+    color: var(--purple-color);
+}
+
 /* Button Stilleri */
 .btn {
     padding: 0.5rem 1rem;
