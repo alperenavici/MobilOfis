@@ -27,10 +27,29 @@ public class SalaryController : Controller
         {
             var userId = GetCurrentUserId();
             var salaryInfo = await _salaryService.GetUserSalaryInfoAsync(userId, userId);
+            var salaryAmount = salaryInfo.Salary ?? 0;
+
+            var teamMembers = new List<TeamMemberSalaryViewModel>();
+            if (User.IsInRole("Manager"))
+            {
+                var team = await _salaryService.GetTeamMembersAsync(userId);
+                teamMembers = team.Select(member => new TeamMemberSalaryViewModel
+                {
+                    UserId = member.UserId,
+                    UserName = $"{member.FirstName} {member.LastName}",
+                    DepartmentName = member.Department?.DepartmentName,
+                    JobTitle = member.JobTitle,
+                    Salary = member.Salary ?? 0,
+                    LastUpdated = member.UpdatedDate
+                }).ToList();
+            }
+            
             var viewModel = new SalaryViewModel
             {
                 UserId = userId,
-                GrossSalary = salaryInfo.Salary ?? 0
+                GrossSalary = salaryAmount,
+                NetSalary = salaryAmount,
+                TeamMembers = teamMembers
             };
             return View(viewModel);
         }
@@ -59,15 +78,15 @@ public class SalaryController : Controller
 
     #region API Actions
     
-    [Authorize(Policy = "HROnly")]
+    [Authorize(Roles = "HR,Admin,Manager")]
     [HttpPut]
     [Route("api/[controller]/update")]
     public async Task<IActionResult> UpdateSalaryApi([FromBody] UpdateSalaryDto dto)
     {
         try
         {
-            var hrUserId = GetCurrentUserId();
-            await _salaryService.UpdateSalaryAsync(dto.UserId, dto.NewSalary, hrUserId);
+            var requesterId = GetCurrentUserId();
+            await _salaryService.UpdateSalaryAsync(dto.UserId, dto.NewSalary, requesterId);
             return Ok(new { message = "Maaş başarıyla güncellendi." });
         }
         catch (Exception ex)

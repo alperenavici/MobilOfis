@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace MobilOfis.Web.Models.ViewModels;
 
@@ -40,6 +41,8 @@ public class SalaryViewModel
     public DateTime? LastUpdated { get; set; }
     
     public List<SalaryPaymentViewModel> PaymentHistory { get; set; } = new();
+    public List<TeamMemberSalaryViewModel> TeamMembers { get; set; } = new();
+    public bool CanManageTeam => TeamMembers?.Any() == true;
 }
 
 public class SalaryPaymentViewModel
@@ -50,5 +53,15 @@ public class SalaryPaymentViewModel
     public decimal NetSalary { get; set; }
     public decimal? Bonus { get; set; }
     public DateTime PaymentDate { get; set; }
+}
+
+public class TeamMemberSalaryViewModel
+{
+    public Guid UserId { get; set; }
+    public string UserName { get; set; } = string.Empty;
+    public string? DepartmentName { get; set; }
+    public string? JobTitle { get; set; }
+    public decimal Salary { get; set; }
+    public DateTime? LastUpdated { get; set; }
 }
 
