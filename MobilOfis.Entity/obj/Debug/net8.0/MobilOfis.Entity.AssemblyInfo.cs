@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MobilOfis.Entity")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+78897f07ad2efcdabc93864b00299c9331360b28")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d4a0b10d50de952b4ea6570be6758b62fa9f8615")]
 [assembly: System.Reflection.AssemblyProductAttribute("MobilOfis.Entity")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MobilOfis.Entity")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

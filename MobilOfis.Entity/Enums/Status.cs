@@ -6,4 +6,5 @@ public enum Status
     ManagerApproved,   // Manager onayladı, HR onayı bekliyor
     Approved,          // HR onayladı, kesinleşti
     Rejected,          // Reddedildi (Manager veya HR tarafından)
+    Cancelled          // Kullanıcı tarafından iptal edildi
 }

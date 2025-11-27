@@ -1,0 +1,266 @@
+@model UserViewModel
+@{
+    ViewData["Title"] = "Kullanıcıyı Düzenle";
+}
+
+<div class="user-form-container">
+    <!-- Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-pencil me-2"></i>Kullanıcıyı Düzenle</h2>
+        <a asp-action="Detail" asp-route-id="@Model.UserId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>İptal
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <form asp-action="Edit" asp-route-id="@Model.UserId" method="post" id="editUserForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="UserId" value="@Model.UserId" />
+                
+                <!-- Kişisel Bilgiler -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person me-2"></i>Kişisel Bilgiler</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">Ad <span class="text-danger">*</span></label>
+                                <input type="text" name="FirstName" id="firstName" class="form-control" required 
+                                       value="@Model.FirstName">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Soyad <span class="text-danger">*</span></label>
+                                <input type="text" name="LastName" id="lastName" class="form-control" required 
+                                       value="@Model.LastName">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="Email" id="email" class="form-control" required 
+                                       value="@Model.Email">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phoneNumber" class="form-label">Telefon</label>
+                                <input type="tel" name="PhoneNumber" id="phoneNumber" class="form-control" 
+                                       value="@Model.PhoneNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="birthDate" class="form-label">Doğum Tarihi</label>
+                                <input type="date" name="BirthDate" id="birthDate" class="form-control" 
+                                       value="@(Model.BirthDate?.ToString("yyyy-MM-dd"))">
+                            </div>
+                            <div class="col-12">
+                                <label for="address" class="form-label">Adres</label>
+                                <textarea name="Address" id="address" class="form-control" rows="2">@Model.Address</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- İş Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>İş Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="departmentId" class="form-label">Departman <span class="text-danger">*</span></label>
+                                <select name="DepartmentId" id="departmentId" class="form-select" required>
+                                    <option value="">Seçiniz...</option>
+                                    @if (ViewBag.Departments != null)
+                                    {
+                                        @foreach (var dept in ViewBag.Departments)
+                                        {
+                                            <option value="@dept.DepartmentId" selected="@(dept.DepartmentId == Model.DepartmentId)">
+                                                @dept.DepartmentName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="jobTitle" class="form-label">Pozisyon <span class="text-danger">*</span></label>
+                                <input type="text" name="JobTitle" id="jobTitle" class="form-control" required 
+                                       value="@Model.JobTitle">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="managerId" class="form-label">Bağlı Olduğu Yönetici</label>
+                                <select name="ManagerId" id="managerId" class="form-select">
+                                    <option value="">Seçiniz...</option>
+                                    @if (ViewBag.Managers != null)
+                                    {
+                                        @foreach (var manager in ViewBag.Managers)
+                                        {
+                                            <option value="@manager.UserId" selected="@(manager.UserId == Model.ManagerId)">
+                                                @manager.FullName
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hesap Bilgileri -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Hesap Bilgileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">Rol <span class="text-danger">*</span></label>
+                                <select name="Role" id="role" class="form-select" required>
+                                    <option value="">Seçiniz...</option>
+                                    <option value="Employee" selected="@(Model.Role == "Employee")">Çalışan</option>
+                                    <option value="Manager" selected="@(Model.Role == "Manager")">Yönetici</option>
+                                    <option value="HR" selected="@(Model.Role == "HR")">İnsan Kaynakları</option>
+                                    <option value="Admin" selected="@(Model.Role == "Admin")">Admin</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Şifre Değiştir</label>
+                                <button type="button" class="btn btn-outline-secondary w-100" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                    <i class="bi bi-key me-1"></i>Şifre Değiştir
+                                </button>
+                                <small class="text-muted">Şifre değiştirmek için tıklayın</small>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" name="IsActive" id="isActive" class="form-check-input" 
+                                           value="true" checked="@Model.IsActive">
+                                    <label class="form-check-label" for="isActive">Hesap aktif</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Butonlar -->
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Detail" asp-route-id="@Model.UserId" class="btn btn-secondary">
+                        <i class="bi bi-x-lg me-1"></i>İptal
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>Değişiklikleri Kaydet
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Şifre Değiştir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <input type="hidden" name="userId" value="@Model.UserId" />
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Yeni Şifre</label>
+                        <input type="password" name="newPassword" id="newPassword" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Şifre Tekrar</label>
+                        <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">Şifre Değiştir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        // Form submission
+        document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Show loading
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Kaydediliyor...';
+            
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    showToast('Kullanıcı bilgileri güncellendi', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/User/Detail/@Model.UserId';
+                    }, 1500);
+                } else {
+                    const error = await response.text();
+                    showToast(error || 'Güncelleme başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+        
+        // Change password
+        async function changePassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!newPassword || !confirmPassword) {
+                showToast('Lütfen tüm alanları doldurun', 'warning');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Şifreler eşleşmiyor', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/User/ChangePassword/@Model.UserId', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    },
+                    body: JSON.stringify({ newPassword: newPassword })
+                });
+                
+                if (response.ok) {
+                    showToast('Şifre başarıyla değiştirildi', 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    if (modal) modal.hide();
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    showToast('Şifre değiştirilemedi', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+    </script>
+}
+

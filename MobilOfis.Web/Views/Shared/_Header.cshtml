@@ -1,0 +1,72 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userName = HttpContextAccessor.HttpContext?.User.Identity?.Name ?? "Kullanıcı";
+    var userEmail = HttpContextAccessor.HttpContext?.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+}
+
+<header class="header">
+    <div class="header-left">
+        <!-- Mobil Menü Butonu (sadece mobilde görünür) -->
+        <button class="btn btn-link mobile-menu-toggle d-md-none" id="mobileMenuToggle" type="button">
+            <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        </button>
+    </div>
+    
+    <div class="header-right">
+        <!-- Bildirimler -->
+        <div class="dropdown notification-dropdown">
+            <button class="btn btn-link position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell" style="font-size: 1.3rem;"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger header-notification-badge" style="display: none; font-size: 0.7rem; padding: 0.25em 0.5em; min-width: 18px; line-height: 1.2;">
+                    0
+                </span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" style="min-width: 320px; max-height: 400px; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                    <h6 class="mb-0 fw-bold">Bildirimler</h6>
+                    <a class="text-decoration-none small" asp-controller="Notification" asp-action="Index">Tümünü Gör</a>
+                </div>
+                <div id="notificationDropdownContent" class="p-2">
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
+                        <small>Bildirim yok</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Kullanıcı Menüsü -->
+        <div class="dropdown user-dropdown">
+            <button class="btn btn-link dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" style="gap: 0.75rem;">
+                <img src="~/images/default-avatar.png" alt="Avatar" class="rounded-circle" 
+                     style="width: 40px; height: 40px; object-fit: cover;" 
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27%3E%3Crect width=%2740%27 height=%2740%27 fill=%27%23ddd%27/%3E%3C/svg%3E'">
+                <div class="d-none d-md-flex flex-column align-items-start" style="line-height: 1.2;">
+                    <span style="font-weight: 600; font-size: 0.95rem; color: #1a202c;">@userName</span>
+                    <small style="font-size: 0.75rem; color: #6c757d;">@userEmail</small>
+                </div>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <div class="dropdown-item-text">
+                        <div class="fw-bold">@userName</div>
+                        <small class="text-muted">@userEmail</small>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                        <i class="bi bi-person me-2"></i>Profilim
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger" asp-controller="Auth" asp-action="Logout">
+                        <i class="bi bi-box-arrow-right me-2"></i>Çıkış Yap
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+

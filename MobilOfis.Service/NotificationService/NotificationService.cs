@@ -41,6 +41,7 @@ public class NotificationService : INotificationService
             "manager_approved" => $"İzin talebiniz yöneticiniz tarafından onaylandı. HR onayı bekleniyor.",
             "approved" => $"İzin talebiniz HR tarafından onaylandı.",
             "rejected" => $"İzin talebiniz reddedildi. Sebep: {leave.RejectionReason}",
+            "cancelled" => "İzin talebiniz iptal edildi.",
             _ => "İzin talebinizle ilgili bir güncelleme var."
         };
 
@@ -65,6 +66,12 @@ public class NotificationService : INotificationService
             {
                 await SendNotificationAsync(hrUser.UserId, $"{user.FirstName} {user.LastName}'ın izin talebi manager onayından geçti. HR onayı bekliyor.", "Leave", leave.LeavesId);
             }
+        }
+
+        // Manager'a iptal bildirimi
+        if (action == "cancelled" && user.ManagerId.HasValue)
+        {
+            await SendNotificationAsync(user.ManagerId.Value, $"{user.FirstName} {user.LastName} izin talebini iptal etti.", "Leave", leave.LeavesId);
         }
     }
 

@@ -13,5 +13,6 @@ public interface ILeaveService
     Task<IEnumerable<Leaves>> GetPendingLeavesForHRAsync();
     Task<Leaves> GetLeaveByIdAsync(Guid leaveId);
     Task<bool> CanUserApproveLeaveAsync(Guid leaveId, Guid userId);
+    Task CancelLeaveAsync(Guid leaveId, Guid userId);
 }
 

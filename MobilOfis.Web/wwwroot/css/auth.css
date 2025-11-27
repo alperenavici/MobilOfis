@@ -1,0 +1,36 @@
+/* Auth Pages Specific Styles */
+.login-container {
+    min-height: 100vh;
+}
+
+.login-form-wrapper {
+    max-width: 450px;
+    width: 100%;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+}
+
+.login-form-wrapper h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0F172A;
+}
+
+.form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+.form-check-input:checked {
+    background-color: #2563EB;
+    border-color: #2563EB;
+}
+
+@media (max-width: 992px) {
+    .login-form-wrapper {
+        padding: 2rem;
+    }
+}
+

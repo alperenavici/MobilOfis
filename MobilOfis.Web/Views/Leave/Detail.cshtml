@@ -1,0 +1,186 @@
+@model LeaveViewModel
+@{
+    ViewData["Title"] = "İzin Detayı";
+}
+
+<div class="leave-detail-container">
+    <!-- Başlık ve Geri Dönüş -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-check me-2"></i>İzin Detayı</h2>
+        <a asp-action="MyLeaves" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Geri Dön
+        </a>
+    </div>
+    
+    <!-- İzin Bilgileri -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Genel Bilgiler -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Genel Bilgiler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Talep Sahibi</label>
+                            <p class="fw-bold">@Model.UserName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Durum</label>
+                            <p>
+                                <span class="badge badge-@Model.StatusBadgeColor">
+                                    @Model.StatusDisplay
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">İzin Türü</label>
+                            <p class="fw-bold">@Model.LeavesTypeDisplay</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Talep Tarihi</label>
+                            <p class="fw-bold">@Model.RequestDate.ToString("dd MMMM yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Başlangıç Tarihi</label>
+                            <p class="fw-bold">@Model.StartDate.ToString("dd MMMM yyyy")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Bitiş Tarihi</label>
+                            <p class="fw-bold">@Model.EndDate.ToString("dd MMMM yyyy")</p>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted">Toplam Gün</label>
+                            <p class="fw-bold text-primary">@Model.DayCount gün</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted">İzin Nedeni</label>
+                            <p>@Model.Reason</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                        {
+                            <div class="col-12">
+                                <div class="alert alert-danger">
+                                    <strong>Reddetme Nedeni:</strong>
+                                    <p class="mb-0">@Model.RejectionReason</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- İşlemler -->
+            @if (Model.Status == "Pending" && User.Identity?.Name == Model.UserName)
+            {
+                <div class="card">
+                    <div class="card-header bg-warning-subtle">
+                        <h5 class="mb-0">İşlemler</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">İzin talebiniz beklemede. İsterseniz iptal edebilirsiniz.</p>
+                        <button type="button" class="btn btn-danger" onclick="leaveFunctions.cancelLeave('@Model.LeavesId')">
+                            <i class="bi bi-x-lg me-1"></i>İzni İptal Et
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Onay Süreci Timeline -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Onay Süreci</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <!-- Talep Oluşturma -->
+                        <div class="timeline-item">
+                            <div class="timeline-marker success"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">Talep Oluşturuldu</div>
+                                    <div class="timeline-time">@Model.RequestDate.ToString("dd.MM.yyyy HH:mm")</div>
+                                </div>
+                                <div class="timeline-body">
+                                    @Model.UserName tarafından talep oluşturuldu
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Manager Onayı -->
+                        @if (Model.ManagerApprovalId.HasValue)
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker @(Model.Status == "Rejected" ? "danger" : "success")"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">Manager @(Model.Status == "Rejected" ? "Reddetti" : "Onayladı")</div>
+                                        @if (Model.ManagerApprovalDate.HasValue)
+                                        {
+                                            <div class="timeline-time">@Model.ManagerApprovalDate.Value.ToString("dd.MM.yyyy HH:mm")</div>
+                                        }
+                                    </div>
+                                    <div class="timeline-body">
+                                        @Model.ManagerApprovalName tarafından @(Model.Status == "Rejected" ? "reddedildi" : "onaylandı")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker warning"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">Manager Onayı Bekleniyor</div>
+                                    </div>
+                                    <div class="timeline-body">
+                                        Manager onayı bekleniyor
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        
+                        <!-- HR Onayı -->
+                        @if (Model.Status == "Approved")
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker success"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">HR Onayladı</div>
+                                    </div>
+                                    <div class="timeline-body">
+                                        İK departmanı tarafından onaylandı
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else if (Model.Status == "ManagerApproved")
+                        {
+                            <div class="timeline-item">
+                                <div class="timeline-marker warning"></div>
+                                <div class="timeline-content">
+                                    <div class="timeline-header">
+                                        <div class="timeline-title">HR Onayı Bekleniyor</div>
+                                    </div>
+                                    <div class="timeline-body">
+                                        İK departmanı onayı bekleniyor
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/leaves.js"></script>
+}
+

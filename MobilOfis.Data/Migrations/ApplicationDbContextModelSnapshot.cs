@@ -28,12 +28,23 @@ namespace MobilOfis.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DepartmentName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("DepartmentId");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Departments");
                 });
@@ -84,8 +95,17 @@ namespace MobilOfis.Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("HRApprovalDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("HRApprovalId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("LeavesType")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ManagerApprovalDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ManagerApprovalId")
                         .HasColumnType("uuid");
@@ -277,6 +297,15 @@ namespace MobilOfis.Data.Migrations
                     b.HasIndex("ManagerId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.Departments", b =>
+                {
+                    b.HasOne("MobilOfis.Entity.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("MobilOfis.Entity.Events", b =>
