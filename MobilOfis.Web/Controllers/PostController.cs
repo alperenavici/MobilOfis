@@ -22,8 +22,10 @@ public class PostController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
+        var trendingHashtags = await _postService.GetTrendingHashtagsAsync(5);
+        ViewBag.TrendingHashtags = trendingHashtags;
         return View();
     }
 

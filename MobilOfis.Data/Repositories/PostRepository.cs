@@ -86,5 +86,44 @@ public class PostRepository : GenericRepository<Post>, IPostRepository
     {
         return await _context.PostComments.CountAsync(pc => pc.PostId == postId);
     }
+
+    public async Task<Dictionary<string, int>> GetTrendingHashtagsAsync(int count)
+    {
+        var recentPosts = await _context.Posts
+            .Where(p => p.CreatedAt >= DateTime.UtcNow.AddDays(-30))
+            .Select(p => p.Content)
+            .ToListAsync();
+
+        var hashtagCounts = new Dictionary<string, int>();
+
+        foreach (var content in recentPosts)
+        {
+            if (string.IsNullOrEmpty(content)) continue;
+
+            var words = content.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in words)
+            {
+                if (word.StartsWith("#") && word.Length > 1)
+                {
+                    var hashtag = word.TrimEnd('.', ',', '!', '?').Substring(1); // Remove # and punctuation
+                    if (string.IsNullOrEmpty(hashtag)) continue;
+                    
+                    if (hashtagCounts.ContainsKey(hashtag))
+                    {
+                        hashtagCounts[hashtag]++;
+                    }
+                    else
+                    {
+                        hashtagCounts[hashtag] = 1;
+                    }
+                }
+            }
+        }
+
+        return hashtagCounts
+            .OrderByDescending(kvp => kvp.Value)
+            .Take(count)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
 }
 

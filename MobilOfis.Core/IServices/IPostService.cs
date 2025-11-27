@@ -20,6 +20,8 @@ public interface IPostService
     Task<IEnumerable<PostComment>> GetCommentsAsync(Guid postId);
     Task<bool> IsPostLikedAsync(Guid postId, Guid userId);
     Task<int> GetLikeCountAsync(Guid postId);
+
     Task<int> GetCommentCountAsync(Guid postId);
+    Task<Dictionary<string, int>> GetTrendingHashtagsAsync(int count = 5);
 }
 
