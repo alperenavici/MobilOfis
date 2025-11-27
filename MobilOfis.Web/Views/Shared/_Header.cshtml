@@ -32,14 +32,13 @@
         
         <!-- Kullanıcı Menüsü -->
         <div class="dropdown user-dropdown">
-            <button class="btn btn-link dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" style="gap: 0.75rem;">
+            <button class="btn user-profile-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <img src="@(string.IsNullOrEmpty(profilePictureUrl) ? "/images/default-avatar.png" : profilePictureUrl)" 
-                     alt="Avatar" class="rounded-circle header-profile-img" 
-                     style="width: 40px; height: 40px; object-fit: cover;" 
+                     alt="Avatar" class="avatar header-profile-img" 
                      onerror="this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(userName)&background=667eea&color=fff&size=128'">
-                <div class="d-none d-md-flex flex-column align-items-start" style="line-height: 1.2;">
-                    <span style="font-weight: 600; font-size: 0.95rem; color: #1a202c;">@userName</span>
-                    <small style="font-size: 0.75rem; color: #6c757d;">@userEmail</small>
+                <div class="user-info d-none d-md-block">
+                    <span class="user-name">@userName</span>
+                    <span class="user-email">@userEmail</span>
                 </div>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
