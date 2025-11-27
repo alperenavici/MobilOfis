@@ -694,28 +694,7 @@ public class LeaveController : Controller
         try
         {
             var userId = GetCurrentUserId();
-            var leave = await _leaveService.GetLeaveByIdAsync(id);
-            
-            if (leave.UserId != userId)
-            {
-                return Unauthorized(new { message = "Bu işlemi yapmaya yetkiniz yok." });
-            }
-
-            if (leave.Status != Status.Pending)
-            {
-                return BadRequest(new { message = "Sadece bekleyen izinleri iptal edebilirsiniz." });
-            }
-
-            // İzin iptal işlemi burada yapılacak (service'de metod eklenmeli veya status update edilmeli)
-            // Şimdilik status update varsayıyoruz veya service'de Cancel metodu varsa onu çağırmalıyız.
-            // Ancak mevcut Cancel metodunda service call yok, sadece return Json var.
-            // Bu yüzden burada da benzer bir logic uygulayacağız veya service'i güncelleyeceğiz.
-            // Service'de CancelLeaveAsync olmadığı için şimdilik mock response dönüyoruz, 
-            // ama gerçekte service'e eklenmeli.
-            // TODO: Service'e CancelLeaveAsync ekle.
-            
-            // Geçici çözüm: Status update
-            // await _leaveService.CancelLeaveAsync(id, userId); 
+            await _leaveService.CancelLeaveAsync(id, userId);
             
             return Ok(new { message = "İzin talebi iptal edildi." });
         }

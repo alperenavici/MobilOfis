@@ -145,7 +145,7 @@ public class LeaveService : ILeaveService
             throw new Exception("İzin talebi bulunamadı.");
         }
 
-        if (leave.Status == Status.Approved || leave.Status == Status.Rejected)
+        if (leave.Status == Status.Approved || leave.Status == Status.Rejected || leave.Status == Status.Cancelled)
         {
             throw new Exception("Bu izin talebi zaten sonuçlandırılmış.");
         }
@@ -219,6 +219,37 @@ public class LeaveService : ILeaveService
         }
 
         return false;
+    }
+
+    public async Task CancelLeaveAsync(Guid leaveId, Guid userId)
+    {
+        var leave = await _unitOfWork.Leaves.GetByIdAsync(leaveId);
+        if (leave == null)
+        {
+            throw new Exception("İzin talebi bulunamadı.");
+        }
+
+        if (leave.UserId != userId)
+        {
+            throw new Exception("Bu izin talebini iptal etme yetkiniz yok.");
+        }
+
+        if (leave.Status != Status.Pending)
+        {
+            throw new Exception("Sadece bekleyen izin taleplerini iptal edebilirsiniz.");
+        }
+
+        leave.Status = Status.Cancelled;
+        leave.RejectionReason = null;
+        leave.ManagerApprovalId = null;
+        leave.ManagerApprovalDate = null;
+        leave.HRApprovalId = null;
+        leave.HRApprovalDate = null;
+
+        _unitOfWork.Leaves.Update(leave);
+        await _unitOfWork.SaveChangesAsync();
+
+        await _notificationService.SendLeaveNotificationAsync(leave, "cancelled");
     }
 }
 

@@ -31,6 +31,7 @@ public class LeaveViewModel
             "ManagerApproved" => "Manager Onaylı",
             "Approved" => "Onaylandı",
             "Rejected" => "Reddedildi",
+            "Cancelled" => "İptal Edildi",
             _ => Status
         };
     }
@@ -43,6 +44,7 @@ public class LeaveViewModel
             "ManagerApproved" => "info",
             "Approved" => "success",
             "Rejected" => "danger",
+            "Cancelled" => "secondary",
             _ => "secondary"
         };
     }

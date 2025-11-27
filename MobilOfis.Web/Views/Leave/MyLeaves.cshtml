@@ -116,7 +116,8 @@
                                     <td>@leave.DayCount</td>
                                     <td>@leave.RequestDate.ToShortDateString()</td>
                                     <td>
-                                        <span class="badge badge-@leave.StatusBadgeColor">
+                                        <span class="status-chip status-@leave.StatusBadgeColor?.ToLowerInvariant()">
+                                            <span class="status-dot"></span>
                                             @leave.StatusDisplay
                                         </span>
                                     </td>
