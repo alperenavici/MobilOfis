@@ -22,7 +22,7 @@
                     <button class="btn btn-outline-primary btn-sm w-100" onclick="document.getElementById('photoUpload').click()">
                         <i class="bi bi-camera me-1"></i>Fotoğraf Değiştir
                     </button>
-                    <input type="file" id="photoUpload" accept="image/*" style="display: none;" onchange="uploadPhoto(this)">
+                    <input type="file" id="photoUpload" accept="image/*" style="display: none;">
                 </div>
             </div>
             
@@ -78,6 +78,7 @@
                         <div class="card-body">
                             <form asp-action="UpdateProfile" method="post" id="profileForm">
                                 @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="ProfilePictureUrl" id="profilePictureUrlInput" />
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label for="firstName" class="form-label">Ad</label>
@@ -222,37 +223,124 @@
     </div>
 </div>
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <style>
+        .img-container {
+            max-height: 500px;
+        }
+        .img-container img {
+            max-width: 100%;
+        }
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 50%;
+        }
+    </style>
+}
+
 @section Scripts {
     @Html.AntiForgeryToken()
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script>
-        // Upload photo
-        async function uploadPhoto(input) {
-            if (!input.files || !input.files[0]) return;
-            
-            const formData = new FormData();
-            formData.append('photo', input.files[0]);
-            
-            try {
-                const response = await fetch('/Profile/UploadPhoto', {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
-                    },
-                    body: formData
-                });
+        let cropper;
+        const photoUpload = document.getElementById('photoUpload');
+        const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+        const image = document.getElementById('imageToCrop');
+
+        // File selection handler
+        photoUpload.addEventListener('change', function (e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('profilePhoto').src = data.photoUrl;
-                    showToast('Profil fotoğrafı güncellendi', 'success');
-                } else {
-                    showToast('Fotoğraf yüklenemedi', 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Bir hata oluştu', 'error');
+                reader.onload = function (e) {
+                    image.src = e.target.result;
+                    cropModal.show();
+                };
+                
+                reader.readAsDataURL(file);
+                
+                // Reset input value to allow selecting same file again
+                this.value = '';
             }
-        }
+        });
+
+        // Initialize cropper when modal is shown
+        document.getElementById('cropModal').addEventListener('shown.bs.modal', function () {
+            cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 1,
+                restore: false,
+                guides: false,
+                center: false,
+                highlight: false,
+                cropBoxMovable: false,
+                cropBoxResizable: false,
+                toggleDragModeOnDblclick: false,
+            });
+        });
+
+        // Destroy cropper when modal is hidden
+        document.getElementById('cropModal').addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        });
+
+        // Crop and Upload
+        document.getElementById('cropAndUpload').addEventListener('click', function () {
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400,
+            });
+
+            canvas.toBlob(async function (blob) {
+                const formData = new FormData();
+                formData.append('photo', blob, 'profile.jpg');
+
+                try {
+                    const response = await fetch('/Profile/UploadPhoto', {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('profilePhoto').src = data.photoUrl;
+                        
+                        // Update hidden input so form submission keeps the new photo
+                        const hiddenInput = document.getElementById('profilePictureUrlInput');
+                        if (hiddenInput) {
+                            hiddenInput.value = data.photoUrl;
+                        }
+                        
+                        // Update header image
+                        const headerImg = document.querySelector('.header-profile-img');
+                        if (headerImg) {
+                            headerImg.src = data.photoUrl;
+                        }
+                        
+                        showToast('Profil fotoğrafı güncellendi', 'success');
+                        cropModal.hide();
+                    } else {
+                        showToast('Fotoğraf yüklenemedi', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Bir hata oluştu', 'error');
+                }
+            }, 'image/jpeg', 0.9);
+        });
         
         // Toggle two-factor authentication
         async function toggleTwoFactor(enabled) {
@@ -293,4 +381,25 @@
         });
     </script>
 }
+
+<!-- Crop Modal -->
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Profil Fotoğrafını Düzenle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="imageToCrop" src="" alt="Picture">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="cropAndUpload">Kaydet ve Yükle</button>
+            </div>
+        </div>
+    </div>
+</div>
 

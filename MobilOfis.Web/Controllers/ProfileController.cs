@@ -10,10 +10,12 @@ namespace MobilOfis.Web.Controllers;
 public class ProfileController : Controller
 {
     private readonly IAuthServices _authServices;
+    private readonly IFileStorageService _fileStorageService;
 
-    public ProfileController(IAuthServices authServices)
+    public ProfileController(IAuthServices authServices, IFileStorageService fileStorageService)
     {
         _authServices = authServices;
+        _fileStorageService = fileStorageService;
     }
 
     /// <summary>
@@ -67,12 +69,28 @@ public class ProfileController : Controller
         try
         {
             var userId = GetCurrentUserId();
+            var profilePictureUrl = model.ProfilePictureUrl;
+
+            if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
+            {
+                using var stream = model.ProfilePicture.OpenReadStream();
+                var uploadedUrl = await _fileStorageService.SaveProfileImageAsync(
+                    stream, 
+                    model.ProfilePicture.FileName, 
+                    model.ProfilePicture.Length);
+                
+                if (!string.IsNullOrEmpty(uploadedUrl))
+                {
+                    profilePictureUrl = uploadedUrl;
+                }
+            }
+
             await _authServices.UpdateUserProfileAsync(
                 userId,
                 model.FirstName,
                 model.LastName,
                 model.PhoneNumber ?? string.Empty,
-                model.ProfilePictureUrl ?? string.Empty
+                profilePictureUrl ?? string.Empty
             );
 
             TempData["SuccessMessage"] = "Profil başarıyla güncellendi.";
@@ -130,6 +148,50 @@ public class ProfileController : Controller
         {
             TempData["ErrorMessage"] = ex.Message;
             return RedirectToAction(nameof(Index));
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadPhoto(IFormFile photo)
+    {
+        try
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest(new { message = "Dosya seçilmedi." });
+            }
+
+            var userId = GetCurrentUserId();
+            using var stream = photo.OpenReadStream();
+            var uploadedUrl = await _fileStorageService.SaveProfileImageAsync(
+                stream, 
+                photo.FileName, 
+                photo.Length);
+
+            if (string.IsNullOrEmpty(uploadedUrl))
+            {
+                return BadRequest(new { message = "Dosya yüklenemedi." });
+            }
+
+            // Update user profile picture in DB
+            var user = await _authServices.GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                await _authServices.UpdateUserProfileAsync(
+                    userId,
+                    user.FirstName,
+                    user.LastName,
+                    user.PhoneNumber ?? string.Empty,
+                    uploadedUrl
+                );
+            }
+
+            return Ok(new { photoUrl = uploadedUrl });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
