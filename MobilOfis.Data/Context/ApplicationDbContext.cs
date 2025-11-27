@@ -11,6 +11,9 @@ public class ApplicationDbContext:DbContext
    public DbSet<Notifications> Notifications { get; set; }
    public DbSet<Events> Events { get; set; }
    public DbSet<Participants> Participants { get; set; }
+   public DbSet<Post> Posts { get; set; }
+   public DbSet<PostLike> PostLikes { get; set; }
+   public DbSet<PostComment> PostComments { get; set; }
 
    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
    {
@@ -149,6 +152,69 @@ public class ApplicationDbContext:DbContext
          .HasOne(p => p.User)
          .WithMany(u => u.Participants)
          .HasForeignKey(p => p.UserId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      // Posts Configuration
+      modelBuilder.Entity<Post>()
+         .HasKey(p => p.PostId);
+
+      modelBuilder.Entity<Post>()
+         .Property(p => p.Content)
+         .IsRequired()
+         .HasMaxLength(1000);
+
+      modelBuilder.Entity<Post>()
+         .Property(p => p.CreatedAt)
+         .HasDefaultValueSql("NOW()");
+
+      modelBuilder.Entity<Post>()
+         .HasIndex(p => p.CreatedAt);
+
+      modelBuilder.Entity<Post>()
+         .HasOne(p => p.User)
+         .WithMany(u => u.Posts)
+         .HasForeignKey(p => p.UserId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      // PostLikes Configuration
+      modelBuilder.Entity<PostLike>()
+         .HasKey(pl => new { pl.PostId, pl.UserId });
+
+      modelBuilder.Entity<PostLike>()
+         .HasOne(pl => pl.Post)
+         .WithMany(p => p.Likes)
+         .HasForeignKey(pl => pl.PostId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      modelBuilder.Entity<PostLike>()
+         .HasOne(pl => pl.User)
+         .WithMany()
+         .HasForeignKey(pl => pl.UserId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      // PostComments Configuration
+      modelBuilder.Entity<PostComment>()
+         .HasKey(pc => pc.CommentId);
+
+      modelBuilder.Entity<PostComment>()
+         .Property(pc => pc.Content)
+         .IsRequired()
+         .HasMaxLength(500);
+
+      modelBuilder.Entity<PostComment>()
+         .Property(pc => pc.CreatedAt)
+         .HasDefaultValueSql("NOW()");
+
+      modelBuilder.Entity<PostComment>()
+         .HasOne(pc => pc.Post)
+         .WithMany(p => p.Comments)
+         .HasForeignKey(pc => pc.PostId)
+         .OnDelete(DeleteBehavior.Cascade);
+
+      modelBuilder.Entity<PostComment>()
+         .HasOne(pc => pc.User)
+         .WithMany()
+         .HasForeignKey(pc => pc.UserId)
          .OnDelete(DeleteBehavior.Cascade);
    }
 }

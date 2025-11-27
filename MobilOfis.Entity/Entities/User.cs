@@ -57,4 +57,5 @@ public class User
     public virtual ICollection<Notifications>? Notifications { get; set; } // Kullanıcının bildirimleri
     public virtual ICollection<Events>? CreatedEvents { get; set; } // Kullanıcının oluşturduğu etkinlikler
     public virtual ICollection<Participants>? Participants { get; set; } // Kullanıcının katıldığı etkinlikler
+    public virtual ICollection<Post>? Posts { get; set; } // Kullanıcının paylaşımları
 }

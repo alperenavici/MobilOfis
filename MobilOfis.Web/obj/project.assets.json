@@ -1721,7 +1721,10 @@
         },
         "runtime": {
           "bin/placeholder/MobilOfis.Service.dll": {}
-        }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },

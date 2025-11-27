@@ -77,7 +77,8 @@ public class AuthController : Controller
             
             var claims = new List<Claim>
             {
-                new Claim("userId", user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim("userId", user.UserId.ToString()), // Keep custom claim for backward compatibility if needed
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role ?? "Employee"),

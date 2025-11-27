@@ -100,6 +100,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTm90aWZpY2F0aW9uL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Post/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUG9zdC9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Post/_CreatePostWidget.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUG9zdC9fQ3JlYXRlUG9zdFdpZGdldC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Profile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUHJvZmlsZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -126,6 +134,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Shared/_Sidebar.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19TaWRlYmFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Shared/_SidebarFeed.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19TaWRlYmFyRmVlZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alperenavci/RiderProjects/MobilOfis/MobilOfis.Web/Views/Shared/_ValidationScriptsPartial.cshtml]

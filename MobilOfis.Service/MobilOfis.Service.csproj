@@ -13,6 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\MobilOfis.Core\MobilOfis.Core.csproj" />
       <ProjectReference Include="..\MobilOfis.Entity\MobilOfis.Entity.csproj" />
     </ItemGroup>
