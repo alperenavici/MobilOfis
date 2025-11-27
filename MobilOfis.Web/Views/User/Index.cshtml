@@ -93,8 +93,8 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(user.FullName)&background=667eea&color=fff" 
-                                                 alt="@user.FullName" class="avatar me-2">
+                                            <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.FullName)}&background=667eea&color=fff" : user.ProfilePictureUrl)" 
+                                                 alt="@user.FullName" class="avatar me-2 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                             <div>
                                                 <strong>@user.FullName</strong>
                                                 @if (user.IsManager)

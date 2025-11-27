@@ -33,6 +33,9 @@ public class ProfileViewModel
         get => ProfilePictureUrl;
         set => ProfilePictureUrl = value;
     }
+
+    [Display(Name = "Profil Fotoğrafı")]
+    public IFormFile? ProfilePicture { get; set; }
     
     [Display(Name = "İş Ünvanı")]
     public string? JobTitle { get; set; }
