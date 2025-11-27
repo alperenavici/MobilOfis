@@ -13,27 +13,7 @@
     </div>
     
     <div class="header-right">
-        <!-- Bildirimler -->
-        <div class="dropdown notification-dropdown">
-            <button class="btn btn-link position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-bell" style="font-size: 1.3rem;"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger header-notification-badge" style="display: none; font-size: 0.7rem; padding: 0.25em 0.5em; min-width: 18px; line-height: 1.2;">
-                    0
-                </span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-end" style="min-width: 320px; max-height: 400px; overflow-y: auto;">
-                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
-                    <h6 class="mb-0 fw-bold">Bildirimler</h6>
-                    <a class="text-decoration-none small" asp-controller="Notification" asp-action="Index">Tümünü Gör</a>
-                </div>
-                <div id="notificationDropdownContent" class="p-2">
-                    <div class="text-center py-3 text-muted">
-                        <i class="bi bi-bell-slash d-block mb-2" style="font-size: 2rem;"></i>
-                        <small>Bildirim yok</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         
         <!-- Kullanıcı Menüsü -->
         <div class="dropdown user-dropdown">
