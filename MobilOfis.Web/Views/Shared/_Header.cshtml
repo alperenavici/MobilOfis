@@ -1,7 +1,22 @@
 @inject IHttpContextAccessor HttpContextAccessor
+@inject MobilOfis.Core.IServices.IAuthServices AuthServices
 @{
+    var userIdClaim = HttpContextAccessor.HttpContext?.User.FindFirst("userId");
     var userName = HttpContextAccessor.HttpContext?.User.Identity?.Name ?? "Kullanıcı";
     var userEmail = HttpContextAccessor.HttpContext?.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+    string? profilePictureUrl = null;
+
+    if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+    {
+        var user = await AuthServices.GetUserByIdAsync(userId);
+        if (user != null)
+        {
+            profilePictureUrl = user.ProfilePictureUrl;
+            // Update name/email from DB to be sure
+            userName = $"{user.FirstName} {user.LastName}";
+            userEmail = user.Email;
+        }
+    }
 }
 
 <header class="header">
@@ -18,9 +33,10 @@
         <!-- Kullanıcı Menüsü -->
         <div class="dropdown user-dropdown">
             <button class="btn btn-link dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" style="gap: 0.75rem;">
-                <img src="~/images/default-avatar.png" alt="Avatar" class="rounded-circle" 
+                <img src="@(string.IsNullOrEmpty(profilePictureUrl) ? "/images/default-avatar.png" : profilePictureUrl)" 
+                     alt="Avatar" class="rounded-circle header-profile-img" 
                      style="width: 40px; height: 40px; object-fit: cover;" 
-                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27%3E%3Crect width=%2740%27 height=%2740%27 fill=%27%23ddd%27/%3E%3C/svg%3E'">
+                     onerror="this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(userName)&background=667eea&color=fff&size=128'">
                 <div class="d-none d-md-flex flex-column align-items-start" style="line-height: 1.2;">
                     <span style="font-weight: 600; font-size: 0.95rem; color: #1a202c;">@userName</span>
                     <small style="font-size: 0.75rem; color: #6c757d;">@userEmail</small>
