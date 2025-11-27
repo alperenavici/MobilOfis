@@ -71,6 +71,18 @@
                     <span>Departmanım</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a asp-controller="Notification" asp-action="Index" 
+                   class="nav-link @(currentController == "Notification" ? "active" : "")">
+                    <i class="bi bi-bell"></i>
+                    <span>Bildirimler</span>
+                    <span class="badge rounded-pill bg-danger header-notification-badge ms-2" 
+                          style="display: none; position: static !important; transform: none !important;">
+                        0
+                    </span>
+                </a>
+            </li>
             
             @if (userRole == "HR" || userRole == "Admin")
             {

@@ -18,12 +18,36 @@ public class NotificationController : Controller
     #region MVC Actions
     
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? status, DateTime? startDate, DateTime? endDate)
     {
         try
         {
             var userId = GetCurrentUserId();
             var notifications = await _notificationService.GetMyNotificationsAsync(userId);
+
+            // Filtering
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (status == "unread")
+                {
+                    notifications = notifications.Where(n => !n.IsRead).ToList();
+                }
+                else if (status == "read")
+                {
+                    notifications = notifications.Where(n => n.IsRead).ToList();
+                }
+            }
+
+            if (startDate.HasValue)
+            {
+                notifications = notifications.Where(n => n.SendDate.Date >= startDate.Value.Date).ToList();
+            }
+
+            if (endDate.HasValue)
+            {
+                notifications = notifications.Where(n => n.SendDate.Date <= endDate.Value.Date).ToList();
+            }
+
             var viewModel = notifications.Select(n => new NotificationViewModel
             {
                 NotificationId = n.NotificationId,
