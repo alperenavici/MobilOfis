@@ -29,7 +29,31 @@
     
     <div class="header-right">
 
-        
+        <!-- Bildirimler -->
+        <div class="dropdown notification-dropdown me-3">
+            <button class="btn btn-link position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell fs-5 text-dark"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
+                    0
+                    <span class="visually-hidden">unread messages</span>
+                </span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="notificationDropdown" style="width: 320px;">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Bildirimler</h6>
+                    <a asp-controller="Notification" asp-action="Index" class="small text-decoration-none">Tümünü Gör</a>
+                </div>
+                <div id="notificationDropdownContent" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Bildirimler buraya JS ile yüklenecek -->
+                    <div class="text-center p-3 text-muted">
+                        <small>Yükleniyor...</small>
+                    </div>
+                </div>
+                <div class="p-2 border-top text-center">
+                    <button class="btn btn-sm btn-link text-decoration-none" id="markAllReadBtn">Tümünü Okundu İşaretle</button>
+                </div>
+            </div>
+        </div>
         <!-- Kullanıcı Menüsü -->
         <div class="dropdown user-dropdown">
             <button class="btn user-profile-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

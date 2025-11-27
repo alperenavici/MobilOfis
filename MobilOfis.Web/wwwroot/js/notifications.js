@@ -257,7 +257,8 @@ function getNotificationIcon(type) {
         'Error': 'x-circle',
         'Leave': 'calendar-check',
         'Event': 'calendar-event',
-        'Salary': 'cash'
+        'Salary': 'cash',
+        'Post': 'heart-fill'
     };
     return icons[type] || 'bell';
 }
