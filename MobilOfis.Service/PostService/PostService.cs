@@ -135,5 +135,9 @@ public class PostService : IPostService
     {
         return await _unitOfWork.Posts.GetCommentCountAsync(postId);
     }
-}
 
+    public async Task<Dictionary<string, int>> GetTrendingHashtagsAsync(int count = 5)
+    {
+        return await _unitOfWork.Posts.GetTrendingHashtagsAsync(count);
+    }
+}

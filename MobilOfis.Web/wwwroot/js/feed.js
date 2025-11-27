@@ -24,17 +24,17 @@
             .substring(0, 2)
             .toUpperCase();
 
-        const likeClass = post.isLiked ? 'text-danger' : 'text-muted';
+        const likeClass = post.isLiked ? 'active' : '';
         const likeIcon = post.isLiked ? 'bi-heart-fill' : 'bi-heart';
 
         return `
         <article class="card feed-post-card mb-3" data-post-id="${post.postId}">
             <div class="card-header border-0 pb-0 bg-transparent">
                 <div class="d-flex align-items-center">
-                    <div class="feed-post-card__avatar me-2">
+                    <div class="feed-post-card__avatar me-3">
                         ${post.authorAvatar
-                ? `<img src="${post.authorAvatar}" alt="${escapeHtml(post.authorName)}" class="rounded-circle" width="40" height="40" />`
-                : `<div class="avatar-placeholder rounded-circle bg-light text-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 600;">${escapeHtml(initials)}</div>`}
+                ? `<img src="${post.authorAvatar}" alt="${escapeHtml(post.authorName)}" class="rounded-circle" width="44" height="44" />`
+                : `<div class="avatar-placeholder rounded-circle bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-weight: 600;">${escapeHtml(initials)}</div>`}
                     </div>
                     <div>
                         <h6 class="mb-0 fw-bold text-dark">${escapeHtml(post.authorName)}</h6>
@@ -52,26 +52,28 @@
                 ? `<p class="card-text mb-2">${formatContent(post.content)}</p>`
                 : ''}
                 ${post.imageUrl
-                ? `<div class="feed-post-card__image mt-2 rounded overflow-hidden">
+                ? `<div class="feed-post-card__image mt-3 rounded overflow-hidden">
                            <img src="${post.imageUrl}" alt="Post image" class="img-fluid w-100" style="object-fit: cover; max-height: 500px;" />
                        </div>`
                 : ''}
             </div>
-            <div class="card-footer bg-transparent border-top-0 pt-0">
-                <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-light btn-sm rounded-pill flex-grow-1 js-like-btn ${likeClass}" data-liked="${post.isLiked}">
+            <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+                <div class="d-flex gap-2 mb-0">
+                    <button class="btn btn-action flex-grow-1 js-like-btn ${likeClass}" data-liked="${post.isLiked}">
                         <i class="bi ${likeIcon} me-1"></i> <span class="js-like-count">${post.likeCount}</span> Beğen
                     </button>
-                    <button class="btn btn-light btn-sm rounded-pill text-muted flex-grow-1 js-comment-toggle-btn">
+                    <button class="btn btn-action flex-grow-1 js-comment-toggle-btn">
                         <i class="bi bi-chat me-1"></i> <span class="js-comment-count">${post.commentCount}</span> Yorum Yap
                     </button>
                 </div>
                 <div class="feed-post-card__comments d-none js-comments-section">
-                    <div class="js-comments-list mb-2"></div>
-                    <form class="js-comment-form d-flex gap-2">
-                        <input type="text" class="form-control form-control-sm rounded-pill" placeholder="Yorum yaz..." name="content" required autocomplete="off">
-                        <button type="submit" class="btn btn-primary btn-sm rounded-circle">
-                            <i class="bi bi-send-fill"></i>
+                    <div class="js-comments-list mb-3"></div>
+                    <form class="js-comment-form d-flex gap-2 align-items-center">
+                        <div class="flex-grow-1 position-relative">
+                            <input type="text" class="form-control rounded-pill bg-light border-0 px-3 py-2" placeholder="Yorum yaz..." name="content" required autocomplete="off" style="padding-right: 40px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
                         </button>
                     </form>
                 </div>
@@ -104,7 +106,7 @@
             }
 
             if (!posts.length && listElement.children.length === 0) {
-                listElement.innerHTML = '<p class="text-muted small mb-0">Henüz paylaşım yok.</p>';
+                listElement.innerHTML = '<p class="text-muted small mb-0 text-center py-4">Henüz paylaşım yok.</p>';
                 return;
             }
 
@@ -232,8 +234,7 @@
 
                 if (data.success) {
                     btn.dataset.liked = (!isLiked).toString();
-                    btn.classList.toggle('text-danger');
-                    btn.classList.toggle('text-muted');
+                    btn.classList.toggle('active');
                     const icon = btn.querySelector('i');
                     icon.classList.toggle('bi-heart');
                     icon.classList.toggle('bi-heart-fill');
@@ -254,14 +255,11 @@
 
                 if (data.success) {
                     list.innerHTML = data.comments.map(c => `
-                        <div class="d-flex gap-2 mb-2">
-                            <img src="${c.authorAvatar || ''}" class="rounded-circle" width="24" height="24" style="object-fit: cover;">
-                            <div class="bg-light rounded px-3 py-2 flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="fw-bold small">${escapeHtml(c.authorName)}</span>
-                                    <small class="text-muted" style="font-size: 0.7rem;">${c.createdAtDisplay}</small>
-                                </div>
-                                <p class="mb-0 small">${formatContent(c.content)}</p>
+                        <div class="comment-item">
+                            <img src="${c.authorAvatar || ''}" class="rounded-circle" width="32" height="32" style="object-fit: cover;">
+                            <div class="comment-bubble flex-grow-1">
+                                <div class="comment-author">${escapeHtml(c.authorName)}</div>
+                                <p class="comment-text">${formatContent(c.content)}</p>
                             </div>
                         </div>
                     `).join('');
@@ -278,6 +276,10 @@
 
             if (!section.classList.contains('d-none')) {
                 loadComments(card);
+                // Focus input
+                setTimeout(() => {
+                    section.querySelector('input').focus();
+                }, 100);
             }
         };
 
@@ -341,6 +343,84 @@
         loadPosts(true);
     };
 
+    const initCalendar = () => {
+        const calendarGrid = document.getElementById('calendarGrid');
+        const monthYear = document.getElementById('calendarMonthYear');
+        const prevBtn = document.getElementById('prevMonth');
+        const nextBtn = document.getElementById('nextMonth');
+
+        if (!calendarGrid || !monthYear) return;
+
+        let currentDate = new Date();
+
+        const renderCalendar = (date) => {
+            const year = date.getFullYear();
+            const month = date.getMonth();
+
+            // Turkish month names
+            const months = [
+                'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+                'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+            ];
+
+            monthYear.textContent = `${months[month]} ${year}`;
+
+            calendarGrid.innerHTML = '';
+
+            // Day headers
+            const days = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pz'];
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            // Adjust for Monday start (0 is Sunday in JS, but we want 0 to be Monday)
+            let startDay = firstDay.getDay() - 1;
+            if (startDay === -1) startDay = 6;
+
+            const totalDays = lastDay.getDate();
+
+            // Empty cells for previous month
+            for (let i = 0; i < startDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Days of month
+            const today = new Date();
+            for (let i = 1; i <= totalDays; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = i;
+
+                if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+
+                calendarGrid.appendChild(dayElement);
+            }
+        };
+
+        prevBtn?.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar(currentDate);
+        });
+
+        nextBtn?.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar(currentDate);
+        });
+
+        renderCalendar(currentDate);
+    };
+
     feedContainers.forEach(initFeed);
+    initCalendar();
 })();
 

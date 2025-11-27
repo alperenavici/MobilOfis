@@ -13,5 +13,6 @@ public interface IPostRepository : IGenericRepository<Post>
     Task<bool> IsPostLikedByUserAsync(Guid postId, Guid userId);
     Task<int> GetLikeCountAsync(Guid postId);
     Task<int> GetCommentCountAsync(Guid postId);
+    Task<Dictionary<string, int>> GetTrendingHashtagsAsync(int count);
 }
 
