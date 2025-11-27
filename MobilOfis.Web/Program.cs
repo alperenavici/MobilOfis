@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MobilOfis.Core.IRepositories;
 using MobilOfis.Core.IServices;
+using MobilOfis.Core.Options;
 using MobilOfis.Data.Context;
 using MobilOfis.Data.Repositories;
 using MobilOfis.Data.UnitOfWork;
@@ -14,6 +15,8 @@ using MobilOfis.Service.EventService;
 using MobilOfis.Service.DepartmentService;
 using MobilOfis.Service.NotificationService;
 using MobilOfis.Service.SalaryService;
+using MobilOfis.Service.PostService;
+using MobilOfis.Service.FileStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +36,7 @@ builder.Services.AddScoped<ILeaveRepository, LeaveRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthServices, AuthService>();
@@ -41,6 +45,10 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ISalaryService, SalaryService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
 
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourSuperSecretKeyForJWTTokenGeneration12345678901234567890";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MobilOfis";

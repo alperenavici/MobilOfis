@@ -1,0 +1,54 @@
+@model MobilOfis.Web.Models.ViewModels.FeedWidgetViewModel
+
+@{
+    var listUrl = Url.Action("List", "Post");
+    var createUrl = Url.Action("Create", "Post");
+    var containerClass = string.IsNullOrWhiteSpace(Model.ContainerClass)
+        ? "feed-widget sidebar-feed"
+        : $"feed-widget {Model.ContainerClass}";
+}
+
+<section class="@containerClass"
+         data-feed-list-url="@listUrl"
+         data-feed-create-url="@createUrl"
+         data-feed-page-size="@Model.PageSize">
+    @if (Model.ShowHeader)
+    {
+        <div class="feed-widget__header sidebar-feed__header">
+            <h6 class="mb-0">
+                <i class="bi @Model.HeaderIconClass me-1"></i>@Model.HeaderTitle
+            </h6>
+        </div>
+    }
+
+    <form class="feed-widget__form js-feed-form" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <textarea name="Content"
+                  class="form-control form-control-sm"
+                  rows="@Model.TextareaRows"
+                  maxlength="1000"
+                  placeholder="@Model.Placeholder"></textarea>
+        <div class="sidebar-feed__form-actions">
+            <label class="btn btn-light btn-sm mb-0">
+                <i class="bi bi-image"></i>
+                Görsel Ekle
+                <input type="file" name="Image" accept="image/*" hidden class="js-feed-image-input" />
+            </label>
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="bi bi-send"></i>
+                Paylaş
+            </button>
+        </div>
+        <small class="text-muted js-feed-selected-image"></small>
+    </form>
+
+    <div class="sidebar-feed__status feed-widget__status js-feed-status"></div>
+
+    <div class="sidebar-feed__list feed-widget__list js-feed-list"></div>
+
+    <button type="button"
+            class="btn btn-outline-secondary w-100 btn-sm mt-2 d-none js-feed-load-more">
+        Daha fazla göster
+    </button>
+</section>
+

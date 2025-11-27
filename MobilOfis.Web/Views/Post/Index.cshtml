@@ -1,0 +1,48 @@
+@using MobilOfis.Web.Models.ViewModels
+@{
+    ViewData["Title"] = "Akış";
+}
+
+<div class="feed-page container-fluid p-0">
+    <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-8">
+            
+            <div class="feed-widget"
+                 data-feed-list-url="@Url.Action("List", "Post")"
+                 data-feed-create-url="@Url.Action("Create", "Post")"
+                 data-feed-page-size="10">
+
+                <!-- Create Post Section -->
+                @await Html.PartialAsync("_CreatePostWidget", new FeedWidgetViewModel
+                {
+                    TextareaRows = 3,
+                    Placeholder = "Neler düşünüyorsun?"
+                })
+
+                <!-- Feed Section -->
+                <div class="feed-list-container">
+                     <div class="js-feed-list">
+                         <!-- Posts will be loaded here -->
+                     </div>
+                     
+                     <div class="text-center mt-3">
+                         <button type="button" class="btn btn-light rounded-pill text-muted d-none js-feed-load-more">
+                             Daha fazla göster
+                         </button>
+                     </div>
+                     
+                     <div class="js-feed-status text-center mt-2 text-muted small"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+}
+
+@section Scripts {
+}
+
