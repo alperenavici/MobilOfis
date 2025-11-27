@@ -15,7 +15,7 @@ public class SalaryService : ISalaryService
         _notificationService = notificationService;
     }
 
-    public async Task<bool> UpdateSalaryAsync(Guid userId, decimal newSalary, Guid hrUserId)
+    public async Task<bool> UpdateSalaryAsync(Guid userId, decimal newSalary, Guid requesterId)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null)
@@ -26,6 +26,22 @@ public class SalaryService : ISalaryService
         if (newSalary <= 0)
         {
             throw new Exception("Maaş değeri sıfırdan büyük olmalıdır.");
+        }
+
+        var requester = await _unitOfWork.Users.GetByIdAsync(requesterId);
+        if (requester == null)
+        {
+            throw new Exception("İstekte bulunan kullanıcı bulunamadı.");
+        }
+
+        var isHrOrAdmin = string.Equals(requester.Role, "HR", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(requester.Role, "Admin", StringComparison.OrdinalIgnoreCase);
+        var isManagerOfUser = string.Equals(requester.Role, "Manager", StringComparison.OrdinalIgnoreCase) &&
+                              user.ManagerId == requesterId;
+
+        if (!isHrOrAdmin && !isManagerOfUser)
+        {
+            throw new Exception("Bu işlemi gerçekleştirmek için yetkiniz yok.");
         }
 
         var oldSalary = user.Salary;
@@ -59,13 +75,24 @@ public class SalaryService : ISalaryService
             throw new Exception("İstekte bulunan kullanıcı bulunamadı.");
         }
 
-        // Yetki kontrolü: Sadece kendi maaşını veya HR/Admin maaşları görebilir
-        if (userId != requesterId && requester.Role != "HR" && requester.Role != "Admin")
+        var isSelf = userId == requesterId;
+        var isHrOrAdmin = string.Equals(requester.Role, "HR", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(requester.Role, "Admin", StringComparison.OrdinalIgnoreCase);
+        var isManagerOfUser = string.Equals(requester.Role, "Manager", StringComparison.OrdinalIgnoreCase) &&
+                              user.ManagerId == requesterId;
+
+        // Yetki kontrolü: Sadece kendi maaşını veya HR/Admin ya da yöneticisi maaşları görebilir
+        if (!isSelf && !isHrOrAdmin && !isManagerOfUser)
         {
             throw new Exception("Bu bilgilere erişim yetkiniz yok.");
         }
 
         return user;
+    }
+
+    public async Task<IEnumerable<User>> GetTeamMembersAsync(Guid managerId)
+    {
+        return await _unitOfWork.Users.GetSubordinatesAsync(managerId);
     }
 }
 

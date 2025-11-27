@@ -8,6 +8,6 @@ public class VerifyEmailDto
     public Guid UserId { get; set; }
 
     [Required(ErrorMessage = "Doğrulama token zorunludur.")]
-    public string VerificationToken { get; set; }
+    public string VerificationToken { get; set; } = string.Empty;
 }
 

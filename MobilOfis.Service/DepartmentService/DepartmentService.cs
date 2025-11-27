@@ -24,7 +24,8 @@ public class DepartmentService : IDepartmentService
         var department = new Departments
         {
             DepartmentId = Guid.NewGuid(),
-            DepartmentName = departmentName
+            DepartmentName = departmentName,
+            CreatedDate = DateTime.UtcNow
         };
 
         await _unitOfWork.Departments.AddAsync(department);
@@ -33,7 +34,7 @@ public class DepartmentService : IDepartmentService
         return department;
     }
 
-    public async Task<Departments> UpdateDepartmentAsync(Guid departmentId, string departmentName)
+    public async Task<Departments> UpdateDepartmentAsync(Guid departmentId, string departmentName, Guid? managerId = null)
     {
         var department = await _unitOfWork.Departments.GetByIdAsync(departmentId);
         if (department == null)
@@ -48,6 +49,7 @@ public class DepartmentService : IDepartmentService
         }
 
         department.DepartmentName = departmentName;
+        department.ManagerId = managerId;
 
         _unitOfWork.Departments.Update(department);
         await _unitOfWork.SaveChangesAsync();
@@ -78,12 +80,12 @@ public class DepartmentService : IDepartmentService
 
     public async Task<IEnumerable<Departments>> GetAllDepartmentsAsync()
     {
-        return await _unitOfWork.Departments.GetAllAsync();
+        return await _unitOfWork.Departments.GetAllWithDetailsAsync();
     }
 
     public async Task<Departments> GetDepartmentByIdAsync(Guid departmentId)
     {
-        var department = await _unitOfWork.Departments.GetByIdAsync(departmentId);
+        var department = await _unitOfWork.Departments.GetByIdWithDetailsAsync(departmentId);
         if (department == null)
         {
             throw new Exception("Departman bulunamadı.");
@@ -94,6 +96,20 @@ public class DepartmentService : IDepartmentService
     public async Task<IEnumerable<User>> GetDepartmentEmployeesAsync(Guid departmentId)
     {
         return await _unitOfWork.Departments.GetDepartmentUsersAsync(departmentId);
+    }
+
+    public async Task FixDepartmentDatesAsync()
+    {
+        var departments = await _unitOfWork.Departments.GetAllAsync();
+        foreach (var dept in departments)
+        {
+            if (dept.CreatedDate == DateTime.MinValue)
+            {
+                dept.CreatedDate = DateTime.UtcNow;
+                _unitOfWork.Departments.Update(dept);
+            }
+        }
+        await _unitOfWork.SaveChangesAsync();
     }
 }
 

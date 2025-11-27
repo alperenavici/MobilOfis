@@ -6,4 +6,6 @@ public interface IUserRepository : IGenericRepository<User>
 {
     Task<User?> GetByEmailAsync(string email);
     Task<User?> GetByRefreshTokenAsync(string refreshToken);
+    Task<IEnumerable<User>> GetUsersWithDetailsAsync();
+    Task<IEnumerable<User>> GetSubordinatesAsync(Guid managerId);
 }

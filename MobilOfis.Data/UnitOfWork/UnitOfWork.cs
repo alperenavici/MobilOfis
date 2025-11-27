@@ -15,6 +15,7 @@ public class UnitOfWork : IUnitOfWork
     private IDepartmentRepository? _departmentRepository;
     private INotificationRepository? _notificationRepository;
     private readonly Dictionary<Type, object> _repositories;
+    private IPostRepository? _postRepository;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -27,6 +28,7 @@ public class UnitOfWork : IUnitOfWork
     public IEventRepository Events => _eventRepository ??= new EventRepository(_context);
     public IDepartmentRepository Departments => _departmentRepository ??= new DepartmentRepository(_context);
     public INotificationRepository Notifications => _notificationRepository ??= new NotificationRepository(_context);
+    public IPostRepository Posts => _postRepository ??= new PostRepository(_context);
 
     public IGenericRepository<T> Repository<T>() where T : class
     {

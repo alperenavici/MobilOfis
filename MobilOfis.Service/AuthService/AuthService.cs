@@ -84,7 +84,7 @@ public class AuthService : IAuthServices
         return (accessToken, refreshToken);
     }
 
-    public async Task<User> ValidateTokenAsync(string token)
+    public async Task<User?> ValidateTokenAsync(string token)
     {
         try
         {
@@ -261,13 +261,13 @@ public class AuthService : IAuthServices
     }
 
 
-    public async Task<User> GetUserByIdAsync(Guid userId)
+    public async Task<User?> GetUserByIdAsync(Guid userId)
     {
         return await _unitOfWork.Users.GetByIdAsync(userId);
     }
 
  
-    public async Task<User> GetUserByEmailAsync(string email)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _unitOfWork.Users.GetByEmailAsync(email);
     }
@@ -292,6 +292,12 @@ public class AuthService : IAuthServices
         await _unitOfWork.SaveChangesAsync();
 
         return user;
+    }
+
+    public async Task UpdateUserAsync(User user)
+    {
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync();
     }
 
   
@@ -418,6 +424,11 @@ public class AuthService : IAuthServices
     }
 
     
+    public async Task<IEnumerable<User>> GetAllUsersAsync()
+    {
+        return await _unitOfWork.Users.GetUsersWithDetailsAsync();
+    }
+
     public bool VerifyPassword(string password, string hashedPassword)
     {
         // BCrypt kullanarak şifre doğrulama

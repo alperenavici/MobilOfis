@@ -7,6 +7,7 @@ public interface IUnitOfWork : IDisposable
     IEventRepository Events { get; }
     IDepartmentRepository Departments { get; }
     INotificationRepository Notifications { get; }
+    IPostRepository Posts { get; }
     IGenericRepository<T> Repository<T>() where T : class;
     Task<int> SaveChangesAsync();
     Task BeginTransactionAsync();
