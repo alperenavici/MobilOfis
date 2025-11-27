@@ -4,6 +4,9 @@
 }
 
 <div class="salary-container">
+    <form id="salaryAntiForgery" method="post" style="display:none;">
+        @Html.AntiForgeryToken()
+    </form>
     <!-- Sayfa Başlığı -->
     <div class="mb-4">
         <h2><i class="bi bi-cash-stack me-2"></i>Maaş Bilgilerim</h2>
@@ -179,6 +182,92 @@
                     </div>
                 </div>
             }
+
+            @if (Model.CanManageTeam)
+            {
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Takım Maaşları</h5>
+                        <span class="badge bg-primary">Yönetici Modu</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Çalışan</th>
+                                        <th>Departman</th>
+                                        <th>Maaş</th>
+                                        <th>Son Güncelleme</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var member in Model.TeamMembers)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <strong>@member.UserName</strong>
+                                                    <small class="text-muted">@member.JobTitle</small>
+                                                </div>
+                                            </td>
+                                            <td>@member.DepartmentName</td>
+                                            <td><strong>@member.Salary.ToString("N2") ₺</strong></td>
+                                            <td>
+                                                @if (member.LastUpdated.HasValue)
+                                                {
+                                                    <small class="text-muted">@member.LastUpdated.Value.ToString("dd.MM.yyyy")</small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">-</small>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick="openTeamSalaryModal('@member.UserId', '@member.UserName', @member.Salary.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <small class="text-muted">Yalnızca yöneticisi olduğunuz çalışanlar listelenir.</small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Team Salary Modal -->
+<div class="modal fade" id="teamSalaryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Maaş Güncelle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="teamSalaryForm">
+                    <input type="hidden" id="teamUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Çalışan</label>
+                        <input type="text" id="teamUserName" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Yeni Maaş (Brüt)</label>
+                        <input type="number" id="teamNewSalary" class="form-control" min="0" step="0.01" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" onclick="saveTeamSalary()">Kaydet</button>
+            </div>
         </div>
     </div>
 </div>
@@ -186,5 +275,53 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="~/js/dashboard.js"></script>
+    <script>
+        const antiForgeryToken = document.querySelector('#salaryAntiForgery input[name="__RequestVerificationToken"]')?.value;
+
+        function openTeamSalaryModal(userId, userName, currentSalary) {
+            document.getElementById('teamUserId').value = userId;
+            document.getElementById('teamUserName').value = userName;
+            document.getElementById('teamNewSalary').value = currentSalary;
+
+            const modal = new bootstrap.Modal(document.getElementById('teamSalaryModal'));
+            modal.show();
+        }
+
+        async function saveTeamSalary() {
+            const userId = document.getElementById('teamUserId').value;
+            const newSalary = parseFloat(document.getElementById('teamNewSalary').value);
+
+            if (!newSalary || newSalary <= 0) {
+                showToast('Geçerli bir maaş giriniz', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/Salary/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': antiForgeryToken || ''
+                    },
+                    body: JSON.stringify({
+                        userId: userId,
+                        newSalary: newSalary
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('Maaş güncellendi', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('teamSalaryModal'))?.hide();
+                    setTimeout(() => window.location.reload(), 1200);
+                } else {
+                    const data = await response.json();
+                    showToast(data.message || 'Güncelleme başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+    </script>
 }
 

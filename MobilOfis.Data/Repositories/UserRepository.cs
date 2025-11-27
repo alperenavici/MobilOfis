@@ -38,5 +38,15 @@ public class UserRepository : GenericRepository<User>, IUserRepository
             .Include(u => u.Manager)
             .FirstOrDefaultAsync(u => u.UserId == id);
     }
+
+    public async Task<IEnumerable<User>> GetSubordinatesAsync(Guid managerId)
+    {
+        return await _dbContext.Users
+            .Include(u => u.Department)
+            .Where(u => u.ManagerId == managerId)
+            .OrderBy(u => u.FirstName)
+            .ThenBy(u => u.LastName)
+            .ToListAsync();
+    }
 }
 
