@@ -162,9 +162,9 @@
                         </button>
                     }
                     
-                    <button type="button" class="btn btn-outline-secondary w-100" onclick="eventFunctions.exportToCalendar('@Model.EventId')">
+                    <!-- <button type="button" class="btn btn-outline-secondary w-100" onclick="eventFunctions.exportToCalendar('@Model.EventId')">
                         <i class="bi bi-calendar-plus me-1"></i>Takvime Ekle
-                    </button>
+                    </button> -->
                     
                     @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
                     {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MobilOfis.Core.IServices;
 using MobilOfis.Web.Models.ViewModels;
 using MobilOfis.Web.Models.DTOs;
-using MobilOfis.Web.Models.DTOs;
+
 using Microsoft.AspNetCore.Authentication;
 using MobilOfis.Entity.Enums;
 
@@ -82,7 +82,7 @@ public class UserController : Controller
                 Departments = departments.Select(d => new DepartmentViewModel
                 {
                     DepartmentId = d.DepartmentId,
-                    DepartmentName = d.DepartmentName
+                    DepartmentName = d.DepartmentName ?? string.Empty
                 }).ToList(),
                 Filters = new UserFilterViewModel
                 {

@@ -56,27 +56,7 @@ public class DepartmentController : Controller
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            var department = await _departmentService.GetDepartmentByIdAsync(id);
-            var viewModel = new DepartmentViewModel
-            {
-                DepartmentId = department.DepartmentId,
-                DepartmentName = department.DepartmentName ?? string.Empty,
-                ManagerId = department.ManagerId,
-                ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : "Atanmamış",
-                EmployeeCount = department.Users?.Count ?? 0,
-                CreatedAt = department.CreatedDate,
-                Description = "Şirketimizin değerli bir departmanı.", // Örnek veri
-                Employees = department.Users?.Select(u => new UserViewModel
-                {
-                    UserId = u.UserId,
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    Email = u.Email,
-                    JobTitle = u.JobTitle,
-                    Role = u.Role,
-                    ProfilePictureUrl = u.ProfilePictureUrl
-                }).ToList() ?? new List<UserViewModel>()
-            };
+            var viewModel = await GetDepartmentViewModelHelper(id);
             return View(viewModel);
         }
         catch (Exception ex)
@@ -104,7 +84,16 @@ public class DepartmentController : Controller
             return RedirectToAction("Index", "Dashboard");
         }
 
-        return RedirectToAction(nameof(Detail), new { id = user.DepartmentId });
+        try 
+        {
+            var viewModel = await GetDepartmentViewModelHelper(user.DepartmentId.Value);
+            return View("Detail", viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Index", "Dashboard");
+        }
     }
 
     [Authorize(Policy = "HROnly")]
@@ -302,4 +291,28 @@ public class DepartmentController : Controller
         }
     }
 
+    private async Task<DepartmentViewModel> GetDepartmentViewModelHelper(Guid id)
+    {
+        var department = await _departmentService.GetDepartmentByIdAsync(id);
+        return new DepartmentViewModel
+        {
+            DepartmentId = department.DepartmentId,
+            DepartmentName = department.DepartmentName ?? string.Empty,
+            ManagerId = department.ManagerId,
+            ManagerName = department.Manager != null ? $"{department.Manager.FirstName} {department.Manager.LastName}" : "Atanmamış",
+            EmployeeCount = department.Users?.Count ?? 0,
+            CreatedAt = department.CreatedDate,
+            Description = "Şirketimizin değerli bir departmanı.", // Örnek veri
+            Employees = department.Users?.Select(u => new UserViewModel
+            {
+                UserId = u.UserId,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Email = u.Email,
+                JobTitle = u.JobTitle,
+                Role = u.Role,
+                ProfilePictureUrl = u.ProfilePictureUrl
+            }).ToList() ?? new List<UserViewModel>()
+        };
+    }
 }
