@@ -53,7 +53,7 @@
                 : ''}
                 ${post.imageUrl
                 ? `<div class="feed-post-card__image mt-3 rounded overflow-hidden">
-                           <img src="${post.imageUrl}" alt="Post image" class="img-fluid w-100" style="object-fit: cover; max-height: 500px;" />
+                           <img src="${post.imageUrl}" alt="Post image" class="img-fluid w-100 js-post-image" style="object-fit: cover; max-height: 500px; cursor: pointer;" />
                        </div>`
                 : ''}
             </div>
@@ -324,6 +324,15 @@
             const commentBtn = e.target.closest('.js-comment-toggle-btn');
             if (commentBtn) {
                 handleCommentToggle(commentBtn);
+                return;
+            }
+
+            const postImage = e.target.closest('.js-post-image');
+            if (postImage) {
+                const modal = new bootstrap.Modal(document.getElementById('imageLightboxModal'));
+                const modalImg = document.getElementById('lightboxImage');
+                modalImg.src = postImage.src;
+                modal.show();
                 return;
             }
         });

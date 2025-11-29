@@ -17,7 +17,6 @@ public class DepartmentController : Controller
         _authServices = authServices;
     }
 
-    #region MVC Actions
     
     [Authorize(Policy = "HROnly")]
     [HttpGet]
@@ -47,7 +46,6 @@ public class DepartmentController : Controller
     {
         try
         {
-            // Yetki kontrolü: HR/Admin değilse ve kendi departmanı değilse erişimi engelle
             var isHrOrAdmin = User.IsInRole("HR") || User.IsInRole("Admin");
             var userDepartmentIdClaim = User.FindFirst("departmentId")?.Value;
             var userDepartmentId = !string.IsNullOrEmpty(userDepartmentIdClaim) ? Guid.Parse(userDepartmentIdClaim) : (Guid?)null;
@@ -92,8 +90,6 @@ public class DepartmentController : Controller
     [HttpGet]
     public async Task<IActionResult> MyDepartment()
     {
-        // Claim yerine DB'den güncel kullanıcı bilgisini al
-        // Bu sayede cookie'deki claim eski olsa bile (örn: admin atama yaptıktan sonra) doğru çalışır
         var userIdClaim = User.FindFirst("userId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
@@ -205,9 +201,7 @@ public class DepartmentController : Controller
         }
     }
 
-    #endregion
 
-    #region API Actions
     
     [HttpPost]
     [Route("api/[controller]")]
@@ -308,5 +302,4 @@ public class DepartmentController : Controller
         }
     }
 
-    #endregion
 }

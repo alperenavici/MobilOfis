@@ -16,7 +16,6 @@ public class LeaveController : Controller
         _leaveService = leaveService;
     }
 
-    #region MVC Actions
 
     /// <summary>
     /// İzinlerim sayfası
@@ -185,7 +184,6 @@ public class LeaveController : Controller
                 return Json(new { success = false, message = "Sadece bekleyen izinleri iptal edebilirsiniz." });
             }
 
-            // İzin iptal işlemi burada yapılacak (service'de metod eklenmeli)
             return Json(new { success = true, message = "İzin talebi iptal edildi." });
         }
         catch (Exception ex)
@@ -361,7 +359,6 @@ public class LeaveController : Controller
     {
         try
         {
-            // Bu metod service'de implement edilmeli
             var viewModel = new LeaveListViewModel
             {
                 Leaves = new List<LeaveViewModel>()
@@ -376,9 +373,7 @@ public class LeaveController : Controller
         }
     }
 
-    #endregion
 
-    #region API Actions
 
     /// <summary>
     /// İzin talebi oluştur (API)
@@ -729,9 +724,6 @@ public class LeaveController : Controller
         }
     }
 
-    #endregion
-
-    #region Helper Methods
 
     private Guid GetCurrentUserId()
     {
@@ -766,5 +758,4 @@ public class LeaveController : Controller
         };
     }
 
-    #endregion
 }

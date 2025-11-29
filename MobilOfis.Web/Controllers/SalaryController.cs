@@ -18,7 +18,6 @@ public class SalaryController : Controller
         _authServices = authServices;
     }
 
-    #region MVC Actions
     
     [HttpGet]
     public async Task<IActionResult> MySalary()
@@ -74,9 +73,6 @@ public class SalaryController : Controller
         return File(new byte[0], "application/pdf", $"bordro_{month}_{year}.pdf");
     }
 
-    #endregion
-
-    #region API Actions
     
     [Authorize(Roles = "HR,Admin,Manager")]
     [HttpPut]
@@ -118,8 +114,6 @@ public class SalaryController : Controller
     {
         try
         {
-            // Tüm kullanıcıların maaş bilgilerini getir (service'de implement edilmeli)
-            // Şimdilik boş liste döndürüyoruz
             return Ok(new List<object>());
         }
         catch (Exception ex)
@@ -135,14 +129,11 @@ public class SalaryController : Controller
         try
         {
             var requesterId = GetCurrentUserId();
-            // Sadece kendi maaş geçmişini veya HR ise herkesin geçmişini görebilir
             if (userId != requesterId && !User.IsInRole("HR") && !User.IsInRole("Admin"))
             {
                 return Unauthorized(new { message = "Bu işlem için yetkiniz yok." });
             }
 
-            // Maaş geçmişi service'de implement edilmeli
-            // Şimdilik boş liste döndürüyoruz
             return Ok(new List<object>());
         }
         catch (Exception ex)
@@ -151,7 +142,6 @@ public class SalaryController : Controller
         }
     }
 
-    #endregion
 
     private Guid GetCurrentUserId()
     {
