@@ -60,11 +60,7 @@
                         <i class="bi bi-shield-lock me-1"></i>Güvenlik
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#notificationTab" type="button">
-                        <i class="bi bi-bell me-1"></i>Bildirim Tercihleri
-                    </button>
-                </li>
+
             </ul>
             
             <!-- Tab Content -->
@@ -169,55 +165,7 @@
                 </div>
                 
                 <!-- Bildirim Tercihleri Tab -->
-                <div class="tab-pane fade" id="notificationTab">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Bildirim Ayarları</h5>
-                        </div>
-                        <div class="card-body">
-                            <form asp-action="UpdateNotificationSettings" method="post" id="notificationForm">
-                                @Html.AntiForgeryToken()
-                                <div class="mb-4">
-                                    <div class="form-check form-switch mb-3">
-                                        <input type="checkbox" class="form-check-input" name="EmailNotifications" id="emailNotifications" 
-                                               value="true" checked="@Model.EmailNotifications">
-                                        <label class="form-check-label" for="emailNotifications">
-                                            <strong>Email Bildirimleri</strong>
-                                            <p class="text-muted mb-0">Önemli güncellemeleri email ile al</p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check form-switch mb-3">
-                                        <input type="checkbox" class="form-check-input" name="LeaveNotifications" id="leaveNotifications" 
-                                               value="true" checked="@Model.LeaveNotifications">
-                                        <label class="form-check-label" for="leaveNotifications">
-                                            <strong>İzin Bildirimleri</strong>
-                                            <p class="text-muted mb-0">İzin durumlarıyla ilgili bildirimler</p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check form-switch mb-3">
-                                        <input type="checkbox" class="form-check-input" name="EventNotifications" id="eventNotifications" 
-                                               value="true" checked="@Model.EventNotifications">
-                                        <label class="form-check-label" for="eventNotifications">
-                                            <strong>Etkinlik Bildirimleri</strong>
-                                            <p class="text-muted mb-0">Yeni etkinlikler ve güncellemeler</p>
-                                        </label>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input type="checkbox" class="form-check-input" name="SalaryNotifications" id="salaryNotifications" 
-                                               value="true" checked="@Model.SalaryNotifications">
-                                        <label class="form-check-label" for="salaryNotifications">
-                                            <strong>Maaş Bildirimleri</strong>
-                                            <p class="text-muted mb-0">Maaş ödemeleri ve güncellemeler</p>
-                                        </label>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-lg me-1"></i>Tercihleri Kaydet
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
