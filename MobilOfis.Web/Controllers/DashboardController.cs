@@ -78,7 +78,6 @@ public class DashboardController : Controller
         }
     }
 
-    #region Helper Methods
 
     private Guid GetCurrentUserId()
     {
@@ -297,8 +296,6 @@ public class DashboardController : Controller
 
     private Task<List<UserViewModel>> GetTeamMembersAsync(Guid userId)
     {
-        // Bu metod şu an basit bir implementasyon
-        // Gerçek implementasyonda manager'ın subordinates'lerini getirmeli
         try
         {
             return Task.FromResult(new List<UserViewModel>());
@@ -313,8 +310,6 @@ public class DashboardController : Controller
     {
         try
         {
-            // Bu metod bir IUserService'den total employee count getirmeli
-            // Şimdilik basit bir sayı dönüyoruz
             return Task.FromResult(0);
         }
         catch
@@ -327,7 +322,6 @@ public class DashboardController : Controller
     {
         try
         {
-            // Bu metod bir IUserService'den active employee count getirmeli
             return Task.FromResult(0);
         }
         catch
@@ -352,9 +346,7 @@ public class DashboardController : Controller
         }
     }
 
-    #endregion
 
-    #region API Actions
 
     /// <summary>
     /// Dashboard istatistiklerini getir (API)
@@ -486,6 +478,5 @@ public class DashboardController : Controller
         }
     }
 
-    #endregion
 }
 

@@ -15,7 +15,6 @@ public class EventController : Controller
         _eventService = eventService;
     }
 
-    #region MVC Actions
     
     [Authorize]
     [HttpGet]
@@ -207,9 +206,7 @@ END:VCALENDAR";
         }
     }
 
-    #endregion
 
-    #region API Actions
     
     [Authorize(Policy = "ManagerOnly")]
     [HttpPost]
@@ -313,8 +310,8 @@ END:VCALENDAR";
             {
                 id = e.EventId.ToString(),
                 title = e.Title,
-                startDate = e.StartTime.ToString("O"), // ISO 8601 format
-                endDate = e.EndTime.ToString("O"),     // ISO 8601 format
+                startDate = e.StartTime.ToString("O"), 
+                endDate = e.EndTime.ToString("O"),     
                 type = "General"
             });
             return Ok(calendarEvents);
@@ -325,7 +322,6 @@ END:VCALENDAR";
         }
     }
 
-    #endregion
 
     private Guid GetCurrentUserId()
     {
