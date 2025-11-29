@@ -25,7 +25,7 @@
             <!-- Profil Kartı -->
             <div class="card mb-4">
                 <div class="card-body text-center">
-                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.FullName)&background=667eea&color=fff&size=128" 
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model.FullName)}&background=667eea&color=fff&size=128" : Model.ProfilePictureUrl)" 
                          alt="@Model.FullName" class="avatar avatar-xl mb-3">
                     <h4 class="mb-1">@Model.FullName</h4>
                     <p class="text-muted mb-2">@Model.JobTitle</p>
@@ -173,11 +173,23 @@
                                     <label class="form-label text-muted">Çalışma Süresi</label>
                                     <p class="fw-bold">
                                         @{
-                                            var workDuration = DateTime.Now - Model.CreatedAt;
-                                            var years = workDuration.Days / 365;
-                                            var months = (workDuration.Days % 365) / 30;
+                                            var endDate = Model.IsActive ? DateTime.Now : (Model.UpdatedDate ?? DateTime.Now);
+                                            var startDate = Model.CreatedAt;
+                                            
+                                            var d1 = startDate.Date;
+                                            var d2 = endDate.Date;
+                                            
+                                            int years = d2.Year - d1.Year;
+                                            if (d1.AddYears(years) > d2) years--;
+                                            
+                                            var tempDate = d1.AddYears(years);
+                                            int months = 0;
+                                            while (tempDate.AddMonths(months + 1) <= d2) months++;
+                                            
+                                            tempDate = tempDate.AddMonths(months);
+                                            int days = (d2 - tempDate).Days;
                                         }
-                                        @years yıl @months ay
+                                        @years yıl @months ay @days gün
                                     </p>
                                 </div>
                             </div>
