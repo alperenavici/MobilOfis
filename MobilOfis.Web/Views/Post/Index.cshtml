@@ -1,6 +1,16 @@
 @using MobilOfis.Web.Models.ViewModels
+@using System.Security.Claims
+@inject MobilOfis.Core.IServices.IAuthServices AuthServices
 @{
     ViewData["Title"] = "Akış";
+    
+    string? profilePictureUrl = null;
+    var userIdClaim = User.FindFirst("userId") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+    if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+    {
+        var user = await AuthServices.GetUserByIdAsync(userId);
+        profilePictureUrl = user?.ProfilePictureUrl;
+    }
 }
 
 <div class="feed-page container-fluid p-0">
@@ -17,7 +27,8 @@
                 @await Html.PartialAsync("_CreatePostWidget", new FeedWidgetViewModel
                 {
                     TextareaRows = 3,
-                    Placeholder = "Neler düşünüyorsun?"
+                    Placeholder = "Neler düşünüyorsun?",
+                    ProfilePictureUrl = profilePictureUrl
                 })
 
                 <!-- Feed Section -->
