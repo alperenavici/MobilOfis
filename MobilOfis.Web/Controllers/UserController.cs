@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using MobilOfis.Core.IServices;
 using MobilOfis.Web.Models.ViewModels;
 using MobilOfis.Web.Models.DTOs;
+using MobilOfis.Web.Models.DTOs;
 using Microsoft.AspNetCore.Authentication;
+using MobilOfis.Entity.Enums;
 
 namespace MobilOfis.Web.Controllers;
 
@@ -12,11 +14,15 @@ public class UserController : Controller
 {
     private readonly IAuthServices _authServices;
     private readonly IDepartmentService _departmentService;
+    private readonly ILeaveService _leaveService;
+    private readonly IEventService _eventService;
 
-    public UserController(IAuthServices authServices, IDepartmentService departmentService)
+    public UserController(IAuthServices authServices, IDepartmentService departmentService, ILeaveService leaveService, IEventService eventService)
     {
         _authServices = authServices;
         _departmentService = departmentService;
+        _leaveService = leaveService;
+        _eventService = eventService;
     }
 
     /// <summary>
@@ -135,6 +141,39 @@ public class UserController : Controller
                 UpdatedDate = user.UpdatedDate,
                 LastLoginDate = user.LastLoginDate
             };
+
+            // İzin geçmişini getir
+            var leaves = await _leaveService.GetMyLeavesAsync(id);
+            viewModel.RecentLeaves = leaves.Select(l => new LeaveViewModel
+            {
+                LeavesId = l.LeavesId,
+                UserId = l.UserId,
+                UserName = $"{l.User?.FirstName} {l.User?.LastName}",
+                StartDate = l.StartDate,
+                EndDate = l.EndDate,
+                RequestDate = l.RequestDate,
+                Status = l.Status.ToString(),
+                LeavesType = l.LeavesType.ToString(),
+                Reason = l.Reason,
+                RejectionReason = l.RejectionReason,
+                ManagerApprovalId = l.ManagerApprovalId,
+                ManagerApprovalName = l.ManagerApproval != null ? $"{l.ManagerApproval.FirstName} {l.ManagerApproval.LastName}" : null,
+                ManagerApprovalDate = l.ManagerApprovalDate,
+                HRApprovalId = l.HRApprovalId,
+                HRApprovalDate = l.HRApprovalDate
+            }).OrderByDescending(l => l.StartDate).ToList();
+
+            var approvedLeaves = leaves.Where(l => l.Status == Status.Approved);
+            var usedLeaveDays = approvedLeaves.Sum(l => (l.EndDate - l.StartDate).Days + 1);
+            
+            var leaveTypeCount = Enum.GetValues(typeof(LeavesType)).Length;
+            var totalLeaveDays = leaveTypeCount * 14;
+
+            viewModel.UsedLeaveDays = usedLeaveDays;
+            viewModel.RemainingLeaveDays = totalLeaveDays - usedLeaveDays;
+
+            var myEvents = await _eventService.GetMyEventsAsync(id);
+            viewModel.EventsAttended = myEvents.Count();
 
             return View(viewModel);
         }
