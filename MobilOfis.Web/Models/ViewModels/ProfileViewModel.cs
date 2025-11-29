@@ -52,11 +52,9 @@ public class ProfileViewModel
     
     [Display(Name = "İşe Başlama Tarihi")]
     public DateTime? HireDate { get; set; }
-    public DateTime? JoinDate
-    {
-        get => HireDate;
-        set => HireDate = value;
-    }
+    
+    public DateTime CreatedDate { get; set; }
+    public DateTime? JoinDate => CreatedDate;
     
     [Display(Name = "Son Giriş")]
     public DateTime? LastLoginDate { get; set; }
@@ -79,16 +77,6 @@ public class ProfileViewModel
     [Display(Name = "Yeni Şifre Tekrar")]
     public string? ConfirmNewPassword { get; set; }
     
-    // Bildirim Tercihleri
-    [Display(Name = "Email Bildirimleri")]
-    public bool EmailNotifications { get; set; } = true;
-    
-    [Display(Name = "Push Bildirimleri")]
-    public bool PushNotifications { get; set; } = true;
-    
     public bool TwoFactorEnabled { get; set; }
-    public bool LeaveNotifications { get; set; } = true;
-    public bool EventNotifications { get; set; } = true;
-    public bool SalaryNotifications { get; set; } = true;
 }
 
