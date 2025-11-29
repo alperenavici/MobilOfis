@@ -143,10 +143,8 @@ public class PostController : Controller
             await _postService.AddCommentAsync(postId, userId, content);
             var count = await _postService.GetCommentCountAsync(postId);
             
-            // Return the new comment to append to UI
             var comments = await _postService.GetCommentsAsync(postId);
-            var newComment = comments.Last(); // Simplification, ideally return created comment from service
-            
+            var newComment = comments.Last();             
             return Json(new { success = true, count, comment = new {
                 authorName = $"{newComment.User.FirstName} {newComment.User.LastName}",
                 authorAvatar = newComment.User.ProfilePictureUrl,

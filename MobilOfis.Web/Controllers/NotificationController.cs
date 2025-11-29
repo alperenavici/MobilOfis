@@ -15,7 +15,6 @@ public class NotificationController : Controller
         _notificationService = notificationService;
     }
 
-    #region MVC Actions
     
     [HttpGet]
     public async Task<IActionResult> Index(string? status, DateTime? startDate, DateTime? endDate)
@@ -114,7 +113,6 @@ public class NotificationController : Controller
     {
         if (!string.IsNullOrEmpty(message))
         {
-            // İlk 50 karakteri al
             return message.Length > 50 ? message.Substring(0, 50) + "..." : message;
         }
 
@@ -161,9 +159,7 @@ public class NotificationController : Controller
         }
     }
 
-    #endregion
 
-    #region API Actions
     
     [HttpGet]
     [Route("api/[controller]/my-notifications")]
@@ -259,7 +255,6 @@ public class NotificationController : Controller
         }
     }
 
-    #endregion
 
     private Guid GetCurrentUserId()
     {

@@ -140,7 +140,6 @@ public class ProfileController : Controller
     {
         try
         {
-            // Bildirim ayarları service'de implement edilmeli
             TempData["SuccessMessage"] = "Bildirim ayarları güncellendi.";
             return RedirectToAction(nameof(Index));
         }
@@ -174,7 +173,6 @@ public class ProfileController : Controller
                 return BadRequest(new { message = "Dosya yüklenemedi." });
             }
 
-            // Update user profile picture in DB
             var user = await _authServices.GetUserByIdAsync(userId);
             if (user != null)
             {

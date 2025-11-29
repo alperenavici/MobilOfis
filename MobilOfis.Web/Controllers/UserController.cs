@@ -29,7 +29,6 @@ public class UserController : Controller
         {
             var users = await _authServices.GetAllUsersAsync();
 
-            // Filtreleme
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 searchTerm = searchTerm.ToLower();
@@ -316,7 +315,7 @@ public class UserController : Controller
                 var claimsIdentity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
                 var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
                 {
-                    IsPersistent = true, // Varsayılan olarak persistent yapıyoruz, Login'deki ayarı tam bilemediğimiz için
+                    IsPersistent = true, 
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
 
@@ -363,15 +362,12 @@ public class UserController : Controller
         }
     }
 
-    #region API Actions
 
     [HttpGet("api/[controller]")]
     public IActionResult GetAllUsersApi(string? searchTerm = null, Guid? departmentId = null, string? role = null, bool? isActive = null)
     {
         try
         {
-            // Tüm kullanıcıları getir (service'de implement edilmeli)
-            // Şimdilik boş liste döndürüyoruz
             return Ok(new List<object>());
         }
         catch (Exception ex)
@@ -476,7 +472,6 @@ public class UserController : Controller
         }
     }
 
-    #endregion
 
     private async Task LoadDepartmentsToViewBag()
     {
