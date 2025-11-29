@@ -61,6 +61,8 @@ public class UserViewModel
     public DateTime CreatedDate { get; set; }
     public DateTime CreatedAt => CreatedDate;
     
+    public DateTime? UpdatedDate { get; set; }
+    
     [Display(Name = "Son Giriş")]
     public DateTime? LastLoginDate { get; set; }
     

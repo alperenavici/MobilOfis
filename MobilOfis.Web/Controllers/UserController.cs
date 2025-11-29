@@ -133,6 +133,7 @@ public class UserController : Controller
                 EmergencyContactName = user.EmergencyContactName,
                 EmergencyContactPhone = user.EmergencyContactPhone,
                 CreatedDate = user.CreatedDate,
+                UpdatedDate = user.UpdatedDate,
                 LastLoginDate = user.LastLoginDate
             };
 
