@@ -24,20 +24,18 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>
+                                <th style="width: 40px;">
                                     <input type="checkbox" class="form-check-input" id="selectAll">
                                 </th>
                                 <th>Çalışan</th>
                                 <th>İzin Türü</th>
-                                <th>Başlangıç</th>
-                                <th>Bitiş</th>
-                                <th>Gün</th>
-                                <th>Manager</th>
-                                <th>Manager Onay Tarihi</th>
-                                <th>İşlemler</th>
+                                <th>Tarihler</th>
+                                <th>Süre</th>
+                                <th>Manager Onayı</th>
+                                <th class="text-end">İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -50,33 +48,47 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(leave.UserName)&background=667eea&color=fff" 
-                                                 alt="@leave.UserName" class="avatar avatar-sm me-2">
-                                            <strong>@leave.UserName</strong>
+                                                 alt="@leave.UserName" class="avatar rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <div class="fw-bold text-dark">@leave.UserName</div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td>@leave.LeavesTypeDisplay</td>
-                                    <td>@leave.StartDate.ToString("dd.MM.yyyy")</td>
-                                    <td>@leave.EndDate.ToString("dd.MM.yyyy")</td>
-                                    <td><span class="badge bg-primary">@leave.DayCount gün</span></td>
-                                    <td>@leave.ManagerApprovalName</td>
                                     <td>
-                                        @if (leave.ManagerApprovalDate.HasValue)
-                                        {
-                                            @leave.ManagerApprovalDate.Value.ToString("dd.MM.yyyy HH:mm")
-                                        }
+                                        <span class="badge bg-light text-dark border">@leave.LeavesTypeDisplay</span>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm d-flex flex-column flex-md-row gap-1">
-                                            <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-outline-primary btn-sm">
-                                                <i class="bi bi-eye"></i> <span class="d-md-none">Detay</span>
+                                        <div class="d-flex flex-column small">
+                                            <span class="text-dark fw-medium">@leave.StartDate.ToString("dd.MM.yyyy")</span>
+                                            <span class="text-muted">@leave.EndDate.ToString("dd.MM.yyyy")</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3">@leave.DayCount Gün</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column small">
+                                            <span class="text-dark">@leave.ManagerApprovalName</span>
+                                            @if (leave.ManagerApprovalDate.HasValue)
+                                            {
+                                                <span class="text-muted" style="font-size: 0.75rem;">
+                                                    @leave.ManagerApprovalDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-light btn-sm" title="Detay">
+                                                <i class="bi bi-eye"></i>
                                             </a>
-                                            <button type="button" class="btn btn-outline-success btn-sm" 
-                                                    onclick="approveByHR('@leave.LeavesId')">
-                                                <i class="bi bi-check-lg"></i> <span class="d-md-none">Onayla</span>
+                                            <button type="button" class="btn btn-success btn-sm" 
+                                                    onclick="approveByHR('@leave.LeavesId')" title="Onayla">
+                                                <i class="bi bi-check-lg"></i>
                                             </button>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                    onclick="rejectByHR('@leave.LeavesId')">
-                                                <i class="bi bi-x-lg"></i> <span class="d-md-none">Reddet</span>
+                                            <button type="button" class="btn btn-danger btn-sm" 
+                                                    onclick="rejectByHR('@leave.LeavesId')" title="Reddet">
+                                                <i class="bi bi-x-lg"></i>
                                             </button>
                                         </div>
                                     </td>

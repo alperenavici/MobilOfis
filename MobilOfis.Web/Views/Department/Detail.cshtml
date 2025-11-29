@@ -95,8 +95,15 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(employee.FullName)&background=667eea&color=fff" 
-                                                         alt="@employee.FullName" class="avatar avatar-sm me-2">
+                                                    @if (!string.IsNullOrEmpty(employee.ProfilePictureUrl))
+                                                    {
+                                                        <img src="@employee.ProfilePictureUrl" alt="@employee.FullName" class="avatar avatar-sm me-2 rounded-circle" style="object-fit: cover;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(employee.FullName)&background=667eea&color=fff" 
+                                                             alt="@employee.FullName" class="avatar avatar-sm me-2 rounded-circle">
+                                                    }
                                                     <strong>@employee.FullName</strong>
                                                 </div>
                                             </td>
