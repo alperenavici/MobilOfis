@@ -8,11 +8,13 @@ public class PostService : IPostService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IFileStorageService _fileStorageService;
+    private readonly INotificationService _notificationService;
 
-    public PostService(IUnitOfWork unitOfWork, IFileStorageService fileStorageService)
+    public PostService(IUnitOfWork unitOfWork, IFileStorageService fileStorageService, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _fileStorageService = fileStorageService;
+        _notificationService = notificationService;
     }
 
     public async Task<Post> CreatePostAsync(
@@ -85,6 +87,15 @@ public class PostService : IPostService
         };
 
         await _unitOfWork.Posts.AddLikeAsync(like);
+
+        // Send notification if the liker is not the post owner
+        var post = await _unitOfWork.Posts.GetByIdWithUserAsync(postId);
+        if (post != null && post.UserId != userId)
+        {
+            var liker = await _unitOfWork.Users.GetByIdAsync(userId);
+            var likerName = liker != null ? $"{liker.FirstName} {liker.LastName}" : "Bir kullanıcı";
+            await _notificationService.SendNotificationAsync(post.UserId, $"{likerName} gönderini beğendi.", "Post", postId);
+        }
     }
 
     public async Task UnlikePostAsync(Guid postId, Guid userId)
@@ -114,6 +125,15 @@ public class PostService : IPostService
         };
 
         await _unitOfWork.Posts.AddCommentAsync(comment);
+
+        // Send notification if the commenter is not the post owner
+        var post = await _unitOfWork.Posts.GetByIdWithUserAsync(postId);
+        if (post != null && post.UserId != userId)
+        {
+            var commenter = await _unitOfWork.Users.GetByIdAsync(userId);
+            var commenterName = commenter != null ? $"{commenter.FirstName} {commenter.LastName}" : "Bir kullanıcı";
+            await _notificationService.SendNotificationAsync(post.UserId, $"{commenterName} gönderine yorum yaptı.", "Post", postId);
+        }
     }
 
     public async Task<IEnumerable<PostComment>> GetCommentsAsync(Guid postId)

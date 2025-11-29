@@ -26,13 +26,18 @@ function initializeLeaveForms() {
 }
 
 // Calculate business days between dates
+// Calculate business days between dates
 function calculateLeaveDays() {
     const startDate = document.getElementById('startDate');
     const endDate = document.getElementById('endDate');
     const daysDisplay = document.getElementById('leaveDaysDisplay');
 
     if (!startDate || !endDate || !startDate.value || !endDate.value) {
-        if (daysDisplay) daysDisplay.textContent = '0 gün';
+        if (daysDisplay) {
+            daysDisplay.textContent = '0 Gün';
+            daysDisplay.classList.remove('bg-danger');
+            daysDisplay.classList.add('bg-primary');
+        }
         return;
     }
 
@@ -41,8 +46,9 @@ function calculateLeaveDays() {
 
     if (end < start) {
         if (daysDisplay) {
-            daysDisplay.textContent = 'Geçersiz tarih aralığı';
-            daysDisplay.classList.add('text-danger');
+            daysDisplay.textContent = 'Geçersiz Tarih';
+            daysDisplay.classList.remove('bg-primary');
+            daysDisplay.classList.add('bg-danger');
         }
         return;
     }
@@ -50,8 +56,9 @@ function calculateLeaveDays() {
     const days = calculateBusinessDays(start, end);
 
     if (daysDisplay) {
-        daysDisplay.textContent = `${days} gün`;
-        daysDisplay.classList.remove('text-danger');
+        daysDisplay.textContent = `${days} Gün`;
+        daysDisplay.classList.remove('bg-danger');
+        daysDisplay.classList.add('bg-primary');
     }
 }
 

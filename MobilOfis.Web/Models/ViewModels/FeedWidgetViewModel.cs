@@ -9,5 +9,6 @@ public class FeedWidgetViewModel
     public string HeaderTitle { get; set; } = "Akış";
     public string HeaderIconClass { get; set; } = "bi-lightning-charge-fill";
     public string Placeholder { get; set; } = "Neler oluyor?";
+    public string? ProfilePictureUrl { get; set; }
 }
 

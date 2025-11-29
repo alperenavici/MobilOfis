@@ -26,6 +26,7 @@ public class NotificationViewModel
             "Event" => "calendar-event",
             "User" => "person",
             "Department" => "diagram-3",
+            "Post" => "heart-fill",
             _ => "bell"
         };
     }
@@ -38,6 +39,7 @@ public class NotificationViewModel
             "Event" => "info",
             "User" => "primary",
             "Department" => "warning",
+            "Post" => "danger",
             _ => "secondary"
         };
     }

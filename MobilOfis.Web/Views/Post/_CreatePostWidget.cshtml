@@ -9,10 +9,16 @@
             @Html.AntiForgeryToken()
             <div class="d-flex gap-3">
                 <div class="create-post-card__avatar">
-                    @* Placeholder for user avatar - ideally passed via ViewModel or ViewComponent *@
-                    <div class="avatar avatar-md bg-light text-primary rounded-circle d-flex align-items-center justify-content-center">
-                        <i class="bi bi-person-fill fs-5"></i>
-                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ProfilePictureUrl" alt="Profil" class="rounded-circle object-fit-cover" width="44" height="44">
+                    }
+                    else
+                    {
+                        <div class="bg-light text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <i class="bi bi-person-fill fs-5"></i>
+                        </div>
+                    }
                 </div>
                 <div class="flex-grow-1">
                     <textarea name="Content"

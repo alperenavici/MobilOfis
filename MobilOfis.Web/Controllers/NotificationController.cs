@@ -125,6 +125,7 @@ public class NotificationController : Controller
             "User" => "Kullanıcı Bildirimi",
             "Department" => "Departman Bildirimi",
             "Salary" => "Maaş Bildirimi",
+            "Post" => "Paylaşım Bildirimi",
             _ => "Bildirim"
         };
     }
