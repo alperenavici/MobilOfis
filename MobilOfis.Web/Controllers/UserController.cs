@@ -29,24 +29,25 @@ public class UserController : Controller
     /// Kullanıcılar listesi
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> Index(string? searchTerm = null, Guid? departmentId = null, string? role = null, bool? isActive = null)
+    public async Task<IActionResult> Index([FromQuery] string? search = null, [FromQuery] Guid? department = null, [FromQuery] string? role = null, [FromQuery] bool? status = null)
     {
         try
         {
             var users = await _authServices.GetAllUsersAsync();
+            var departments = await _departmentService.GetAllDepartmentsAsync();
 
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(search))
             {
-                searchTerm = searchTerm.ToLower();
+                search = search.Trim().ToLower();
                 users = users.Where(u => 
-                    (u.FirstName?.ToLower().Contains(searchTerm) ?? false) || 
-                    (u.LastName?.ToLower().Contains(searchTerm) ?? false) || 
-                    (u.Email?.ToLower().Contains(searchTerm) ?? false));
+                    (u.FirstName?.ToLower().Contains(search) ?? false) || 
+                    (u.LastName?.ToLower().Contains(search) ?? false) || 
+                    (u.Email?.ToLower().Contains(search) ?? false));
             }
 
-            if (departmentId.HasValue)
+            if (department.HasValue)
             {
-                users = users.Where(u => u.DepartmentId == departmentId);
+                users = users.Where(u => u.DepartmentId == department);
             }
 
             if (!string.IsNullOrEmpty(role))
@@ -54,9 +55,9 @@ public class UserController : Controller
                 users = users.Where(u => u.Role == role);
             }
 
-            if (isActive.HasValue)
+            if (status.HasValue)
             {
-                users = users.Where(u => u.IsActive == isActive.Value);
+                users = users.Where(u => u.IsActive == status.Value);
             }
 
             var viewModel = new UserListViewModel
@@ -78,14 +79,22 @@ public class UserController : Controller
                     IsActive = u.IsActive,
                     HireDate = u.HireDate
                 }).ToList(),
+                Departments = departments.Select(d => new DepartmentViewModel
+                {
+                    DepartmentId = d.DepartmentId,
+                    DepartmentName = d.DepartmentName
+                }).ToList(),
                 Filters = new UserFilterViewModel
                 {
-                    SearchTerm = searchTerm,
-                    DepartmentId = departmentId,
+                    SearchTerm = search,
+                    DepartmentId = department,
                     Role = role,
-                    IsActive = isActive
+                    IsActive = status
                 }
             };
+            
+            // View'da filtrelerin korunması için ViewData'ya ekle
+            ViewData["CurrentFilter"] = search;
             
             await LoadDepartmentsToViewBag();
 

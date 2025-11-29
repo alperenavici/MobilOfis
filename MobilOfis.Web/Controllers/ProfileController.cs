@@ -47,6 +47,7 @@ public class ProfileController : Controller
                 ManagerName = user.Manager != null ? $"{user.Manager.FirstName} {user.Manager.LastName}" : null,
                 Role = user.Role,
                 HireDate = user.HireDate,
+                CreatedDate = user.CreatedDate,
                 LastLoginDate = user.LastLoginDate
             };
 
@@ -131,24 +132,7 @@ public class ProfileController : Controller
         }
     }
 
-    /// <summary>
-    /// Bildirim ayarlarını güncelle
-    /// </summary>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult UpdateNotificationSettings(ProfileViewModel model)
-    {
-        try
-        {
-            TempData["SuccessMessage"] = "Bildirim ayarları güncellendi.";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            TempData["ErrorMessage"] = ex.Message;
-            return RedirectToAction(nameof(Index));
-        }
-    }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
