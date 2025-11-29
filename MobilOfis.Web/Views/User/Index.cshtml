@@ -30,7 +30,7 @@
                         {
                             @foreach (var dept in Model.Departments)
                             {
-                                <option value="@dept.DepartmentId">@dept.Name</option>
+                                <option value="@dept.DepartmentId" selected="@(Model.Filters?.DepartmentId == dept.DepartmentId ? "selected" : null)">@dept.Name</option>
                             }
                         }
                     </select>
@@ -38,17 +38,17 @@
                 <div class="col-12 col-md-2">
                     <select name="role" class="form-select">
                         <option value="">Tüm Roller</option>
-                        <option value="Employee">Çalışan</option>
-                        <option value="Manager">Yönetici</option>
-                        <option value="HR">İK</option>
-                        <option value="Admin">Admin</option>
+                        <option value="Employee" selected="@(Model.Filters?.Role == "Employee" ? "selected" : null)">Çalışan</option>
+                        <option value="Manager" selected="@(Model.Filters?.Role == "Manager" ? "selected" : null)">Yönetici</option>
+                        <option value="HR" selected="@(Model.Filters?.Role == "HR" ? "selected" : null)">İK</option>
+                        <option value="Admin" selected="@(Model.Filters?.Role == "Admin" ? "selected" : null)">Admin</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
                     <select name="status" class="form-select">
                         <option value="">Tüm Durumlar</option>
-                        <option value="true">Aktif</option>
-                        <option value="false">Pasif</option>
+                        <option value="true" selected="@(Model.Filters?.IsActive == true ? "selected" : null)">Aktif</option>
+                        <option value="false" selected="@(Model.Filters?.IsActive == false ? "selected" : null)">Pasif</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-3 d-flex flex-column flex-md-row gap-2">
