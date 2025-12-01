@@ -94,9 +94,55 @@ public class EventController : Controller
         {
             var userId = GetCurrentUserId();
             await _eventService.CreateEventAsync(model.Title, model.Description, model.StartTime, 
-                model.EndTime, model.Location, userId, new List<Guid>());
+                model.EndTime, model.Location, model.EventType, userId, new List<Guid>());
             TempData["SuccessMessage"] = "Etkinlik başarıyla oluşturuldu.";
             return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            return View(model);
+        }
+    }
+
+    [Authorize(Policy = "ManagerOnly")]
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        try
+        {
+            var eventEntity = await _eventService.GetEventByIdAsync(id);
+            var viewModel = new EventViewModel
+            {
+                EventId = eventEntity.EventId,
+                Title = eventEntity.Title ?? string.Empty,
+                Description = eventEntity.Description ?? string.Empty,
+                StartTime = eventEntity.StartTime,
+                EndTime = eventEntity.EndTime,
+                Location = eventEntity.Location ?? string.Empty,
+                EventType = eventEntity.EventType ?? "General",
+            };
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    [Authorize(Policy = "ManagerOnly")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EventViewModel model)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _eventService.UpdateEventAsync(model.EventId, model.Title, model.Description, 
+                model.StartTime, model.EndTime, model.Location, model.EventType, userId);
+            TempData["SuccessMessage"] = "Etkinlik başarıyla güncellendi.";
+            return RedirectToAction(nameof(Detail), new { id = model.EventId });
         }
         catch (Exception ex)
         {
@@ -222,7 +268,7 @@ END:VCALENDAR";
 
             var creatorId = GetCurrentUserId();
             var eventEntity = await _eventService.CreateEventAsync(dto.Title, dto.Description, 
-                dto.StartTime, dto.EndTime, dto.Location, creatorId, dto.ParticipantIds);
+                dto.StartTime, dto.EndTime, dto.Location, "General", creatorId, dto.ParticipantIds);
             return Ok(new { message = "Etkinlik oluşturuldu.", eventId = eventEntity.EventId });
         }
         catch (Exception ex)

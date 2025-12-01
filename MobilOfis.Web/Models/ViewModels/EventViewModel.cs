@@ -25,7 +25,7 @@ public class EventViewModel
         _ => EventType
     };
     
-    public string? BannerImageUrl { get; set; }
+
     
     [Required(ErrorMessage = "Başlangıç zamanı gereklidir")]
     [Display(Name = "Başlangıç Zamanı")]

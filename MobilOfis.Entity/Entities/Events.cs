@@ -10,6 +10,7 @@ public class Events
     public DateTime StartTime { get; set; } // Etkinlik başlangıç zamanı
     public DateTime EndTime { get; set; } // Etkinlik bitiş zamanı
     public string? Location { get; set; } // Etkinlik yeri 
+    public string? EventType { get; set; } // Etkinlik türü
     public Guid CreatedByUserId { get; set; } 
     
     
