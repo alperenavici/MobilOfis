@@ -9,7 +9,7 @@
         <h2 class="mb-0"><i class="bi bi-people me-2"></i>Kullanıcı Yönetimi</h2>
         @if (User.IsInRole("HR") || User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="btn btn-primary w-100 w-md-auto">
+            <a asp-action="Create" class="btn btn-primary w-20 w-md-auto">
                 <i class="bi bi-person-plus me-2"></i>Yeni Kullanıcı
             </a>
         }
@@ -76,11 +76,11 @@
                                     <input type="checkbox" class="form-check-input" id="selectAll">
                                 </th>
                                 <th>Kullanıcı</th>
-                                <th>Email</th>
-                                <th>Departman</th>
-                                <th>Pozisyon</th>
-                                <th>Rol</th>
-                                <th>Durum</th>
+                                <th class="d-none d-md-table-cell">Email</th>
+                                <th class="d-none d-md-table-cell">Departman</th>
+                                <th class="d-none d-md-table-cell">Pozisyon</th>
+                                <th class="d-none d-md-table-cell">Rol</th>
+                                <th class="d-none d-md-table-cell">Durum</th>
                                 <th>İşlemler</th>
                             </tr>
                         </thead>
@@ -95,20 +95,35 @@
                                         <div class="d-flex align-items-center">
                                             <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.FullName)}&background=667eea&color=fff" : user.ProfilePictureUrl)" 
                                                  alt="@user.FullName" class="avatar me-2 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                                            <div>
-                                                <strong>@user.FullName</strong>
-                                                @if (user.IsManager)
-                                                {
-                                                    <i class="bi bi-patch-check-fill text-primary ms-1" title="Yönetici"></i>
-                                                }
+                                            <div class="d-flex flex-column">
+                                                <div>
+                                                    <strong>@user.FullName</strong>
+                                                    @if (user.IsManager)
+                                                    {
+                                                        <i class="bi bi-patch-check-fill text-primary ms-1" title="Yönetici"></i>
+                                                    }
+                                                </div>
+                                                <small class="text-muted d-md-none">@user.JobTitle</small>
+                                                <small class="text-muted d-md-none">@user.DepartmentName</small>
+                                                <div class="d-md-none mt-1">
+                                                    <span class="badge bg-secondary">@user.RoleName</span>
+                                                    @if (user.IsActive)
+                                                    {
+                                                        <span class="badge badge-active">Aktif</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-inactive">Pasif</span>
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>@user.Email</td>
-                                    <td>@user.DepartmentName</td>
-                                    <td>@user.JobTitle</td>
-                                    <td><span class="badge bg-secondary">@user.RoleName</span></td>
-                                    <td>
+                                    <td class="d-none d-md-table-cell">@user.Email</td>
+                                    <td class="d-none d-md-table-cell">@user.DepartmentName</td>
+                                    <td class="d-none d-md-table-cell">@user.JobTitle</td>
+                                    <td class="d-none d-md-table-cell"><span class="badge bg-secondary">@user.RoleName</span></td>
+                                    <td class="d-none d-md-table-cell">
                                         @if (user.IsActive)
                                         {
                                             <span class="badge badge-active">Aktif</span>

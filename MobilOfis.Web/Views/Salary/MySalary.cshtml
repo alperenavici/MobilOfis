@@ -22,22 +22,22 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-4">
-                        <div class="col-12 col-sm-6 col-md-6">
-                            <div class="text-center p-4 bg-light rounded">
+                        <div class="col-12 col-sm-6">
+                            <div class="text-center p-3 p-md-4 bg-light rounded">
                                 <small class="text-muted d-block mb-2">Brüt Maaş</small>
                                 <h3 class="mb-0 text-primary h4">@Model.GrossSalary.ToString("N2") ₺</h3>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-6">
-                            <div class="text-center p-4 bg-light rounded">
+                        <div class="col-12 col-sm-6">
+                            <div class="text-center p-3 p-md-4 bg-light rounded">
                                 <small class="text-muted d-block mb-2">Net Maaş</small>
                                 <h3 class="mb-0 text-success h4">@Model.NetSalary.ToString("N2") ₺</h3>
                             </div>
                         </div>
                         @if (Model.Bonus.HasValue && Model.Bonus.Value > 0)
                         {
-                            <div class="col-12 col-sm-6 col-md-6">
-                                <div class="text-center p-4 bg-light rounded">
+                            <div class="col-12 col-sm-6">
+                                <div class="text-center p-3 p-md-4 bg-light rounded">
                                     <small class="text-muted d-block mb-2">Prim</small>
                                     <h3 class="mb-0 text-info h4">@Model.Bonus.Value.ToString("N2") ₺</h3>
                                 </div>
@@ -45,8 +45,8 @@
                         }
                         @if (Model.Deductions.HasValue && Model.Deductions.Value > 0)
                         {
-                            <div class="col-12 col-sm-6 col-md-6">
-                                <div class="text-center p-4 bg-light rounded">
+                            <div class="col-12 col-sm-6">
+                                <div class="text-center p-3 p-md-4 bg-light rounded">
                                     <small class="text-muted d-block mb-2">Kesintiler</small>
                                     <h3 class="mb-0 text-danger h4">@Model.Deductions.Value.ToString("N2") ₺</h3>
                                 </div>
@@ -63,58 +63,64 @@
                 </div>
             </div>
             
-            <!-- Bordro Geçmişi -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Bordro Geçmişi</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.PaymentHistory != null && Model.PaymentHistory.Any())
-                    {
+
+            @if (Model.CanManageTeam)
+            {
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Takım Maaşları</h5>
+                        <span class="badge bg-primary">Yönetici Modu</span>
+                    </div>
+                    <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-sm align-middle">
                                 <thead>
                                     <tr>
-                                        <th>Dönem</th>
-                                        <th>Brüt</th>
-                                        <th>Net</th>
-                                        <th>Prim</th>
-                                        <th>Ödeme Tarihi</th>
-                                        <th>İşlem</th>
+                                        <th>Çalışan</th>
+                                        <th class="d-none d-md-table-cell">Departman</th>
+                                        <th>Maaş</th>
+                                        <th class="d-none d-md-table-cell">Son Güncelleme</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var payment in Model.PaymentHistory)
+                                    @foreach (var member in Model.TeamMembers)
                                     {
                                         <tr>
-                                            <td>@payment.Period.ToString("MMMM yyyy")</td>
-                                            <td>@payment.GrossSalary.ToString("N2") ₺</td>
-                                            <td>@payment.NetSalary.ToString("N2") ₺</td>
-                                            <td>@((payment.Bonus ?? 0).ToString("N2")) ₺</td>
-                                            <td>@payment.PaymentDate.ToString("dd.MM.yyyy")</td>
                                             <td>
-                                                <a asp-action="DownloadPayslip" asp-route-id="@payment.SalaryId" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-download me-1"></i>Bordro
-                                                </a>
+                                                <div class="d-flex flex-column">
+                                                    <strong>@member.UserName</strong>
+                                                    <small class="text-muted">@member.JobTitle</small>
+                                                    <small class="text-muted d-md-none">@member.DepartmentName</small>
+                                                </div>
+                                            </td>
+                                            <td class="d-none d-md-table-cell">@member.DepartmentName</td>
+                                            <td><strong>@member.Salary.ToString("N2") ₺</strong></td>
+                                            <td class="d-none d-md-table-cell">
+                                                @if (member.LastUpdated.HasValue)
+                                                {
+                                                    <small class="text-muted">@member.LastUpdated.Value.ToString("dd.MM.yyyy")</small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">-</small>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick="openTeamSalaryModal('@member.UserId', '@member.UserName', @member.Salary.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="bi bi-receipt"></i>
-                            </div>
-                            <div class="empty-state-title">Bordro geçmişi bulunmuyor</div>
-                        </div>
-                    }
+                        <small class="text-muted">Yalnızca yöneticisi olduğunuz çalışanlar listelenir.</small>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
         
         <div class="col-lg-4">
@@ -183,69 +189,14 @@
                 </div>
             }
 
-            @if (Model.CanManageTeam)
-            {
-                <div class="card mt-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Takım Maaşları</h5>
-                        <span class="badge bg-primary">Yönetici Modu</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Çalışan</th>
-                                        <th>Departman</th>
-                                        <th>Maaş</th>
-                                        <th>Son Güncelleme</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var member in Model.TeamMembers)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex flex-column">
-                                                    <strong>@member.UserName</strong>
-                                                    <small class="text-muted">@member.JobTitle</small>
-                                                </div>
-                                            </td>
-                                            <td>@member.DepartmentName</td>
-                                            <td><strong>@member.Salary.ToString("N2") ₺</strong></td>
-                                            <td>
-                                                @if (member.LastUpdated.HasValue)
-                                                {
-                                                    <small class="text-muted">@member.LastUpdated.Value.ToString("dd.MM.yyyy")</small>
-                                                }
-                                                else
-                                                {
-                                                    <small class="text-muted">-</small>
-                                                }
-                                            </td>
-                                            <td class="text-end">
-                                                <button type="button" class="btn btn-sm btn-outline-primary"
-                                                        onclick="openTeamSalaryModal('@member.UserId', '@member.UserName', @member.Salary.ToString(System.Globalization.CultureInfo.InvariantCulture))">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <small class="text-muted">Yalnızca yöneticisi olduğunuz çalışanlar listelenir.</small>
-                    </div>
-                </div>
-            }
+
         </div>
     </div>
 </div>
 
 <!-- Team Salary Modal -->
 <div class="modal fade" id="teamSalaryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Maaş Güncelle</h5>

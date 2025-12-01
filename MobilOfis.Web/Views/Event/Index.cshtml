@@ -168,7 +168,7 @@
         <h2 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Etkinlikler</h2>
         @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm px-4 w-100 w-md-auto">
+            <a asp-action="Create" class="btn btn-primary rounded-pill shadow-sm px-4 w-50 w-md-auto">
                 <i class="bi bi-plus-lg me-2"></i>Yeni Etkinlik
             </a>
         }
@@ -217,30 +217,30 @@
                     <div class="col-12">
                         <div class="card shadow-sm">
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-md-2 text-center mb-0 mb-md-0">
                                         <div class="event-date-large">
                                             <div class="event-day">@evt.StartDate.Day</div>
                                             <div class="event-month">@evt.StartDate.ToString("MMMM")</div>
                                             <div class="event-year">@evt.StartDate.Year</div>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-7">
+                                    <div class="col-8 col-md-7">
                                         <h4 class="mb-2 h5">
                                             <a asp-action="Detail" asp-route-id="@evt.EventId" class="text-decoration-none text-dark">
                                                 @evt.Title
                                             </a>
                                         </h4>
-                                        <p class="text-muted mb-2">@evt.Description</p>
-                                        <div class="d-flex flex-column flex-md-row gap-2 gap-md-3 text-muted small">
+                                        <p class="text-muted mb-2 d-none d-md-block">@evt.Description</p>
+                                        <div class="d-flex flex-wrap gap-2 gap-md-3 text-muted small">
                                             <span><i class="bi bi-clock me-1"></i>@evt.StartDate.ToString("HH:mm")</span>
                                             <span><i class="bi bi-geo-alt me-1"></i>@evt.Location</span>
                                             <span><i class="bi bi-people me-1"></i>@evt.ParticipantCount katılımcı</span>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3 d-flex flex-column flex-md-column justify-content-center align-items-center align-items-md-end mt-3 mt-md-0">
-                                        <span class="badge bg-primary mb-2">@evt.EventTypeDisplay</span>
-                                        <a asp-action="Detail" asp-route-id="@evt.EventId" class="btn btn-outline-primary btn-sm w-100 w-md-auto">
+                                    <div class="col-12 col-md-3 d-flex flex-row flex-md-column justify-content-between justify-content-md-center align-items-center align-items-md-end mt-3 mt-md-0 pt-3 pt-md-0 border-top border-md-0 border-top-md-0">
+                                        <span class="badge bg-primary mb-0 mb-md-2">@evt.EventTypeDisplay</span>
+                                        <a asp-action="Detail" asp-route-id="@evt.EventId" class="btn btn-outline-primary btn-sm w-auto w-md-auto">
                                             Detayları Gör
                                         </a>
                                     </div>
