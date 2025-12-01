@@ -4,8 +4,8 @@ namespace MobilOfis.Core.IServices;
 
 public interface IEventService
 {
-    Task<Events> CreateEventAsync(string title, string description, DateTime startTime, DateTime endTime, string? location, Guid creatorId, List<Guid>? participantIds);
-    Task<Events> UpdateEventAsync(Guid eventId, string title, string description, DateTime startTime, DateTime endTime, string? location, Guid userId);
+    Task<Events> CreateEventAsync(string title, string description, DateTime startTime, DateTime endTime, string? location, string? eventType, Guid creatorId, List<Guid>? participantIds);
+    Task<Events> UpdateEventAsync(Guid eventId, string title, string description, DateTime startTime, DateTime endTime, string? location, string? eventType, Guid userId);
     Task<bool> DeleteEventAsync(Guid eventId, Guid userId);
     Task<bool> AddParticipantAsync(Guid eventId, Guid userId);
     Task<bool> RemoveParticipantAsync(Guid eventId, Guid userId);

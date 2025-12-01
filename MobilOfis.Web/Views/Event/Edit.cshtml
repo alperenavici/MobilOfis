@@ -16,7 +16,7 @@
         <div class="col-12 col-lg-8 mx-auto">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Edit" asp-route-id="@Model.EventId" method="post" enctype="multipart/form-data" id="eventForm">
+                    <form asp-action="Edit" asp-route-id="@Model.EventId" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="EventId" value="@Model.EventId" />
                         
@@ -53,16 +53,16 @@
                             <!-- Başlangıç Tarihi ve Saati -->
                             <div class="col-12 col-md-6">
                                 <label for="startDate" class="form-label">Başlangıç Tarihi <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="StartDate" id="startDate" class="form-control" required
-                                       value="@Model.StartDate.ToString("yyyy-MM-ddTHH:mm")">
+                                <input type="datetime-local" name="StartTime" id="startDate" class="form-control" required
+                                       value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")">
                                 <div class="invalid-feedback">Başlangıç tarihi zorunludur.</div>
                             </div>
                             
                             <!-- Bitiş Tarihi ve Saati -->
                             <div class="col-12 col-md-6">
                                 <label for="endDate" class="form-label">Bitiş Tarihi <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="EndDate" id="endDate" class="form-control" required
-                                       value="@Model.EndDate.ToString("yyyy-MM-ddTHH:mm")">
+                                <input type="datetime-local" name="EndTime" id="endDate" class="form-control" required
+                                       value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")">
                                 <div class="invalid-feedback">Bitiş tarihi zorunludur.</div>
                             </div>
                             
@@ -73,33 +73,9 @@
                                 <div class="invalid-feedback">Açıklama zorunludur.</div>
                             </div>
                             
-                            <!-- Mevcut Banner Görseli -->
-                            @if (!string.IsNullOrEmpty(Model.BannerImageUrl))
-                            {
-                                <div class="col-12">
-                                    <label class="form-label">Mevcut Banner Görseli</label>
-                                    <div class="mb-2">
-                                        <img src="@Model.BannerImageUrl" alt="Current Banner" class="img-fluid rounded" style="max-height: 200px;">
-                                    </div>
-                                </div>
-                            }
+
                             
-                            <!-- Yeni Banner Görseli -->
-                            <div class="col-12">
-                                <label for="eventBanner" class="form-label">Yeni Banner Görseli (Opsiyonel)</label>
-                                <div class="file-upload" onclick="document.getElementById('eventBanner').click()">
-                                    <div class="file-upload-icon">
-                                        <i class="bi bi-image"></i>
-                                    </div>
-                                    <div class="file-upload-text">
-                                        <strong>Yeni banner görseli yükleyin</strong>
-                                        <br>
-                                        <small class="text-muted">JPG veya PNG (Max 2MB, önerilen 1200x400px)</small>
-                                    </div>
-                                    <input type="file" name="BannerImage" id="eventBanner" accept="image/*">
-                                </div>
-                                <div id="bannerPreview" class="mt-3"></div>
-                            </div>
+
                             
                             <!-- Butonlar -->
                             <div class="col-12">

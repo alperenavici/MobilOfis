@@ -51,14 +51,13 @@ function switchViewMode(mode) {
     }
 }
 
-// Calendar initialization (FullCalendar)
 let calendar = null;
 
 function initializeCalendar() {
     const calendarEl = document.getElementById('eventCalendar');
 
     if (!calendarEl) return;
-    
+
     // Destroy existing calendar if it exists
     if (calendar) {
         calendar.destroy();
@@ -67,7 +66,7 @@ function initializeCalendar() {
 
     // Check if mobile
     const isMobile = window.innerWidth < 768;
-    
+
     // Mobile configuration
     const mobileConfig = {
         initialView: 'listWeek', // Mobilde liste görünümü daha uygun
@@ -79,7 +78,7 @@ function initializeCalendar() {
         height: 'auto',
         aspectRatio: 1.2
     };
-    
+
     // Desktop configuration
     const desktopConfig = {
         initialView: 'dayGridMonth',
@@ -148,21 +147,21 @@ function initializeCalendar() {
     });
 
     calendar.render();
-    
+
     // Update size after render
     setTimeout(() => {
         calendar.updateSize();
     }, 100);
-    
+
     // Handle window resize for mobile/desktop switching
     let resizeTimeout;
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(function() {
+        resizeTimeout = setTimeout(function () {
             if (calendar) {
                 const wasMobile = window.innerWidth < 768;
                 const isMobile = window.innerWidth < 768;
-                
+
                 // Only reinitialize if switching between mobile/desktop
                 if (wasMobile !== isMobile) {
                     initializeCalendar();
@@ -221,52 +220,10 @@ function initializeEventForms() {
         eventForm.addEventListener('submit', handleEventSubmit);
     }
 
-    // Banner image preview
-    const bannerInput = document.getElementById('eventBanner');
-    if (bannerInput) {
-        bannerInput.addEventListener('change', previewBannerImage);
-    }
+
 }
 
-function previewBannerImage(e) {
-    const file = e.target.files[0];
-    const preview = document.getElementById('bannerPreview');
 
-    if (file && preview) {
-        // Validate file size (max 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            showToast('Dosya boyutu 2MB\'dan küçük olmalıdır', 'error');
-            e.target.value = '';
-            return;
-        }
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            showToast('Sadece resim dosyaları yüklenebilir', 'error');
-            e.target.value = '';
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            preview.innerHTML = `
-                <img src="${e.target.result}" alt="Banner Preview" class="img-fluid rounded">
-                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="clearBannerPreview()">
-                    Kaldır
-                </button>
-            `;
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function clearBannerPreview() {
-    const bannerInput = document.getElementById('eventBanner');
-    const preview = document.getElementById('bannerPreview');
-
-    if (bannerInput) bannerInput.value = '';
-    if (preview) preview.innerHTML = '';
-}
 
 async function handleEventSubmit(e) {
     e.preventDefault();
@@ -419,7 +376,6 @@ window.eventFunctions = {
     leaveEvent,
     deleteEvent,
     exportToCalendar,
-    clearBannerPreview,
     clearEventFilters
 };
 
