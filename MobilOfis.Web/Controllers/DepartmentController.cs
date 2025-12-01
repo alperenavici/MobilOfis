@@ -29,6 +29,7 @@ public class DepartmentController : Controller
             {
                 DepartmentId = d.DepartmentId,
                 DepartmentName = d.DepartmentName ?? string.Empty,
+                ManagerName = d.Manager != null ? $"{d.Manager.FirstName} {d.Manager.LastName}" : null,
                 EmployeeCount = d.Users?.Count ?? 0
             }).ToList();
             return View(viewModel);
