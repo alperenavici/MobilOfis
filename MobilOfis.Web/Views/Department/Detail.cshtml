@@ -83,9 +83,9 @@
                                 <thead>
                                     <tr>
                                         <th>Çalışan</th>
-                                        <th>Email</th>
-                                        <th>Pozisyon</th>
-                                        <th>Rol</th>
+                                        <th class="d-none d-md-table-cell">Email</th>
+                                        <th class="d-none d-md-table-cell">Pozisyon</th>
+                                        <th class="d-none d-md-table-cell">Rol</th>
                                         <th>İşlemler</th>
                                     </tr>
                                 </thead>
@@ -104,12 +104,15 @@
                                                         <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(employee.FullName)&background=667eea&color=fff" 
                                                              alt="@employee.FullName" class="avatar avatar-sm me-2 rounded-circle">
                                                     }
-                                                    <strong>@employee.FullName</strong>
+                                                    <div class="d-flex flex-column">
+                                                        <strong>@employee.FullName</strong>
+                                                        <small class="text-muted d-md-none">@employee.JobTitle</small>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td>@employee.Email</td>
-                                            <td>@employee.JobTitle</td>
-                                            <td>
+                                            <td class="d-none d-md-table-cell">@employee.Email</td>
+                                            <td class="d-none d-md-table-cell">@employee.JobTitle</td>
+                                            <td class="d-none d-md-table-cell">
                                                 <span class="badge bg-secondary">@employee.RoleName</span>
                                             </td>
                                             <td>
@@ -168,7 +171,6 @@
                 </div>
             </div>
             
-            <!-- Hızlı İşlemler -->
             @if (User.IsInRole("HR") || User.IsInRole("Admin"))
             {
                 <div class="card">
