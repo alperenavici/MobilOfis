@@ -15,7 +15,7 @@ public class EventService : IEventService
         _notificationService = notificationService;
     }
 
-    public async Task<Events> CreateEventAsync(string title, string description, DateTime startTime, DateTime endTime, string? location, Guid creatorId, List<Guid>? participantIds)
+    public async Task<Events> CreateEventAsync(string title, string description, DateTime startTime, DateTime endTime, string? location, string? eventType, Guid creatorId, List<Guid>? participantIds)
     {
         if (startTime >= endTime)
         {
@@ -30,6 +30,7 @@ public class EventService : IEventService
             StartTime = DateTime.SpecifyKind(startTime, DateTimeKind.Utc),
             EndTime = DateTime.SpecifyKind(endTime, DateTimeKind.Utc),
             Location = location,
+            EventType = eventType,
             CreatedByUserId = creatorId,
             CreatedDate = DateTime.UtcNow
         };
@@ -52,7 +53,7 @@ public class EventService : IEventService
         return eventEntity;
     }
 
-    public async Task<Events> UpdateEventAsync(Guid eventId, string title, string description, DateTime startTime, DateTime endTime, string? location, Guid userId)
+    public async Task<Events> UpdateEventAsync(Guid eventId, string title, string description, DateTime startTime, DateTime endTime, string? location, string? eventType, Guid userId)
     {
         var eventEntity = await _unitOfWork.Events.GetByIdAsync(eventId);
         if (eventEntity == null)
@@ -75,6 +76,7 @@ public class EventService : IEventService
         eventEntity.StartTime = DateTime.SpecifyKind(startTime, DateTimeKind.Utc);
         eventEntity.EndTime = DateTime.SpecifyKind(endTime, DateTimeKind.Utc);
         eventEntity.Location = location;
+        eventEntity.EventType = eventType;
         eventEntity.UpdatedDate = DateTime.UtcNow;
 
         _unitOfWork.Events.Update(eventEntity);
