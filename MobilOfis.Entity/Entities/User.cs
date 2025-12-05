@@ -5,11 +5,11 @@ public class User
     public Guid UserId { get; set; } 
     
     // Kişisel Bilgiler
-    public string FirstName { get; set; } // Adı
-    public string LastName { get; set; } // Soyadı
-    public string Email { get; set; } // E-posta adresi (unique)
-    public string PhoneNumber { get; set; } // Telefon numarası
-    public string PasswordHash { get; set; } // Şifrelenmiş parola
+    public string FirstName { get; set; } = null!; // Adı
+    public string LastName { get; set; } = null!; // Soyadı
+    public string Email { get; set; } = null!; // E-posta adresi (unique)
+    public string PhoneNumber { get; set; } = null!; // Telefon numarası
+    public string PasswordHash { get; set; } = null!; // Şifrelenmiş parola
     public string? ProfilePictureUrl { get; set; } // Profil fotoğrafı URL'si
     
     // İş Bilgileri
@@ -57,4 +57,5 @@ public class User
     public virtual ICollection<Notifications>? Notifications { get; set; } // Kullanıcının bildirimleri
     public virtual ICollection<Events>? CreatedEvents { get; set; } // Kullanıcının oluşturduğu etkinlikler
     public virtual ICollection<Participants>? Participants { get; set; } // Kullanıcının katıldığı etkinlikler
+    public virtual ICollection<Post>? Posts { get; set; } // Kullanıcının paylaşımları
 }

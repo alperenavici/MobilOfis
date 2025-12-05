@@ -1,0 +1,81 @@
+<!-- Create Leave Modal -->
+<div class="modal fade" id="createLeaveModal" tabindex="-1" aria-labelledby="createLeaveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createLeaveModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Yeni İzin Talebi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Create" method="post" enctype="multipart/form-data" id="createLeaveForm" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <!-- İzin Türü -->
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <select name="LeavesType" id="leaveType" class="form-select" required>
+                                    <option value="">Seçiniz...</option>
+                                    <option value="YillikUcretliIzin">Yıllık Ücretli İzin</option>
+                                    <option value="HastalikIzni">Hastalık İzni</option>
+                                    <option value="EvlilikIzni">Evlilik İzni</option>
+                                    <option value="BabalikIzni">Babalık İzni</option>
+                                    <option value="OlumIzni">Ölüm İzni</option>
+                                    <option value="UcretsizIzin">Ücretsiz İzin</option>
+                                </select>
+                                <label for="leaveType">İzin Türü <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="invalid-feedback">Lütfen bir izin türü seçiniz.</div>
+                        </div>
+                        
+                        <!-- Tarih Seçimi -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" name="StartDate" id="startDate" class="form-control future-only" placeholder="Başlangıç Tarihi" required>
+                                <label for="startDate">Başlangıç Tarihi <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="invalid-feedback">Başlangıç tarihi zorunludur.</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="date" name="EndDate" id="endDate" class="form-control future-only" placeholder="Bitiş Tarihi" required>
+                                <label for="endDate">Bitiş Tarihi <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="invalid-feedback">Bitiş tarihi zorunludur.</div>
+                        </div>
+
+                        <!-- Gün Sayısı Göstergesi -->
+                        <div class="col-12">
+                            <div class="alert alert-info d-flex align-items-center justify-content-between mb-0" role="alert">
+                                <div>
+                                    <i class="bi bi-calendar-range me-2"></i>
+                                    <span class="fw-medium">Toplam İzin Süresi</span>
+                                </div>
+                                <span class="badge bg-primary fs-6" id="leaveDaysDisplay">0 Gün</span>
+                            </div>
+                        </div>
+                        
+                        <!-- İzin Nedeni -->
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea name="Reason" id="reason" class="form-control" style="height: 120px" 
+                                          placeholder="İzin talebinizin nedenini açıklayınız" required></textarea>
+                                <label for="reason">İzin Nedeni <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="invalid-feedback">Lütfen izin nedenini belirtiniz.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top-0 px-4 py-3">
+                    <button type="button" class="btn btn-light btn-lg px-4" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-send me-2"></i>Talebi Gönder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

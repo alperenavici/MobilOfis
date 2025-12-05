@@ -10,7 +10,12 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _context;
     private IDbContextTransaction? _transaction;
     private IUserRepository? _userRepository;
+    private ILeaveRepository? _leaveRepository;
+    private IEventRepository? _eventRepository;
+    private IDepartmentRepository? _departmentRepository;
+    private INotificationRepository? _notificationRepository;
     private readonly Dictionary<Type, object> _repositories;
+    private IPostRepository? _postRepository;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -19,6 +24,11 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public IUserRepository Users => _userRepository ??= new UserRepository(_context);
+    public ILeaveRepository Leaves => _leaveRepository ??= new LeaveRepository(_context);
+    public IEventRepository Events => _eventRepository ??= new EventRepository(_context);
+    public IDepartmentRepository Departments => _departmentRepository ??= new DepartmentRepository(_context);
+    public INotificationRepository Notifications => _notificationRepository ??= new NotificationRepository(_context);
+    public IPostRepository Posts => _postRepository ??= new PostRepository(_context);
 
     public IGenericRepository<T> Repository<T>() where T : class
     {

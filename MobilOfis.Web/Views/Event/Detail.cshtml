@@ -1,0 +1,199 @@
+@model EventViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="event-detail-container">
+    <!-- Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-event me-2"></i>Etkinlik Detayı</h2>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Geri
+            </a>
+            @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.EventId" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>Düzenle
+                </a>
+            }
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+
+            
+            <!-- Etkinlik Bilgileri -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h3 class="mb-0">@Model.Title</h3>
+                        <span class="badge bg-primary fs-6">@Model.EventTypeDisplay</span>
+                    </div>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar3 text-primary me-2 fs-5"></i>
+                                <div>
+                                    <small class="text-muted d-block">Başlangıç</small>
+                                    <strong>@Model.StartDate.ToString("dd MMMM yyyy, HH:mm")</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar3 text-primary me-2 fs-5"></i>
+                                <div>
+                                    <small class="text-muted d-block">Bitiş</small>
+                                    <strong>@Model.EndDate.ToString("dd MMMM yyyy, HH:mm")</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt text-primary me-2 fs-5"></i>
+                                <div>
+                                    <small class="text-muted d-block">Konum</small>
+                                    <strong>@Model.Location</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-people text-primary me-2 fs-5"></i>
+                                <div>
+                                    <small class="text-muted d-block">Katılımcı Sayısı</small>
+                                    <strong>@Model.ParticipantCount kişi</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="mb-3">Açıklama</h5>
+                    <p class="text-muted">@Model.Description</p>
+                </div>
+            </div>
+            
+            <!-- Katılımcılar -->
+            @if (Model.Participants != null && Model.Participants.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Katılımcılar (@Model.ParticipantCount)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="avatar-group">
+                            @foreach (var participant in Model.Participants.Take(10))
+                            {
+                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(participant.Name)&background=667eea&color=fff" 
+                                     alt="@participant.Name" 
+                                     class="avatar" 
+                                     title="@participant.Name">
+                            }
+                            @if (Model.ParticipantCount > 10)
+                            {
+                                <div class="avatar bg-secondary text-white d-inline-flex align-items-center justify-content-center">
+                                    +@(Model.ParticipantCount - 10)
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (Model.Participants.Count > 10)
+                        {
+                            <button class="btn btn-sm btn-outline-primary mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#allParticipants">
+                                Tüm Katılımcıları Gör
+                            </button>
+                            <div class="collapse mt-3" id="allParticipants">
+                                <div class="list-group">
+                                    @foreach (var participant in Model.Participants.Skip(10))
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(participant.Name)&background=667eea&color=fff" 
+                                                     alt="@participant.Name" class="avatar avatar-sm me-2">
+                                                <span>@participant.Name</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- İşlemler -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">İşlemler</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.IsPastEvent)
+                    {
+                        <div class="alert alert-secondary mb-3">
+                            <i class="bi bi-info-circle me-2"></i>Bu etkinlik sona ermiştir.
+                        </div>
+                    }
+                    else if (Model.IsUserParticipant)
+                    {
+                        <div class="alert alert-success mb-3">
+                            <i class="bi bi-check-circle me-2"></i>Bu etkinliğe katılıyorsunuz
+                        </div>
+                        <button type="button" class="btn btn-outline-danger w-100 mb-2" onclick="eventFunctions.leaveEvent('@Model.EventId')">
+                            <i class="bi bi-x-lg me-1"></i>Katılımdan Ayrıl
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-primary w-100 mb-2" onclick="eventFunctions.joinEvent('@Model.EventId')">
+                            <i class="bi bi-check-lg me-1"></i>Etkinliğe Katıl
+                        </button>
+                    }
+                    
+                    <!-- <button type="button" class="btn btn-outline-secondary w-100" onclick="eventFunctions.exportToCalendar('@Model.EventId')">
+                        <i class="bi bi-calendar-plus me-1"></i>Takvime Ekle
+                    </button> -->
+                    
+                    @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
+                    {
+                        <hr>
+                        <button type="button" class="btn btn-outline-danger w-100" onclick="eventFunctions.deleteEvent('@Model.EventId')">
+                            <i class="bi bi-trash me-1"></i>Etkinliği Sil
+                        </button>
+                    }
+                </div>
+            </div>
+            
+            <!-- Organizatör -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Organizatör</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.CreatedByName ?? "User")&background=667eea&color=fff" 
+                             alt="@Model.CreatedByName" class="avatar me-3">
+                        <div>
+                            <strong>@Model.CreatedByName</strong>
+                            <small class="text-muted d-block">
+                                Oluşturulma: @Model.CreatedAt.ToString("dd MMM yyyy")
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/events.js"></script>
+    @Html.AntiForgeryToken()
+}
+

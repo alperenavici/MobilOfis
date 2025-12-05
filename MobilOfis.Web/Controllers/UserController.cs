@@ -1,0 +1,565 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using MobilOfis.Core.IServices;
+using MobilOfis.Web.Models.ViewModels;
+using MobilOfis.Web.Models.DTOs;
+
+using Microsoft.AspNetCore.Authentication;
+using MobilOfis.Entity.Enums;
+
+namespace MobilOfis.Web.Controllers;
+
+[Authorize(Policy = "HROnly")]
+public class UserController : Controller
+{
+    private readonly IAuthServices _authServices;
+    private readonly IDepartmentService _departmentService;
+    private readonly ILeaveService _leaveService;
+    private readonly IEventService _eventService;
+
+    public UserController(IAuthServices authServices, IDepartmentService departmentService, ILeaveService leaveService, IEventService eventService)
+    {
+        _authServices = authServices;
+        _departmentService = departmentService;
+        _leaveService = leaveService;
+        _eventService = eventService;
+    }
+
+    /// <summary>
+    /// Kullanıcılar listesi
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> Index([FromQuery] string? search = null, [FromQuery] Guid? department = null, [FromQuery] string? role = null, [FromQuery] bool? status = null)
+    {
+        try
+        {
+            var users = await _authServices.GetAllUsersAsync();
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.Trim().ToLower();
+                users = users.Where(u => 
+                    (u.FirstName?.ToLower().Contains(search) ?? false) || 
+                    (u.LastName?.ToLower().Contains(search) ?? false) || 
+                    (u.Email?.ToLower().Contains(search) ?? false));
+            }
+
+            if (department.HasValue)
+            {
+                users = users.Where(u => u.DepartmentId == department);
+            }
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                users = users.Where(u => u.Role == role);
+            }
+
+            if (status.HasValue)
+            {
+                users = users.Where(u => u.IsActive == status.Value);
+            }
+
+            var viewModel = new UserListViewModel
+            {
+                Users = users.Select(u => new UserViewModel
+                {
+                    UserId = u.UserId,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    ProfilePictureUrl = u.ProfilePictureUrl,
+                    JobTitle = u.JobTitle,
+                    DepartmentId = u.DepartmentId,
+                    DepartmentName = u.Department?.DepartmentName,
+                    ManagerId = u.ManagerId,
+                    ManagerName = u.Manager != null ? $"{u.Manager.FirstName} {u.Manager.LastName}" : null,
+                    Role = u.Role,
+                    IsActive = u.IsActive,
+                    HireDate = u.HireDate
+                }).ToList(),
+                Departments = departments.Select(d => new DepartmentViewModel
+                {
+                    DepartmentId = d.DepartmentId,
+                    DepartmentName = d.DepartmentName ?? string.Empty
+                }).ToList(),
+                Filters = new UserFilterViewModel
+                {
+                    SearchTerm = search,
+                    DepartmentId = department,
+                    Role = role,
+                    IsActive = status
+                }
+            };
+            
+            // View'da filtrelerin korunması için ViewData'ya ekle
+            ViewData["CurrentFilter"] = search;
+            
+            await LoadDepartmentsToViewBag();
+
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Index", "Dashboard");
+        }
+    }
+
+    /// <summary>
+    /// Kullanıcı detay sayfası
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> Detail(Guid id)
+    {
+        try
+        {
+            var user = await _authServices.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Kullanıcı bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var viewModel = new UserViewModel
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                JobTitle = user.JobTitle,
+                DepartmentId = user.DepartmentId,
+                DepartmentName = user.Department?.DepartmentName,
+                ManagerId = user.ManagerId,
+                ManagerName = user.Manager != null ? $"{user.Manager.FirstName} {user.Manager.LastName}" : null,
+                Role = user.Role,
+                IsActive = user.IsActive,
+                HireDate = user.HireDate,
+                Salary = user.Salary,
+                Address = user.Address,
+                City = user.City,
+                Country = user.Country,
+                PostalCode = user.PostalCode,
+                DateOfBirth = user.DateOfBirth,
+                EmergencyContactName = user.EmergencyContactName,
+                EmergencyContactPhone = user.EmergencyContactPhone,
+                CreatedDate = user.CreatedDate,
+                UpdatedDate = user.UpdatedDate,
+                LastLoginDate = user.LastLoginDate
+            };
+
+            // İzin geçmişini getir
+            var leaves = await _leaveService.GetMyLeavesAsync(id);
+            viewModel.RecentLeaves = leaves.Select(l => new LeaveViewModel
+            {
+                LeavesId = l.LeavesId,
+                UserId = l.UserId,
+                UserName = $"{l.User?.FirstName} {l.User?.LastName}",
+                StartDate = l.StartDate,
+                EndDate = l.EndDate,
+                RequestDate = l.RequestDate,
+                Status = l.Status.ToString(),
+                LeavesType = l.LeavesType.ToString(),
+                Reason = l.Reason,
+                RejectionReason = l.RejectionReason,
+                ManagerApprovalId = l.ManagerApprovalId,
+                ManagerApprovalName = l.ManagerApproval != null ? $"{l.ManagerApproval.FirstName} {l.ManagerApproval.LastName}" : null,
+                ManagerApprovalDate = l.ManagerApprovalDate,
+                HRApprovalId = l.HRApprovalId,
+                HRApprovalDate = l.HRApprovalDate
+            }).OrderByDescending(l => l.StartDate).ToList();
+
+            var approvedLeaves = leaves.Where(l => l.Status == Status.Approved);
+            var usedLeaveDays = approvedLeaves.Sum(l => (l.EndDate - l.StartDate).Days + 1);
+            
+            var leaveTypeCount = Enum.GetValues(typeof(LeavesType)).Length;
+            var totalLeaveDays = leaveTypeCount * 14;
+
+            viewModel.UsedLeaveDays = usedLeaveDays;
+            viewModel.RemainingLeaveDays = totalLeaveDays - usedLeaveDays;
+
+            var myEvents = await _eventService.GetMyEventsAsync(id);
+            viewModel.EventsAttended = myEvents.Count();
+
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    /// <summary>
+    /// Yeni kullanıcı oluşturma sayfası
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        await LoadDepartmentsToViewBag();
+        await LoadManagersToViewBag();
+        return View(new UserViewModel());
+    }
+
+    /// <summary>
+    /// Yeni kullanıcı oluştur
+    /// </summary>
+    /// <summary>
+    /// Yeni kullanıcı oluştur
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(UserViewModel model, string password)
+    {
+        if (!ModelState.IsValid)
+        {
+            await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
+            return View(model);
+        }
+
+        try
+        {
+            var user = await _authServices.RegisterAsync(model.FirstName, model.LastName, model.Email, password, model.PhoneNumber ?? string.Empty);
+            
+            user.JobTitle = model.JobTitle;
+            user.DepartmentId = model.DepartmentId;
+            user.ManagerId = model.ManagerId;
+            user.Role = model.Role;
+            user.IsActive = model.IsActive;
+            user.HireDate = model.HireDate;
+            user.Salary = model.Salary;
+            user.Address = model.Address;
+            user.City = model.City;
+            user.Country = model.Country;
+            user.PostalCode = model.PostalCode;
+            user.DateOfBirth = model.DateOfBirth;
+            user.EmergencyContactName = model.EmergencyContactName;
+            user.EmergencyContactPhone = model.EmergencyContactPhone;
+            
+            await _authServices.UpdateUserAsync(user);
+
+            TempData["SuccessMessage"] = "Kullanıcı başarıyla oluşturuldu.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
+            return View(model);
+        }
+    }
+
+    /// <summary>
+    /// Kullanıcı düzenleme sayfası
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        try
+        {
+            var user = await _authServices.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Kullanıcı bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var viewModel = new UserViewModel
+            {
+                UserId = user.UserId,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                JobTitle = user.JobTitle,
+                DepartmentId = user.DepartmentId,
+                ManagerId = user.ManagerId,
+                Role = user.Role,
+                IsActive = user.IsActive,
+                HireDate = user.HireDate,
+                Salary = user.Salary,
+                Address = user.Address,
+                City = user.City,
+                Country = user.Country,
+                PostalCode = user.PostalCode,
+                DateOfBirth = user.DateOfBirth,
+                EmergencyContactName = user.EmergencyContactName,
+                EmergencyContactPhone = user.EmergencyContactPhone
+            };
+
+            await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    /// <summary>
+    /// Kullanıcı güncelle
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(UserViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
+            return View(model);
+        }
+
+        try
+        {
+            var user = await _authServices.GetUserByIdAsync(model.UserId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Kullanıcı bulunamadı.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber ?? string.Empty;
+            user.JobTitle = model.JobTitle;
+            user.DepartmentId = model.DepartmentId;
+            user.ManagerId = model.ManagerId;
+            user.Role = model.Role;
+            user.IsActive = model.IsActive;
+            user.HireDate = model.HireDate;
+            user.Salary = model.Salary;
+            user.Address = model.Address;
+            user.City = model.City;
+            user.Country = model.Country;
+            user.PostalCode = model.PostalCode;
+            user.DateOfBirth = model.DateOfBirth;
+            user.EmergencyContactName = model.EmergencyContactName;
+            user.EmergencyContactPhone = model.EmergencyContactPhone;
+            
+            await _authServices.UpdateUserAsync(user);
+
+            // Eğer kullanıcı kendi bilgilerini güncellediyse, oturumu yenile (Cookie'deki claim'leri güncelle)
+            if (user.UserId == GetCurrentUserId())
+            {
+                var claims = new List<System.Security.Claims.Claim>
+                {
+                    new System.Security.Claims.Claim("userId", user.UserId.ToString()),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Email, user.Email),
+                    new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, user.Role ?? "Employee"),
+                    new System.Security.Claims.Claim("departmentId", user.DepartmentId?.ToString() ?? "")
+                };
+
+                var claimsIdentity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
+                var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+                {
+                    IsPersistent = true, 
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                };
+
+                await HttpContext.SignInAsync("Cookies", new System.Security.Claims.ClaimsPrincipal(claimsIdentity), authProperties);
+            }
+
+            TempData["SuccessMessage"] = "Kullanıcı başarıyla güncellendi.";
+            return RedirectToAction(nameof(Detail), new { id = model.UserId });
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            await LoadDepartmentsToViewBag();
+            await LoadManagersToViewBag();
+            return View(model);
+        }
+    }
+
+    [HttpPost("Deactivate/{id}")]
+    public async Task<IActionResult> Deactivate(Guid id)
+    {
+        try
+        {
+            await _authServices.UpdateUserStatusAsync(id, false);
+            return Json(new { success = true, message = "Kullanıcı pasif yapıldı." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpPost("Activate/{id}")]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        try
+        {
+            await _authServices.UpdateUserStatusAsync(id, true);
+            return Json(new { success = true, message = "Kullanıcı aktif yapıldı." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+
+    [HttpGet("api/[controller]")]
+    public IActionResult GetAllUsersApi(string? searchTerm = null, Guid? departmentId = null, string? role = null, bool? isActive = null)
+    {
+        try
+        {
+            return Ok(new List<object>());
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("api/[controller]/{id}")]
+    public async Task<IActionResult> GetUserApi(Guid id)
+    {
+        try
+        {
+            var user = await _authServices.GetUserByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "Kullanıcı bulunamadı." });
+            }
+
+            return Ok(new
+            {
+                userId = user.UserId,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                email = user.Email,
+                phoneNumber = user.PhoneNumber,
+                profilePictureUrl = user.ProfilePictureUrl,
+                jobTitle = user.JobTitle,
+                departmentId = user.DepartmentId,
+                departmentName = user.Department?.DepartmentName,
+                managerId = user.ManagerId,
+                managerName = user.Manager != null ? $"{user.Manager.FirstName} {user.Manager.LastName}" : null,
+                role = user.Role,
+                isActive = user.IsActive,
+                hireDate = user.HireDate,
+                salary = user.Salary,
+                address = user.Address,
+                city = user.City,
+                country = user.Country,
+                postalCode = user.PostalCode,
+                dateOfBirth = user.DateOfBirth,
+                emergencyContactName = user.EmergencyContactName,
+                emergencyContactPhone = user.EmergencyContactPhone,
+                createdDate = user.CreatedDate,
+                lastLoginDate = user.LastLoginDate
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("api/[controller]")]
+    public async Task<IActionResult> CreateUserApi([FromBody] RegisterDto dto)
+    {
+        try
+        {
+            var user = await _authServices.RegisterAsync(
+                dto.FirstName,
+                dto.LastName,
+                dto.Email,
+                dto.Password,
+                dto.PhoneNumber
+            );
+
+            return Ok(new
+            {
+                message = "Kullanıcı başarıyla oluşturuldu.",
+                userId = user.UserId,
+                email = user.Email
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPut("api/[controller]/{id}")]
+    public async Task<IActionResult> UpdateUserApi(Guid id, [FromBody] UpdateProfileDto dto)
+    {
+        try
+        {
+            var user = await _authServices.UpdateUserProfileAsync(
+                id,
+                dto.FirstName,
+                dto.LastName,
+                dto.PhoneNumber ?? string.Empty,
+                dto.ProfilePictureUrl ?? string.Empty
+            );
+
+            return Ok(new
+            {
+                message = "Kullanıcı başarıyla güncellendi.",
+                userId = user.UserId
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+
+    private async Task LoadDepartmentsToViewBag()
+    {
+        try
+        {
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+        }
+        catch
+        {
+            ViewBag.Departments = new List<Entity.Departments>();
+        }
+    }
+
+    private async Task LoadManagersToViewBag()
+    {
+        try
+        {
+            var users = await _authServices.GetAllUsersAsync();
+            ViewBag.Managers = users.Select(u => new UserViewModel
+            {
+                UserId = u.UserId,
+                FirstName = u.FirstName,
+                LastName = u.LastName
+            }).ToList();
+        }
+        catch
+        {
+            ViewBag.Managers = new List<UserViewModel>();
+        }
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new UnauthorizedAccessException("Kullanıcı bilgisi bulunamadı.");
+        }
+        return userId;
+    }
+}
+

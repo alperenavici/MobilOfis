@@ -1,0 +1,110 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@using MobilOfis.Web.Models.ViewModels
+@{
+    var userRole = HttpContextAccessor.HttpContext?.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h4>MobilOfis</h4>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a asp-controller="Dashboard" asp-action="Index" 
+                   class="nav-link @(currentController == "Dashboard" ? "active" : "")">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a asp-controller="Leave" asp-action="MyLeaves" 
+                   class="nav-link @(currentController == "Leave" && currentAction == "MyLeaves" ? "active" : "")">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>İzinlerim</span>
+                </a>
+            </li>
+            
+            @if (userRole == "Manager" || userRole == "HR" || userRole == "Admin")
+            {
+                <li class="nav-item">
+                    <a asp-controller="Leave" asp-action="@(userRole == "Manager" ? "PendingManager" : "PendingHR")" 
+                       class="nav-link @(currentController == "Leave" && (currentAction == "PendingManager" || currentAction == "PendingHR") ? "active" : "")">
+                        <i class="bi bi-hourglass-split"></i>
+                        <span>Onay Bekleyenler</span>
+                    </a>
+                </li>
+            }
+            
+            <li class="nav-item">
+                <a asp-controller="Event" asp-action="Index" 
+                   class="nav-link @(currentController == "Event" ? "active" : "")">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Etkinlikler</span>
+                </a>
+            </li>
+
+            <li class="nav-item"></li>
+                <a asp-controller="Post" asp-action="Index" 
+                   class="nav-link @(currentController == "Post" ? "active" : "")">
+                    <i class="bi bi-lightning-charge"></i>
+                    <span>Akış</span>
+                </a>
+            
+            
+            <li class="nav-item">
+                <a asp-controller="Salary" asp-action="MySalary" 
+                   class="nav-link @(currentController == "Salary" ? "active" : "")">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Maaş Bilgilerim</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="Department" asp-action="MyDepartment" 
+                   class="nav-link @(currentController == "Department" && currentAction == "MyDepartment" ? "active" : "")">
+                    <i class="bi bi-building-check"></i>
+                    <span>Departmanım</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a asp-controller="Notification" asp-action="Index" 
+                   class="nav-link @(currentController == "Notification" ? "active" : "")">
+                    <i class="bi bi-bell"></i>
+                    <span>Bildirimler</span>
+                    <span class="badge rounded-pill bg-danger header-notification-badge ms-2" 
+                          style="display: none; position: static !important; transform: none !important;">
+                        0
+                    </span>
+                </a>
+            </li>
+            
+            @if (userRole == "HR" || userRole == "Admin")
+            {
+                <li class="nav-section-title">YÖNETİM</li>
+                
+                <li class="nav-item">
+                    <a asp-controller="User" asp-action="Index" 
+                       class="nav-link @(currentController == "User" ? "active" : "")">
+                        <i class="bi bi-people"></i>
+                        <span>Kullanıcılar</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a asp-controller="Department" asp-action="Index" 
+                       class="nav-link @(currentController == "Department" && currentAction != "MyDepartment" ? "active" : "")">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>Departmanlar</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+</aside>
+

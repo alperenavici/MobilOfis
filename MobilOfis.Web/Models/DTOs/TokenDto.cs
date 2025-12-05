@@ -5,6 +5,6 @@ namespace MobilOfis.Web.Models.DTOs;
 public class TokenDto
 {
     [Required(ErrorMessage = "Token zorunludur.")]
-    public string Token { get; set; }
+    public string Token { get; set; } = string.Empty;
 }
 

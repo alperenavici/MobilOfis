@@ -1,0 +1,230 @@
+/* Notifications Page Styles */
+
+.notification-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Header Section */
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.notification-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin: 0;
+}
+
+/* Filter Section */
+.notification-filters {
+    background: white;
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+.notification-filter-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted-text);
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.notification-filter-btn:hover {
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+.notification-filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+/* Notification List */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.notification-card.unread {
+    background-color: #F8FAFC;
+    border-left: 4px solid var(--primary-color);
+}
+
+.notification-card.unread::before {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.notification-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.notification-icon-box.info {
+    background-color: #EFF6FF;
+    color: #3B82F6;
+}
+
+.notification-icon-box.success {
+    background-color: #ECFDF5;
+    color: #10B981;
+}
+
+.notification-icon-box.warning {
+    background-color: #FFFBEB;
+    color: #F59E0B;
+}
+
+.notification-icon-box.error {
+    background-color: #FEF2F2;
+    color: #EF4444;
+}
+
+.notification-icon-box.leave {
+    background-color: #EEF2FF;
+    color: #6366F1;
+}
+
+.notification-icon-box.event {
+    background-color: #FDF2F8;
+    color: #EC4899;
+}
+
+.notification-icon-box.salary {
+    background-color: #F0FDF4;
+    color: #15803D;
+}
+
+.notification-content-wrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.25rem;
+}
+
+.notification-card-title {
+    font-weight: 600;
+    color: var(--dark-text);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.notification-time-badge {
+    font-size: 0.75rem;
+    color: var(--muted-text);
+    background: var(--light-bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.notification-card-message {
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.notification-actions-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mark-read-btn {
+    color: var(--primary-color);
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.mark-read-btn:hover {
+    background: #EFF6FF;
+}
+
+/* Empty State */
+.empty-notification-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    border: 1px dashed var(--border-color);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--muted-text);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.empty-subtext {
+    color: var(--muted-text);
+    font-size: 0.9rem;
+}

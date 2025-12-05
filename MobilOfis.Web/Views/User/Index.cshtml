@@ -1,0 +1,264 @@
+@model UserListViewModel
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="user-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 class="mb-0"><i class="bi bi-people me-2"></i>Kullanıcı Yönetimi</h2>
+        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary w-20 w-md-auto">
+                <i class="bi bi-person-plus me-2"></i>Yeni Kullanıcı
+            </a>
+        }
+    </div>
+    
+    <!-- Filtreler -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-12 col-md-3">
+                    <input type="text" name="search" class="form-control" placeholder="Ad, soyad veya email ara..." 
+                           value="@ViewData["CurrentFilter"]">
+                </div>
+                <div class="col-12 col-md-2">
+                    <select name="department" class="form-select">
+                        <option value="">Tüm Departmanlar</option>
+                        @if (Model.Departments != null)
+                        {
+                            @foreach (var dept in Model.Departments)
+                            {
+                                <option value="@dept.DepartmentId" selected="@(Model.Filters?.DepartmentId == dept.DepartmentId ? "selected" : null)">@dept.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <select name="role" class="form-select">
+                        <option value="">Tüm Roller</option>
+                        <option value="Employee" selected="@(Model.Filters?.Role == "Employee" ? "selected" : null)">Çalışan</option>
+                        <option value="Manager" selected="@(Model.Filters?.Role == "Manager" ? "selected" : null)">Yönetici</option>
+                        <option value="HR" selected="@(Model.Filters?.Role == "HR" ? "selected" : null)">İK</option>
+                        <option value="Admin" selected="@(Model.Filters?.Role == "Admin" ? "selected" : null)">Admin</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Tüm Durumlar</option>
+                        <option value="true" selected="@(Model.Filters?.IsActive == true ? "selected" : null)">Aktif</option>
+                        <option value="false" selected="@(Model.Filters?.IsActive == false ? "selected" : null)">Pasif</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 d-flex flex-column flex-md-row gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-search me-1"></i>Ara
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Kullanıcı Listesi -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Users != null && Model.Users.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th>Kullanıcı</th>
+                                <th class="d-none d-md-table-cell">Email</th>
+                                <th class="d-none d-md-table-cell">Departman</th>
+                                <th class="d-none d-md-table-cell">Pozisyon</th>
+                                <th class="d-none d-md-table-cell">Rol</th>
+                                <th class="d-none d-md-table-cell">Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input user-checkbox" value="@user.UserId">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.FullName)}&background=667eea&color=fff" : user.ProfilePictureUrl)" 
+                                                 alt="@user.FullName" class="avatar me-2 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div class="d-flex flex-column">
+                                                <div>
+                                                    <strong>@user.FullName</strong>
+                                                    @if (user.IsManager)
+                                                    {
+                                                        <i class="bi bi-patch-check-fill text-primary ms-1" title="Yönetici"></i>
+                                                    }
+                                                </div>
+                                                <small class="text-muted d-md-none">@user.JobTitle</small>
+                                                <small class="text-muted d-md-none">@user.DepartmentName</small>
+                                                <div class="d-md-none mt-1">
+                                                    <span class="badge bg-secondary">@user.RoleName</span>
+                                                    @if (user.IsActive)
+                                                    {
+                                                        <span class="badge badge-active">Aktif</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-inactive">Pasif</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">@user.Email</td>
+                                    <td class="d-none d-md-table-cell">@user.DepartmentName</td>
+                                    <td class="d-none d-md-table-cell">@user.JobTitle</td>
+                                    <td class="d-none d-md-table-cell"><span class="badge bg-secondary">@user.RoleName</span></td>
+                                    <td class="d-none d-md-table-cell">
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge badge-active">Aktif</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-inactive">Pasif</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm d-flex flex-column flex-md-row gap-1">
+                                            <a asp-action="Detail" asp-route-id="@user.UserId" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> <span class="d-md-none">Detay</span>
+                                            </a>
+                                            @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="bi bi-pencil"></i> <span class="d-md-none">Düzenle</span>
+                                                </a>
+                                                @if (user.IsActive)
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                            onclick="deactivateUser('@user.UserId')">
+                                                        <i class="bi bi-x-circle"></i> <span class="d-md-none">Pasif</span>
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-outline-success" 
+                                                            onclick="activateUser('@user.UserId')">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)">Önceki</a>
+                            </li>
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)">Sonraki</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="empty-state-title">Kullanıcı bulunamadı</div>
+                    <div class="empty-state-message">Arama kriterlerinize uygun kullanıcı bulunmuyor</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    <script>
+        // Select all checkbox
+        document.getElementById('selectAll')?.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+        
+        // Deactivate user
+        async function deactivateUser(userId) {
+            if (!confirm('Bu kullanıcıyı pasif yapmak istediğinizden emin misiniz?')) return;
+            
+            try {
+                const response = await fetch(`/User/Deactivate/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('Kullanıcı pasif yapıldı', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+        
+        // Activate user
+        async function activateUser(userId) {
+            if (!confirm('Bu kullanıcıyı aktif yapmak istediğinizden emin misiniz?')) return;
+            
+            try {
+                const response = await fetch(`/User/Activate/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('Kullanıcı aktif yapıldı', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('İşlem başarısız oldu', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Bir hata oluştu', 'error');
+            }
+        }
+    </script>
+}
+

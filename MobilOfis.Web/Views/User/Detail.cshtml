@@ -1,0 +1,252 @@
+@model UserViewModel
+@{
+    ViewData["Title"] = Model.FullName;
+}
+
+<div class="user-detail-container">
+    <!-- Başlık -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person me-2"></i>Kullanıcı Detayı</h2>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Geri
+            </a>
+            @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.UserId" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>Düzenle
+                </a>
+            }
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profil Kartı -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="@(string.IsNullOrEmpty(Model.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(Model.FullName)}&background=667eea&color=fff&size=128" : Model.ProfilePictureUrl)" 
+                         alt="@Model.FullName" class="avatar avatar-xl mb-3">
+                    <h4 class="mb-1">@Model.FullName</h4>
+                    <p class="text-muted mb-2">@Model.JobTitle</p>
+                    <span class="badge bg-primary mb-3">@Model.RoleName</span>
+                    <div class="d-grid gap-2">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge badge-active fs-6">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-inactive fs-6">Pasif</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hızlı İstatistikler -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">İstatistikler</h5>
+                </div>
+                <div class="card-body">
+                    <div class="stat-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kalan İzin</span>
+                            <strong class="text-primary">@($"{Model.RemainingLeaveDays} gün")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="stat-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Kullanılan İzin</span>
+                            <strong class="text-danger">@($"{Model.UsedLeaveDays} gün")</strong>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="stat-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Katıldığı Etkinlik</span>
+                            <strong class="text-info">@Model.EventsAttended</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#generalTab" type="button">
+                        <i class="bi bi-info-circle me-1"></i>Genel Bilgiler
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#workTab" type="button">
+                        <i class="bi bi-briefcase me-1"></i>İş Bilgileri
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#leaveTab" type="button">
+                        <i class="bi bi-calendar-check me-1"></i>İzin Geçmişi
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Genel Bilgiler -->
+                <div class="tab-pane fade show active" id="generalTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Ad Soyad</label>
+                                    <p class="fw-bold">@Model.FullName</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Email</label>
+                                    <p class="fw-bold">@Model.Email</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Telefon</label>
+                                    <p class="fw-bold">@(Model.PhoneNumber ?? "Belirtilmemiş")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Doğum Tarihi</label>
+                                    <p class="fw-bold">
+                                        @if (Model.BirthDate.HasValue)
+                                        {
+                                            @Model.BirthDate.Value.ToString("dd MMMM yyyy")
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Belirtilmemiş</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Adres</label>
+                                    <p>@(Model.Address ?? "Belirtilmemiş")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- İş Bilgileri -->
+                <div class="tab-pane fade" id="workTab">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Departman</label>
+                                    <p class="fw-bold">@Model.DepartmentName</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Pozisyon</label>
+                                    <p class="fw-bold">@Model.JobTitle</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Rol</label>
+                                    <p><span class="badge bg-primary">@Model.RoleName</span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Yönetici</label>
+                                    <p class="fw-bold">
+                                        @if (Model.IsManager)
+                                        {
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                            <span>Evet</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Hayır</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">İşe Başlama Tarihi</label>
+                                    <p class="fw-bold">@Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Çalışma Süresi</label>
+                                    <p class="fw-bold">
+                                        @{
+                                            var endDate = Model.IsActive ? DateTime.Now : (Model.UpdatedDate ?? DateTime.Now);
+                                            var startDate = Model.CreatedAt;
+                                            
+                                            var d1 = startDate.Date;
+                                            var d2 = endDate.Date;
+                                            
+                                            int years = d2.Year - d1.Year;
+                                            if (d1.AddYears(years) > d2) years--;
+                                            
+                                            var tempDate = d1.AddYears(years);
+                                            int months = 0;
+                                            while (tempDate.AddMonths(months + 1) <= d2) months++;
+                                            
+                                            tempDate = tempDate.AddMonths(months);
+                                            int days = (d2 - tempDate).Days;
+                                        }
+                                        @years yıl @months ay @days gün
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- İzin Geçmişi -->
+                <div class="tab-pane fade" id="leaveTab">
+                    <div class="card">
+                        <div class="card-body">
+                            @if (Model.RecentLeaves != null && Model.RecentLeaves.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>İzin Türü</th>
+                                                <th>Başlangıç</th>
+                                                <th>Bitiş</th>
+                                                <th>Gün</th>
+                                                <th>Durum</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var leave in Model.RecentLeaves)
+                                            {
+                                                <tr>
+                                                    <td>@leave.LeavesTypeDisplay</td>
+                                                    <td>@leave.StartDate.ToString("dd.MM.yyyy")</td>
+                                                    <td>@leave.EndDate.ToString("dd.MM.yyyy")</td>
+                                                    <td>@leave.DayCount</td>
+                                                    <td>
+                                                        <span class="badge badge-@leave.StatusBadgeColor">
+                                                            @leave.StatusDisplay
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">
+                                        <i class="bi bi-calendar-x"></i>
+                                    </div>
+                                    <div class="empty-state-title">İzin kaydı bulunmuyor</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -22,5 +22,31 @@ public class UserRepository : GenericRepository<User>, IUserRepository
         return await _dbContext.Users
             .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
     }
+
+    public async Task<IEnumerable<User>> GetUsersWithDetailsAsync()
+    {
+        return await _dbContext.Users
+            .Include(u => u.Department)
+            .Include(u => u.Manager)
+            .OrderBy(u => u.FirstName)
+            .ToListAsync();
+    }
+    public override async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Users
+            .Include(u => u.Department)
+            .Include(u => u.Manager)
+            .FirstOrDefaultAsync(u => u.UserId == id);
+    }
+
+    public async Task<IEnumerable<User>> GetSubordinatesAsync(Guid managerId)
+    {
+        return await _dbContext.Users
+            .Include(u => u.Department)
+            .Where(u => u.ManagerId == managerId)
+            .OrderBy(u => u.FirstName)
+            .ThenBy(u => u.LastName)
+            .ToListAsync();
+    }
 }
 

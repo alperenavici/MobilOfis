@@ -1,0 +1,165 @@
+@model List<DepartmentViewModel>
+@{
+    ViewData["Title"] = "Departmanlar";
+}
+
+<div class="department-management-container">
+    <!-- Sayfa Başlığı -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+        <h2 class="mb-0"><i class="bi bi-building me-2"></i>Departmanlar</h2>
+        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+        {
+            <button class="btn btn-primary w-20 w-md-auto" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
+                <i class="bi bi-plus-lg me-2"></i>Yeni Departman
+            </button>
+        }
+    </div>
+    
+    <!-- Arama -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-md-8">
+                    <input type="text" id="searchDepartment" class="form-control" placeholder="Departman ara...">
+                </div>
+                <div class="col-12 col-md-4">
+                    <select id="sortBy" class="form-select">
+                        <option value="name">İsme Göre</option>
+                        <option value="employees">Çalışan Sayısına Göre</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @if (Model != null && Model.Any())
+    {
+        <!-- Departman Listesi -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="departmentTable">
+                        <thead>
+                            <tr>
+                                <th>Departman Adı</th>
+                                <th class="d-none d-md-table-cell">Yönetici</th>
+                                <th>Çalışan Sayısı</th>
+                                <th class="d-none d-lg-table-cell">Açıklama</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var department in Model)
+                            {
+                                <tr class="department-row">
+                                    <td>
+                                        <strong>@department.Name</strong>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">
+                                        @if (!string.IsNullOrEmpty(department.ManagerName))
+                                        {
+                                            <span><i class="bi bi-person-badge me-1"></i>@department.ManagerName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary rounded-pill">
+                                            @department.EmployeeCount
+                                        </span>
+                                    </td>
+                                    <td class="d-none d-lg-table-cell">
+                                        @if (!string.IsNullOrEmpty(department.Description))
+                                        {
+                                            <small class="text-muted">
+                                                @(department.Description.Length > 50 ? department.Description.Substring(0, 50) + "..." : department.Description)
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-action="Detail" asp-route-id="@department.DepartmentId" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@department.DepartmentId" class="btn btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="empty-state-title">Henüz departman bulunmuyor</div>
+                    <div class="empty-state-message">Yeni bir departman oluşturmak için yukarıdaki butonu kullanın</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create Department Modal -->
+@await Html.PartialAsync("_CreateDepartmentModal")
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchDepartment')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const departmentRows = document.querySelectorAll('.department-row');
+            
+            departmentRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Sort functionality
+        document.getElementById('sortBy')?.addEventListener('change', function(e) {
+            const sortBy = e.target.value;
+            const tableBody = document.querySelector('#departmentTable tbody');
+            const rows = Array.from(tableBody.querySelectorAll('.department-row'));
+            
+            rows.sort((a, b) => {
+                if (sortBy === 'name') {
+                    const nameA = a.querySelector('td:first-child strong').textContent;
+                    const nameB = b.querySelector('td:first-child strong').textContent;
+                    return nameA.localeCompare(nameB, 'tr');
+                } else if (sortBy === 'employees') {
+                    const countA = parseInt(a.querySelector('.badge').textContent);
+                    const countB = parseInt(b.querySelector('.badge').textContent);
+                    return countB - countA;
+                }
+                return 0;
+            });
+            
+            rows.forEach(row => tableBody.appendChild(row));
+        });
+    </script>
+}
+

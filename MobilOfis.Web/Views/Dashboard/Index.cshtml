@@ -1,0 +1,211 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var userRole = ViewBag.UserRole as string ?? "Employee";
+}
+
+<div class="dashboard-container">
+    <!-- Hoşgeldin Kartı -->
+    <div class="card mb-4 welcome-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 16px; overflow: hidden;">
+        <div class="card-body p-4 p-md-3">
+            <div class="d-flex align-items-center justify-content-between flex-column flex-md-row">
+                <div class="flex-grow-1 w-100 w-md-auto mb-3 mb-md-0">
+                    <h2 class="h4 h5-md mb-2 text-white fw-bold">Hoş Geldiniz, @Model.CurrentUser.FirstName @Model.CurrentUser.LastName</h2>
+                    <div class="d-flex align-items-center gap-2 gap-md-3 flex-column flex-md-row flex-wrap">
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.JobTitle))
+                        {
+                            <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                                <div class="welcome-badge" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;">
+                                    <i class="bi bi-briefcase text-white" style="font-size: 1rem;"></i>
+                                    <span class="text-white fw-semibold" style="font-size: 0.95rem;">@Model.CurrentUser.JobTitle</span>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CurrentUser.DepartmentName))
+                        {
+                            <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                                <div class="welcome-badge" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); padding: 0.5rem 1rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; width: 100%; justify-content: center;">
+                                    <i class="bi bi-building text-white" style="font-size: 1rem;"></i>
+                                    <span class="text-white fw-semibold" style="font-size: 0.95rem;">@Model.CurrentUser.DepartmentName</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="ms-md-3 d-none d-md-block">
+                    <div class="welcome-icon" style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-person-check text-white" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- İstatistik Kartları -->
+    <div class="row mb-4">
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div>
+                    <div class="stat-number" id="pendingLeavesCount">@Model.PendingLeavesCount</div>
+                    <p class="stat-label mb-0">Bekleyen İzinler</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div>
+                    <div class="stat-number" id="approvedLeavesCount">@Model.ApprovedLeavesCount</div>
+                    <p class="stat-label mb-0">Onaylanan İzinler</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div>
+                    <div class="stat-number" id="upcomingEventsCount">@Model.UpcomingEventsCount</div>
+                    <p class="stat-label mb-0">Yaklaşan Etkinlikler</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-sm-6 col-md-3 mb-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div>
+                    <div class="stat-number" id="unreadNotificationsCount">@Model.UnreadNotificationsCount</div>
+                    <p class="stat-label mb-0">Okunmamış Bildirim</p>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-bell"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ana İçerik -->
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <!-- Son İzinler -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son İzin Taleplerim</h5>
+                    <a asp-controller="Leave" asp-action="MyLeaves" class="btn btn-sm btn-primary">Tümünü Gör</a>
+                </div>
+                <div class="card-body p-0 p-md-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>İzin Türü</th>
+                                    <th>Başlangıç</th>
+                                    <th>Bitiş</th>
+                                    <th>Gün</th>
+                                    <th>Durum</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentLeavesTableBody">
+                                @if (Model.RecentLeaves.Any())
+                                {
+                                    @foreach (var leave in Model.RecentLeaves)
+                                    {
+                                        <tr>
+                                            <td>@leave.LeavesTypeDisplay</td>
+                                            <td>@leave.StartDate.ToString("dd.MM.yyyy")</td>
+                                            <td>@leave.EndDate.ToString("dd.MM.yyyy")</td>
+                                            <td>@leave.DayCount</td>
+                                            <td><span class="badge bg-@leave.StatusBadgeColor">@leave.StatusDisplay</span></td>
+                                            <td>
+                                                <a asp-controller="Leave" asp-action="Detail" asp-route-id="@leave.LeavesId" class="btn btn-sm btn-outline-secondary">
+                                                    Detay
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr><td colspan="6" class="text-center text-muted">Henüz izin talebiniz bulunmamaktadır.</td></tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Yaklaşan Etkinlikler -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Yaklaşan Etkinlikler</h5>
+                    <a asp-controller="Event" asp-action="Index" class="btn btn-sm btn-primary">Tümünü Gör</a>
+                </div>
+                <div class="card-body" id="upcomingEventsContainer">
+                    @if (Model.UpcomingEvents.Any())
+                    {
+                        @foreach (var evt in Model.UpcomingEvents)
+                        {
+                            <div class="event-item mb-3 d-flex align-items-center gap-3" data-event-id="@evt.EventId">
+                                <div class="event-date">
+                                    <div class="day">@evt.StartTime.Day</div>
+                                    <div class="month">@evt.StartTime.ToString("MMM")</div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">@evt.Title</h6>
+                                    <p class="text-muted mb-0 small">@evt.StartTime.ToString("HH:mm") - @evt.Location</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Yaklaşan etkinlik bulunmamaktadır.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+            <!-- Son Bildirimler -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Son Bildirimler</h5>
+                    <a asp-controller="Notification" asp-action="Index" class="btn btn-sm btn-primary">Tümünü Gör</a>
+                </div>
+                <div class="card-body p-0" id="recentNotificationsContainer">
+                    @if (Model.RecentNotifications.Any())
+                    {
+                        @foreach (var notification in Model.RecentNotifications)
+                        {
+                            <div class="notification-item @(notification.IsRead ? "" : "unread")">
+                                <div class="notification-icon bg-@notification.TypeColor text-white">
+                                    <i class="bi bi-@notification.TypeIcon"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <p class="mb-1">@notification.Message</p>
+                                    <small class="text-muted">@notification.SendDate.ToString("dd.MM.yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="p-3">
+                            <p class="text-muted mb-0">Bildirim bulunmamaktadır.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -28,12 +28,23 @@ namespace MobilOfis.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DepartmentName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("DepartmentId");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Departments");
                 });
@@ -55,6 +66,9 @@ namespace MobilOfis.Data.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventType")
+                        .HasColumnType("text");
 
                     b.Property<string>("Location")
                         .HasColumnType("text");
@@ -84,8 +98,17 @@ namespace MobilOfis.Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime?>("HRApprovalDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("HRApprovalId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("LeavesType")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ManagerApprovalDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("ManagerApprovalId")
                         .HasColumnType("uuid");
@@ -166,6 +189,86 @@ namespace MobilOfis.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Participants");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.Post", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.PostComment", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostComments");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.PostLike", b =>
+                {
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("PostId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PostLikes");
                 });
 
             modelBuilder.Entity("MobilOfis.Entity.User", b =>
@@ -279,6 +382,16 @@ namespace MobilOfis.Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("MobilOfis.Entity.Departments", b =>
+                {
+                    b.HasOne("MobilOfis.Entity.User", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("MobilOfis.Entity.Events", b =>
                 {
                     b.HasOne("MobilOfis.Entity.User", "CreatedByUser")
@@ -345,6 +458,55 @@ namespace MobilOfis.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MobilOfis.Entity.Post", b =>
+                {
+                    b.HasOne("MobilOfis.Entity.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.PostComment", b =>
+                {
+                    b.HasOne("MobilOfis.Entity.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MobilOfis.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MobilOfis.Entity.PostLike", b =>
+                {
+                    b.HasOne("MobilOfis.Entity.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MobilOfis.Entity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MobilOfis.Entity.User", b =>
                 {
                     b.HasOne("MobilOfis.Entity.Departments", "Department")
@@ -377,6 +539,13 @@ namespace MobilOfis.Data.Migrations
                     b.Navigation("Notifications");
                 });
 
+            modelBuilder.Entity("MobilOfis.Entity.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+                });
+
             modelBuilder.Entity("MobilOfis.Entity.User", b =>
                 {
                     b.Navigation("ApprovedLeaves");
@@ -388,6 +557,8 @@ namespace MobilOfis.Data.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Participants");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("Subordinates");
                 });
