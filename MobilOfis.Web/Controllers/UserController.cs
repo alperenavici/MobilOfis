@@ -39,9 +39,9 @@ public class UserController : Controller
             if (!string.IsNullOrEmpty(search))
             {
                 search = search.Trim().ToLower();
-                users = users.Where(u => 
-                    (u.FirstName?.ToLower().Contains(search) ?? false) || 
-                    (u.LastName?.ToLower().Contains(search) ?? false) || 
+                users = users.Where(u =>
+                    (u.FirstName?.ToLower().Contains(search) ?? false) ||
+                    (u.LastName?.ToLower().Contains(search) ?? false) ||
                     (u.Email?.ToLower().Contains(search) ?? false));
             }
 
@@ -92,10 +92,10 @@ public class UserController : Controller
                     IsActive = status
                 }
             };
-            
+
             // View'da filtrelerin korunması için ViewData'ya ekle
             ViewData["CurrentFilter"] = search;
-            
+
             await LoadDepartmentsToViewBag();
 
             return View(viewModel);
@@ -174,7 +174,7 @@ public class UserController : Controller
 
             var approvedLeaves = leaves.Where(l => l.Status == Status.Approved);
             var usedLeaveDays = approvedLeaves.Sum(l => (l.EndDate - l.StartDate).Days + 1);
-            
+
             var leaveTypeCount = Enum.GetValues(typeof(LeavesType)).Length;
             var totalLeaveDays = leaveTypeCount * 14;
 
@@ -224,7 +224,7 @@ public class UserController : Controller
         try
         {
             var user = await _authServices.RegisterAsync(model.FirstName, model.LastName, model.Email, password, model.PhoneNumber ?? string.Empty);
-            
+
             user.JobTitle = model.JobTitle;
             user.DepartmentId = model.DepartmentId;
             user.ManagerId = model.ManagerId;
@@ -239,7 +239,7 @@ public class UserController : Controller
             user.DateOfBirth = model.DateOfBirth;
             user.EmergencyContactName = model.EmergencyContactName;
             user.EmergencyContactPhone = model.EmergencyContactPhone;
-            
+
             await _authServices.UpdateUserAsync(user);
 
             TempData["SuccessMessage"] = "Kullanıcı başarıyla oluşturuldu.";
@@ -345,7 +345,7 @@ public class UserController : Controller
             user.DateOfBirth = model.DateOfBirth;
             user.EmergencyContactName = model.EmergencyContactName;
             user.EmergencyContactPhone = model.EmergencyContactPhone;
-            
+
             await _authServices.UpdateUserAsync(user);
 
             // Eğer kullanıcı kendi bilgilerini güncellediyse, oturumu yenile (Cookie'deki claim'leri güncelle)
@@ -363,7 +363,7 @@ public class UserController : Controller
                 var claimsIdentity = new System.Security.Claims.ClaimsIdentity(claims, "Cookies");
                 var authProperties = new Microsoft.AspNetCore.Authentication.AuthenticationProperties
                 {
-                    IsPersistent = true, 
+                    IsPersistent = true,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
 
@@ -382,7 +382,7 @@ public class UserController : Controller
         }
     }
 
-    [HttpPost("Deactivate/{id}")]
+    [HttpPost]
     public async Task<IActionResult> Deactivate(Guid id)
     {
         try
@@ -396,7 +396,7 @@ public class UserController : Controller
         }
     }
 
-    [HttpPost("Activate/{id}")]
+    [HttpPost]
     public async Task<IActionResult> Activate(Guid id)
     {
         try

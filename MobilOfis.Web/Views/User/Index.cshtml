@@ -5,7 +5,8 @@
 
 <div class="user-management-container">
     <!-- Sayfa Başlığı -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
         <h2 class="mb-0"><i class="bi bi-people me-2"></i>Kullanıcı Yönetimi</h2>
         @if (User.IsInRole("HR") || User.IsInRole("Admin"))
         {
@@ -14,14 +15,14 @@
             </a>
         }
     </div>
-    
+
     <!-- Filtreler -->
     <div class="card mb-4">
         <div class="card-body">
             <form asp-action="Index" method="get" class="row g-3">
                 <div class="col-12 col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Ad, soyad veya email ara..." 
-                           value="@ViewData["CurrentFilter"]">
+                    <input type="text" name="search" class="form-control" placeholder="Ad, soyad veya email ara..."
+                        value="@ViewData["CurrentFilter"]">
                 </div>
                 <div class="col-12 col-md-2">
                     <select name="department" class="form-select">
@@ -30,7 +31,9 @@
                         {
                             @foreach (var dept in Model.Departments)
                             {
-                                <option value="@dept.DepartmentId" selected="@(Model.Filters?.DepartmentId == dept.DepartmentId ? "selected" : null)">@dept.Name</option>
+                                <option value="@dept.DepartmentId"
+                                    selected="@(Model.Filters?.DepartmentId == dept.DepartmentId ? "selected" : null)">
+                                    @dept.Name</option>
                             }
                         }
                     </select>
@@ -38,17 +41,22 @@
                 <div class="col-12 col-md-2">
                     <select name="role" class="form-select">
                         <option value="">Tüm Roller</option>
-                        <option value="Employee" selected="@(Model.Filters?.Role == "Employee" ? "selected" : null)">Çalışan</option>
-                        <option value="Manager" selected="@(Model.Filters?.Role == "Manager" ? "selected" : null)">Yönetici</option>
+                        <option value="Employee" selected="@(Model.Filters?.Role == "Employee" ? "selected" : null)">
+                            Çalışan</option>
+                        <option value="Manager" selected="@(Model.Filters?.Role == "Manager" ? "selected" : null)">
+                            Yönetici</option>
                         <option value="HR" selected="@(Model.Filters?.Role == "HR" ? "selected" : null)">İK</option>
-                        <option value="Admin" selected="@(Model.Filters?.Role == "Admin" ? "selected" : null)">Admin</option>
+                        <option value="Admin" selected="@(Model.Filters?.Role == "Admin" ? "selected" : null)">Admin
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
                     <select name="status" class="form-select">
                         <option value="">Tüm Durumlar</option>
-                        <option value="true" selected="@(Model.Filters?.IsActive == true ? "selected" : null)">Aktif</option>
-                        <option value="false" selected="@(Model.Filters?.IsActive == false ? "selected" : null)">Pasif</option>
+                        <option value="true" selected="@(Model.Filters?.IsActive == true ? "selected" : null)">Aktif
+                        </option>
+                        <option value="false" selected="@(Model.Filters?.IsActive == false ? "selected" : null)">Pasif
+                        </option>
                     </select>
                 </div>
                 <div class="col-12 col-md-3 d-flex flex-column flex-md-row gap-2">
@@ -62,7 +70,7 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Kullanıcı Listesi -->
     <div class="card">
         <div class="card-body">
@@ -93,8 +101,9 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.FullName)}&background=667eea&color=fff" : user.ProfilePictureUrl)" 
-                                                 alt="@user.FullName" class="avatar me-2 rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <img src="@(string.IsNullOrEmpty(user.ProfilePictureUrl) ? $"https://ui-avatars.com/api/?name={Uri.EscapeDataString(user.FullName)}&background=667eea&color=fff" : user.ProfilePictureUrl)"
+                                                alt="@user.FullName" class="avatar me-2 rounded-circle"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
                                             <div class="d-flex flex-column">
                                                 <div>
                                                     <strong>@user.FullName</strong>
@@ -122,7 +131,8 @@
                                     <td class="d-none d-md-table-cell">@user.Email</td>
                                     <td class="d-none d-md-table-cell">@user.DepartmentName</td>
                                     <td class="d-none d-md-table-cell">@user.JobTitle</td>
-                                    <td class="d-none d-md-table-cell"><span class="badge bg-secondary">@user.RoleName</span></td>
+                                    <td class="d-none d-md-table-cell"><span class="badge bg-secondary">@user.RoleName</span>
+                                    </td>
                                     <td class="d-none d-md-table-cell">
                                         @if (user.IsActive)
                                         {
@@ -135,25 +145,27 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm d-flex flex-column flex-md-row gap-1">
-                                            <a asp-action="Detail" asp-route-id="@user.UserId" class="btn btn-outline-primary btn-sm">
+                                            <a asp-action="Detail" asp-route-id="@user.UserId"
+                                                class="btn btn-outline-primary btn-sm">
                                                 <i class="bi bi-eye"></i> <span class="d-md-none">Detay</span>
                                             </a>
                                             @if (User.IsInRole("HR") || User.IsInRole("Admin"))
                                             {
-                                                <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-outline-secondary btn-sm">
+                                                <a asp-action="Edit" asp-route-id="@user.UserId"
+                                                    class="btn btn-outline-secondary btn-sm">
                                                     <i class="bi bi-pencil"></i> <span class="d-md-none">Düzenle</span>
                                                 </a>
                                                 @if (user.IsActive)
                                                 {
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                            onclick="deactivateUser('@user.UserId')">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                                        onclick="deactivateUser('@user.UserId')">
                                                         <i class="bi bi-x-circle"></i> <span class="d-md-none">Pasif</span>
                                                     </button>
                                                 }
                                                 else
                                                 {
-                                                    <button type="button" class="btn btn-outline-success" 
-                                                            onclick="activateUser('@user.UserId')">
+                                                    <button type="button" class="btn btn-outline-success"
+                                                        onclick="activateUser('@user.UserId')">
                                                         <i class="bi bi-check-circle"></i>
                                                     </button>
                                                 }
@@ -165,7 +177,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination -->
                 @if (Model.TotalPages > 1)
                 {
@@ -205,15 +217,15 @@
     @Html.AntiForgeryToken()
     <script>
         // Select all checkbox
-        document.getElementById('selectAll')?.addEventListener('change', function() {
+        document.getElementById('selectAll')?.addEventListener('change', function () {
             const checkboxes = document.querySelectorAll('.user-checkbox');
             checkboxes.forEach(cb => cb.checked = this.checked);
         });
-        
+
         // Deactivate user
         async function deactivateUser(userId) {
             if (!confirm('Bu kullanıcıyı pasif yapmak istediğinizden emin misiniz?')) return;
-            
+
             try {
                 const response = await fetch(`/User/Deactivate/${userId}`, {
                     method: 'POST',
@@ -222,10 +234,15 @@
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
                     }
                 });
-                
+
                 if (response.ok) {
-                    showToast('Kullanıcı pasif yapıldı', 'success');
-                    setTimeout(() => window.location.reload(), 1500);
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast(result.message, 'success');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast(result.message || 'İşlem başarısız oldu', 'error');
+                    }
                 } else {
                     showToast('İşlem başarısız oldu', 'error');
                 }
@@ -234,11 +251,11 @@
                 showToast('Bir hata oluştu', 'error');
             }
         }
-        
+
         // Activate user
         async function activateUser(userId) {
             if (!confirm('Bu kullanıcıyı aktif yapmak istediğinizden emin misiniz?')) return;
-            
+
             try {
                 const response = await fetch(`/User/Activate/${userId}`, {
                     method: 'POST',
@@ -247,10 +264,15 @@
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
                     }
                 });
-                
+
                 if (response.ok) {
-                    showToast('Kullanıcı aktif yapıldı', 'success');
-                    setTimeout(() => window.location.reload(), 1500);
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast(result.message, 'success');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        showToast(result.message || 'İşlem başarısız oldu', 'error');
+                    }
                 } else {
                     showToast('İşlem başarısız oldu', 'error');
                 }
@@ -261,4 +283,3 @@
         }
     </script>
 }
-
